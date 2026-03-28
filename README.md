@@ -1,40 +1,53 @@
 # Franja Pixelada — Tienda Virtual de Equipamiento Táctico
 
-![Django](https://img.shields.io/badge/Django-5.0-092E20?style=flat-square&logo=django)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker)
-![License](https://img.shields.io/badge/Licencia-Propietaria-red?style=flat-square)
+[![Django](https://img.shields.io/badge/Django-5.0-092E20?style=flat-square&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![DRF](https://img.shields.io/badge/DRF-3.15-red?style=flat-square&logo=django&logoColor=white)](https://www.django-rest-framework.org/)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![Licencia](https://img.shields.io/badge/Licencia-Propietaria-red?style=flat-square)](./LICENSE)
 
 ---
 
 ## Descripción
 
-Franja Pixelada es una plataforma de comercio electrónico especializada en equipamiento militar y táctico para el mercado colombiano. Permite a clientes explorar el catálogo, realizar compras con personalización de prendas (bordado y grupo sanguíneo) y acumular puntos de fidelidad. Resuelve la necesidad de una tienda lista para producción con soporte nativo a dropshipping, pagos locales (Nequi) e internacionales (Stripe), y gestión de inventario en tiempo real.
+**Franja Pixelada** es una plataforma de comercio electrónico especializada en equipamiento militar y táctico para el mercado colombiano. Permite explorar el catálogo, realizar compras con personalización de prendas (bordado y grupo sanguíneo) y acumular puntos de fidelidad.
+
+Diseñada para producción con soporte nativo a dropshipping, pagos locales (Nequi) e internacionales (Stripe), gestión de inventario en tiempo real y panel de administración seguro con 2FA.
 
 ---
 
 ## Características
 
-- Catálogo de productos con variantes (talla, color), imágenes múltiples y reseñas de clientes
+- Catálogo con variantes (talla, color), imágenes múltiples y reseñas verificadas
 - Personalización de prendas: texto bordado y grupo sanguíneo por ítem
-- Carrito persistente por usuario o sesión anónima, con cálculo de IVA (19%), envío y cupones
-- Checkout Nequi (transferencia manual con comprobante de pago) y Stripe (tarjeta)
-- Sistema de puntos de fidelidad: acumulación sobre subtotal, redención como descuento en COP
-- Integración dropshipping: sincronización de catálogo y despacho automático de órdenes a proveedores
-- Panel de administración con métricas KPI en tiempo real, 2FA TOTP y auditoría de sesiones
+- Carrito persistente con IVA (19%), costo de envío y cupones de descuento
+- Checkout Nequi (comprobante manual) y Stripe (tarjeta de crédito/débito)
+- Sistema de puntos de fidelidad: acumulación sobre subtotal, redención en COP
+- Integración dropshipping: sincronización de catálogo y despacho automático a proveedores
+- Panel admin con KPIs en tiempo real, 2FA TOTP y auditoría de sesiones
 - API REST completa con JWT, rate limiting y paginación
-- Frontend SPA sin paso de build — edición directa del archivo HTML
-- Infraestructura Docker con Nginx, Certbot (TLS automático) y Celery para tareas asíncronas
+- Frontend SPA sin paso de build — archivo HTML editable directamente
+- Infraestructura Docker con Nginx, Certbot (TLS automático) y Celery
 
 ---
 
 ## Demo / Capturas
 
-> Las capturas de pantalla se agregan en `/docs/`. Para contribuir con imágenes del storefront o del panel admin, colócalas en esa carpeta y actualiza esta sección.
+> Las capturas se ubican en `docs/`. Para agregar imágenes del storefront o panel admin, colócalas en esa carpeta.
+
+| Vista | Descripción |
+|-------|-------------|
+| ![Storefront](docs/storefront.png) | Catálogo principal |
+| ![Admin Dashboard](docs/admin-dashboard.png) | Panel de administración con KPIs |
+| ![Checkout](docs/checkout.png) | Flujo de pago |
 
 ```
 docs/
-└── (agrega aquí: storefront.png, admin-dashboard.png, checkout.png)
+└── storefront.png
+└── admin-dashboard.png
+└── checkout.png
 ```
 
 ---
@@ -81,7 +94,7 @@ docker compose exec backend python manage.py setup_roles
 docker compose exec backend python manage.py create_mock_dropship_provider
 ```
 
-**URLs de acceso:**
+### URLs de acceso
 
 | Servicio | URL |
 |----------|-----|
@@ -96,8 +109,8 @@ docker compose exec backend python manage.py create_mock_dropship_provider
 1. **Explorar el catálogo** — Navega por categorías, filtra por talla o tipo de personalización y agrega productos al carrito.
 2. **Personalizar prenda** — Al agregar un producto compatible, escribe el texto de bordado y/o selecciona el grupo sanguíneo.
 3. **Checkout** — Completa los datos de envío y elige entre Nequi (sube comprobante) o pago con tarjeta vía Stripe.
-4. **Seguimiento** — Recibirás actualizaciones del estado de tu orden. Si pagaste con Nequi, el admin verifica el comprobante antes de despachar.
-5. **Puntos de fidelidad** — Cada compra acumula puntos sobre el subtotal. Puedes usar hasta el 20% del total de tu próxima orden como descuento.
+4. **Seguimiento** — Recibirás actualizaciones del estado de tu orden. Con Nequi, el admin verifica el comprobante antes de despachar.
+5. **Puntos de fidelidad** — Cada compra acumula puntos sobre el subtotal. Usa hasta el 20% del total de tu próxima orden como descuento.
 
 ---
 
@@ -117,7 +130,7 @@ docker compose exec backend python manage.py create_mock_dropship_provider
 ├── nginx/                 # Configuración Nginx con SSL
 ├── docs/                  # Capturas, diccionario de campos y guía de despliegue
 ├── scripts/               # Utilidades de desarrollo
-├── docker-compose.yml     # Stack base
+├── docker-compose.yml     # Stack base (desarrollo)
 ├── docker-compose.prod.yml# Overrides de producción (sin bind mount)
 └── .env.example           # Plantilla de variables de entorno
 ```
@@ -152,30 +165,49 @@ git push origin feature/nombre-de-la-funcionalidad
 
 ### Reglas para Pull Requests
 
-- Todo PR debe apuntar a `main` y tener al menos una revisión aprobada antes de hacer merge.
+- Todo PR debe apuntar a `main` y tener al menos una revisión aprobada antes del merge.
 - Los modelos nuevos deben incluir migración y registro en `admin_site` (no en `admin.site`).
 - Los campos nuevos en modelos, serializers y respuestas API deben usar claves en inglés (ver `docs/dictionary-es-en.md`).
 - No se hace merge si los tests fallan (`python manage.py test`).
 
 ---
 
-## Soporte / Ayuda
+## Despliegue
 
-- **Issues:** Abre un ticket en el repositorio de GitHub con una descripción del problema, pasos para reproducirlo y versión del entorno.
-- Para despliegue en producción, consulta [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md).
+### Producción con Docker Compose
+
+```bash
+# Construir imágenes y levantar en modo producción
+docker compose -f docker-compose.yml -f docker-compose.prod.yml build --no-cache backend
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+El override `docker-compose.prod.yml` elimina el bind mount del código fuente — el contenedor usa solo la imagen construida.
+
+### Variables de entorno clave para producción
+
+| Variable | Descripción |
+|----------|-------------|
+| `DEBUG` | Debe ser `False` |
+| `DOMAIN_NAME` | Dominio del servidor |
+| `ADMIN_URL` | Ruta del admin (evitar `admin/`) |
+| `ENCRYPTION_KEY` | Clave Fernet para credenciales de proveedores |
+| `STRIPE_SECRET_KEY` | Clave secreta de Stripe |
+
+> Para la guía completa de despliegue, consulta [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md).
 
 ---
 
 ## Roadmap
 
 - [ ] App móvil (Android / iOS) consumiendo la API existente
-- [ ] Integración con pasarela de pago local PSE
+- [ ] Integración con pasarela de pago PSE
 - [ ] Panel de seguimiento de envíos para el cliente final
 - [ ] Notificaciones push de estado de orden
 
 ---
 
-## Autores / Mantenedores
+## Autores
 
 | Nombre | Rol |
 |--------|-----|
