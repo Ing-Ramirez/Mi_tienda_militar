@@ -1,0 +1,266 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Franja Pixelada — Admin: Productos
+   Layout plano vertical · 3 botones · notificaciones centrales
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. ANULAR TABS DE JAZZMIN ───────────────────────────────────────────── */
+#content-main .card-header:has(.nav-tabs),
+#content-main .card-header:has(.nav-link),
+#content-main ul.nav-tabs,
+#content-main .nav.nav-tabs { display: none !important; }
+
+#content-main .tab-content   { display: block !important; }
+#content-main .tab-pane {
+    display:    block !important;
+    opacity:    1     !important;
+    visibility: visible !important;
+}
+#content-main .card.card-primary.card-outline.card-tabs {
+    box-shadow: none !important;
+    border:     none !important;
+}
+#content-main .card.card-primary.card-outline.card-tabs > .card-body {
+    padding: 0 !important;
+}
+/* Ocultar submit row nativo */
+.submit-row { display: none !important; }
+
+/* ── 2. THUMBNAILS EN LISTA ──────────────────────────────────────────────── */
+#result_list td img {
+    width: 50px !important; height: 50px !important;
+    object-fit: cover !important; border-radius: 4px; display: block;
+}
+.inline-related td img, .field-thumbnail img {
+    width: 64px !important; height: 64px !important;
+    object-fit: cover !important; border-radius: 4px; display: block;
+}
+
+/* ── 3. BARRA DE ACCIONES RÁPIDAS (lista de productos) ───────────────────── */
+#fp-action-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 10px 0 14px; border-bottom: 1px solid #dee2e6; margin-bottom: 12px;
+}
+#fp-action-bar .fp-action-label {
+    font-size: 12px; font-weight: 600; color: #6c757d;
+    text-transform: uppercase; letter-spacing: .5px; margin-right: 4px;
+}
+.fp-action-btn {
+    padding: 6px 14px; border: none; border-radius: 4px;
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    transition: opacity .2s, transform .1s; white-space: nowrap;
+}
+.fp-action-btn:hover:not(:disabled) { opacity: .85; transform: translateY(-1px); }
+.fp-action-btn:disabled              { opacity: .35; cursor: not-allowed; }
+.fp-btn-activate   { background: #4a7c3f; color: #fff; }
+.fp-btn-deactivate { background: #6c757d; color: #fff; }
+.fp-btn-export     { background: #2472a4; color: #fff; }
+.fp-btn-default    { background: #495057; color: #fff; }
+#fp-selection-count {
+    font-size: 12px; color: #6c757d; margin-left: auto; font-style: italic;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. LAYOUT PLANO VERTICAL
+   ═══════════════════════════════════════════════════════════════════════════ */
+#fp-flat-layout {
+    margin-bottom: 1.5rem;
+}
+
+/* Separador visual entre secciones */
+.fp-section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 1.6rem 0 .6rem;
+    font-size: .82rem;
+    font-weight: 700;
+    color: #4f6124;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+}
+.fp-section-label::before,
+.fp-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #dee2e6;
+}
+.fp-section-label:first-child { margin-top: .4rem; }
+
+/* Contenido de cada sección */
+.fp-section-content {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: .5rem 0;
+    margin-bottom: .25rem;
+}
+.fp-section-content fieldset > h2 { display: none !important; }
+.fp-section-content fieldset {
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5. MÓDULO DE TALLAS + STOCK
+   ═══════════════════════════════════════════════════════════════════════════ */
+#fp-tallas-ui {
+    background: #f8f9fa; border: 1px solid #dee2e6;
+    border-radius: 6px; padding: 1.25rem 1.5rem 1rem; margin: .5rem 0 1.25rem;
+}
+.fp-tallas-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: .9rem;
+}
+.fp-tallas-title  { font-size: .95rem; font-weight: 700; color: #343a40; }
+.fp-tallas-badge  {
+    background: #4f6124; color: #fff; font-size: .75rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px; min-width: 56px; text-align: center;
+}
+.fp-apply-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: .5rem .8rem; background: #fff; border: 1px solid #e9ecef;
+    border-radius: 4px; margin-bottom: .9rem;
+}
+.fp-apply-label { font-size: .78rem; color: #6c757d; font-weight: 500; }
+.fp-apply-input {
+    width: 68px; padding: 3px 7px; border: 1px solid #ced4da;
+    border-radius: 3px; font-size: .82rem; text-align: center;
+}
+.fp-apply-btn {
+    padding: 4px 12px; border: none; border-radius: 3px;
+    font-size: .78rem; font-weight: 500; cursor: pointer;
+    background: #4f6124; color: #fff; transition: opacity .2s;
+}
+.fp-apply-btn:hover     { opacity: .85; }
+.fp-apply-btn-clear     { background: #dc3545; }
+.fp-tallas-section      { margin-bottom: .9rem; }
+.fp-tallas-section-label {
+    font-size: .72rem; font-weight: 700; color: #6c757d;
+    text-transform: uppercase; letter-spacing: .5px;
+    margin-bottom: .45rem; padding-bottom: 3px; border-bottom: 1px solid #e9ecef;
+}
+.fp-tallas-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: .4rem;
+}
+.fp-talla-item {
+    display: flex; align-items: center; gap: 7px; padding: 5px 9px;
+    border: 1px solid #dee2e6; border-radius: 4px; background: #fff;
+    transition: border-color .18s, background .18s; cursor: pointer;
+}
+.fp-talla-item.checked { border-color: #4f6124; background: #f0f5dd; }
+.fp-talla-item:hover   { border-color: #4f6124; }
+.fp-talla-row { display: flex; align-items: center; gap: 6px; cursor: pointer; flex: 1 0 auto; }
+.fp-talla-chk { width: 14px; height: 14px; cursor: pointer; accent-color: #4f6124; flex-shrink: 0; }
+.fp-talla-name { font-size: .82rem; font-weight: 700; color: #343a40; min-width: 32px; }
+.fp-talla-qty {
+    width: 58px; padding: 3px 5px; border: 1px solid #ced4da;
+    border-radius: 3px; font-size: .8rem; text-align: center;
+    margin-left: auto; transition: border-color .18s;
+}
+.fp-talla-qty:focus    { outline: none; border-color: #4f6124; }
+.fp-talla-qty:disabled { background: #e9ecef; color: #adb5bd; border-color: #e9ecef; }
+.fp-tallas-total {
+    margin-top: .6rem; padding: .4rem .8rem; background: #e9ecef;
+    border-radius: 4px; font-size: .82rem; color: #495057;
+    font-weight: 500; display: inline-block; transition: background .2s, color .2s;
+}
+.fp-tallas-total.has-stock { background: #d1e7dd; color: #146c43; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6. BARRA DE BOTONES FINALES (3 botones)
+   ═══════════════════════════════════════════════════════════════════════════ */
+#fp-submit-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1.4rem 1.5rem;
+    margin-top: 1.5rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    border-top: 3px solid #4f6124;
+}
+.fp-save-btn {
+    padding: 11px 32px;
+    border: none;
+    border-radius: 5px;
+    font-size: .92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .2s, transform .12s;
+    white-space: nowrap;
+    letter-spacing: .15px;
+}
+.fp-save-btn:hover  { opacity: .88; transform: translateY(-1px); }
+.fp-save-btn:active { transform: translateY(0); }
+.fp-btn-save   { background: #4a7c3f; color: #fff; }
+.fp-btn-new    { background: #2472a4; color: #fff; }
+.fp-btn-delete { background: #c9262c; color: #fff; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   7. NOTIFICACIÓN CENTRAL (overlay)
+   ═══════════════════════════════════════════════════════════════════════════ */
+#fp-notif-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    animation: fp-fade-in .18s ease;
+}
+@keyframes fp-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.fp-notif-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 2.2rem 2.8rem;
+    text-align: center;
+    min-width: 260px;
+    max-width: 380px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.22);
+    animation: fp-slide-up .22s ease;
+}
+@keyframes fp-slide-up {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+.fp-notif-icon {
+    font-size: 2.8rem;
+    line-height: 1;
+    margin-bottom: .6rem;
+    display: block;
+}
+.fp-notif-save  .fp-notif-icon { color: #4a7c3f; }
+.fp-notif-delete .fp-notif-icon { color: #c9262c; }
+.fp-notif-msg {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #343a40;
+    line-height: 1.4;
+}
+.fp-notif-actions {
+    display: flex;
+    gap: .75rem;
+    justify-content: center;
+    margin-top: 1.2rem;
+}
+.fp-notif-btn {
+    padding: 8px 22px;
+    border: none;
+    border-radius: 5px;
+    font-size: .88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .18s;
+}
+.fp-notif-btn:hover     { opacity: .85; }
+.fp-notif-cancel        { background: #e9ecef; color: #495057; }
+.fp-notif-confirm       { background: #c9262c; color: #fff; }

@@ -1,0 +1,94 @@
+# ══════════════════════════════════════════════════
+#  TactiStore / Franja Pixelada — .gitignore
+# ══════════════════════════════════════════════════
+
+# ── Entorno y secretos ──────────────────────────
+.env
+.env.dev
+.env.prod
+.env.local
+.env.production
+*.secret
+*.key
+*.pem
+*.p12
+*.pfx
+
+# ── Python ──────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Django ──────────────────────────────────────
+backend/staticfiles/
+backend/media/
+backend/logs/*.log
+logs/*.log
+
+# ── Test y cobertura ────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# ── IDEs ────────────────────────────────────────
+.vscode/settings.json
+.vscode/*.log
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Sistema operativo ───────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Docker (volúmenes locales) ──────────────────
+*.override.yml
+
+# ── Documentos binarios en /documentacion ────────
+documentacion/
+# Excepción: mantener la carpeta si existe (agregar .gitkeep manualmente si se necesita)
+# Nota: los .md de docs/ sí se versionan (docs/ no está en esta regla)
+
+# ── Backups y volcados SQL ───────────────────────
+backup*.sql
+dump*.sql
+*.dump
+backups/*.sql
+backups/*.dump
+
+# ── Logs (todos) ────────────────────────────────
+*.log
+logs/
+!logs/.gitkeep
+!backend/logs/.gitkeep
+
+# ── Secretos de Windows ─────────────────────────
+scripts/.port_guard.secret
+*.secret
+
+# ── Claude (configuración local del IDE) ────────
+.claude/
+
+# ── Archivos temporales / outputs de IA ─────────
+mnt/
+files/
+
+# ── Imágenes de referencia privadas ─────────────
+imagenes/whatsapp_*
+
+# ── Archivos sueltos en raíz (no pertenecen aquí) ─
+/settings.py
+/views.py
+
+# ── Datos de usuarios (media) ───────────────────
+backend/media/*
+!backend/media/.gitkeep

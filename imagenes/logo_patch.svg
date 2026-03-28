@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Franja Pixelada — Tienda Militar">
+
+  <!-- ═══ CAPA 1: Reborde exterior (hilo dorado simulado) ═══ -->
+  <circle cx="60" cy="60" r="59.5" fill="#9a6e08"/>
+  <circle cx="60" cy="60" r="58"   fill="none" stroke="#f0c840" stroke-width="2.5" stroke-dasharray="3,2.2"/>
+  <circle cx="60" cy="60" r="56"   fill="none" stroke="#c9a227" stroke-width="1"   stroke-dasharray="1.5,3.5"/>
+
+  <!-- ═══ CAPA 2: Aro de borde oliva (base del parche) ═══ -->
+  <circle cx="60" cy="60" r="55"   fill="#3a5218"/>
+  <circle cx="60" cy="60" r="53"   fill="#2a3e12"/>
+
+  <!-- ═══ CAPA 3: Fondo interior oscuro ═══ -->
+  <circle cx="60" cy="60" r="51"   fill="#0d1a08"/>
+
+  <!-- ═══ CAPA 4: Flor de 7 hexágonos — patrón camo pixelado ═══ -->
+  <!-- Tamaño s=9 (vértice a centro). Flor centrada en (60,60) -->
+  <!-- Espaciado entre centros = sqrt(3)*9 = 15.59 -->
+
+  <!-- Hexágono CENTRAL — verde medio -->
+  <polygon points="60,51 67.79,55.5 67.79,64.5 60,69 52.21,64.5 52.21,55.5"
+           fill="#3d6b2a"/>
+
+  <!-- Hexágono DERECHO (0°) — negro/oscuro -->
+  <polygon points="75.59,51 83.38,55.5 83.38,64.5 75.59,69 67.79,64.5 67.79,55.5"
+           fill="#0e1a0a"/>
+
+  <!-- Hexágono INFERIOR-DERECHO (60°) — verde claro -->
+  <polygon points="67.79,64.5 75.59,69 75.59,78 67.79,82.5 60,78 60,69"
+           fill="#5a9040"/>
+
+  <!-- Hexágono INFERIOR-IZQUIERDO (120°) — marrón tierra -->
+  <polygon points="52.21,64.5 60,69 60,78 52.21,82.5 44.41,78 44.41,69"
+           fill="#7a3e18"/>
+
+  <!-- Hexágono IZQUIERDO (180°) — verde oscuro -->
+  <polygon points="44.41,51 52.21,55.5 52.21,64.5 44.41,69 36.62,64.5 36.62,55.5"
+           fill="#1e3d14"/>
+
+  <!-- Hexágono SUPERIOR-IZQUIERDO (240°) — marrón oscuro -->
+  <polygon points="52.21,37.5 60,42 60,51 52.21,55.5 44.41,51 44.41,42"
+           fill="#5c3010"/>
+
+  <!-- Hexágono SUPERIOR-DERECHO (300°) — verde selva -->
+  <polygon points="67.79,37.5 75.59,42 75.59,51 67.79,55.5 60,51 60,42"
+           fill="#2a5a1e"/>
+
+  <!-- Contornos sutiles entre hexágonos (separación de bordado) -->
+  <polygon points="60,51 67.79,55.5 67.79,64.5 60,69 52.21,64.5 52.21,55.5"
+           fill="none" stroke="#0d1a08" stroke-width="0.6"/>
+  <polygon points="75.59,51 83.38,55.5 83.38,64.5 75.59,69 67.79,64.5 67.79,55.5"
+           fill="none" stroke="#0d1a08" stroke-width="0.6"/>
+  <polygon points="67.79,64.5 75.59,69 75.59,78 67.79,82.5 60,78 60,69"
+           fill="none" stroke="#0d1a08" stroke-width="0.6"/>
+  <polygon points="52.21,64.5 60,69 60,78 52.21,82.5 44.41,78 44.41,69"
+           fill="none" stroke="#0d1a08" stroke-width="0.6"/>
+  <polygon points="44.41,51 52.21,55.5 52.21,64.5 44.41,69 36.62,64.5 36.62,55.5"
+           fill="none" stroke="#0d1a08" stroke-width="0.6"/>
+  <polygon points="52.21,37.5 60,42 60,51 52.21,55.5 44.41,51 44.41,42"
+           fill="none" stroke="#0d1a08" stroke-width="0.6"/>
+  <polygon points="67.79,37.5 75.59,42 75.59,51 67.79,55.5 60,51 60,42"
+           fill="none" stroke="#0d1a08" stroke-width="0.6"/>
+
+  <!-- ═══ CAPA 5: Texto "FP" sobre hexágono central ═══ -->
+  <text x="60" y="64.5"
+        font-family="'Share Tech Mono',monospace,Arial"
+        font-size="13" font-weight="bold" letter-spacing="-0.5"
+        fill="#c9a227" text-anchor="middle" dominant-baseline="middle">FP</text>
+
+  <!-- ═══ CAPA 6: Aro separador interior (dorado tenue) ═══ -->
+  <circle cx="60" cy="60" r="39" fill="none" stroke="#c9a227" stroke-width="1.2" opacity="0.6"/>
+  <circle cx="60" cy="60" r="37.5" fill="none" stroke="#c9a22720" stroke-width="0.5"/>
+
+  <!-- ═══ CAPA 7: Texto superior en arco — FRANJA PIXELADA ═══ -->
+  <!-- Arco superior: r=47, de izquierda a derecha por la parte de arriba -->
+  <path id="tp" d="M 13,60 A 47,47 0 0,1 107,60" fill="none"/>
+  <text font-family="'Barlow',Arial,sans-serif"
+        font-size="9" font-weight="800" letter-spacing="2.8"
+        fill="#e8d5a0" text-anchor="middle">
+    <textPath href="#tp" startOffset="50%">FRANJA PIXELADA</textPath>
+  </text>
+
+  <!-- ═══ CAPA 8: Texto inferior en arco — TIENDA MILITAR ═══ -->
+  <!-- Arco inferior: de (19.3,83.5) a (100.7,83.5), clockwise por la parte de abajo -->
+  <path id="bp" d="M 19.3,83.5 A 47,47 0 0,1 100.7,83.5" fill="none"/>
+  <text font-family="'Share Tech Mono',monospace,Arial"
+        font-size="7.5" font-weight="700" letter-spacing="1.6"
+        fill="#c9a227" text-anchor="middle">
+    <textPath href="#bp" startOffset="50%">&#x2B21; TIENDA MILITAR &#x2B21;</textPath>
+  </text>
+
+  <!-- ═══ CAPA 9: Puntos decorativos en el aro exterior ═══ -->
+  <!-- 8 puntos dorados distribuidos en el aro oliva -->
+  <g fill="#c9a227" opacity="0.55">
+    <circle cx="60"    cy="5.5"   r="1.3"/>
+    <circle cx="60"    cy="114.5" r="1.3"/>
+    <circle cx="5.5"   cy="60"    r="1.3"/>
+    <circle cx="114.5" cy="60"    r="1.3"/>
+    <circle cx="19.4"  cy="19.4"  r="1.1"/>
+    <circle cx="100.6" cy="19.4"  r="1.1"/>
+    <circle cx="19.4"  cy="100.6" r="1.1"/>
+    <circle cx="100.6" cy="100.6" r="1.1"/>
+  </g>
+
+</svg>

@@ -1,0 +1,54 @@
+# ──────────────────────────────────────────────────────────────────────────────
+#  Franja Pixelada — Docker Compose PRODUCCIÓN
+#  Uso: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+#  Tras cambiar código del backend: reconstruir la imagen (no hay bind mount del host):
+#    docker compose -f docker-compose.yml -f docker-compose.prod.yml build --no-cache backend
+#    docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+#  Diferencias vs desarrollo:
+#    - Usa .env.prod (credenciales reales)
+#    - Backend y Celery: sin ./backend:/app — el código sale solo de la imagen
+#    - Puerto 5432 de PostgreSQL NO expuesto al host
+#    - Nginx usa nginx.prod.conf con HTTPS activo
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  db:
+    # Puerto 5432 eliminado — solo accesible internamente por db_net
+    ports: !reset []
+
+  backend:
+    env_file:
+      - .env.prod
+    restart: always
+    volumes: !reset
+      - media_files:/app/media
+      - static_files:/app/staticfiles
+      - ./logs:/app/logs
+
+  celery_worker:
+    env_file:
+      - .env.prod
+    restart: always
+    volumes: !reset
+      - media_files:/app/media
+      - ./logs:/app/logs
+
+  celery_beat:
+    env_file:
+      - .env.prod
+    restart: always
+    volumes: !reset
+      - ./logs:/app/logs
+
+  nginx:
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/proxy_params.conf:/etc/nginx/conf.d/proxy_params.conf:ro
+      - static_files:/app/staticfiles:ro
+      - media_files:/app/media:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_certs:/etc/letsencrypt:ro
+    restart: always

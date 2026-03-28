@@ -1,0 +1,103 @@
+{% extends "admin/base_site.html" %}
+{% load i18n log %}
+
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<div class="fp-dash">
+
+  {% if kpi_ordenes_hoy is not None %}
+  <div class="fp-sticky" id="fp-sticky">
+
+    <div class="fp-kpi-row">
+
+      <div class="fp-kc fp-blue">
+        <div class="fp-kc-top">
+          <span class="fp-kc-ico">📦</span>
+          <span class="fp-kc-num">{{ kpi_ordenes_hoy }}</span>
+        </div>
+        <div class="fp-kc-lbl">Órdenes hoy</div>
+        <a href="{% url 'admin:orders_order_changelist' %}" class="fp-kc-lnk">Ver órdenes →</a>
+        <div class="fp-kc-sub">{{ kpi_ordenes_mes }} este mes</div>
+      </div>
+
+      <div class="fp-kc fp-green">
+        <div class="fp-kc-top">
+          <span class="fp-kc-ico">💰</span>
+          <span class="fp-kc-num" style="font-size:1.3rem">{{ kpi_ingresos_mes_str }}</span>
+        </div>
+        <div class="fp-kc-lbl">Ingresos del mes</div>
+        <div class="fp-kc-sub">COP · solo pagadas</div>
+      </div>
+
+      <div class="fp-kc fp-teal">
+        <div class="fp-kc-top">
+          <span class="fp-kc-ico">🛍️</span>
+          <span class="fp-kc-num">{{ kpi_productos_activos }}</span>
+        </div>
+        <div class="fp-kc-lbl">Productos activos</div>
+        <a href="{% url 'admin:products_product_changelist' %}" class="fp-kc-lnk">Ver catálogo →</a>
+        <div class="fp-kc-sub">en tu tienda</div>
+      </div>
+
+      <div class="fp-kc {% if kpi_sin_stock > 0 %}fp-red{% else %}fp-orange{% endif %}">
+        <div class="fp-kc-top">
+          <span class="fp-kc-ico">{% if kpi_sin_stock > 0 %}🔴{% else %}⚠️{% endif %}</span>
+          <span class="fp-kc-num">{{ kpi_sin_stock }}</span>
+        </div>
+        <div class="fp-kc-lbl">Sin stock</div>
+        <a href="{% url 'admin:products_product_changelist' %}?status=active" class="fp-kc-lnk">Revisar →</a>
+        <div class="fp-kc-sub">{{ kpi_stock_bajo }} con stock bajo</div>
+      </div>
+
+    </div>
+
+    <div class="fp-qbar">
+      <span class="fp-ql">Acceso rápido</span>
+      <a href="/" target="_blank">🌐 Ver tienda</a>
+      <a href="{% url 'admin:products_product_add' %}">➕ Nuevo producto</a>
+      <a href="{% url 'admin:products_category_add' %}">🏷️ Categoría</a>
+      <a href="{% url 'admin:orders_order_changelist' %}">📋 Órdenes</a>
+      <a href="{% url 'admin:proveedores_supplierproduct_changelist' %}">🚚 Proveedores</a>
+      <a href="{% url 'admin:proveedores_supplierlog_changelist' %}">📝 Logs</a>
+    </div>
+
+  </div>
+  {% endif %}
+
+  {% if app_list %}
+  <div class="fp-grid">
+    {% for app in app_list %}
+    <div class="fp-mod">
+      <div class="fp-mod-h">
+        <a href="{{ app.app_url }}">{{ app.name }}</a>
+      </div>
+      <div class="fp-mod-b">
+        {% for model in app.models %}
+        <div class="fp-row">
+          {% if model.admin_url %}
+            <a href="{{ model.admin_url }}" class="fp-mname">{{ model.name }}</a>
+          {% else %}
+            <span class="fp-mname">{{ model.name }}</span>
+          {% endif %}
+          <div class="fp-mact">
+            {% if model.add_url %}
+              <a href="{{ model.add_url }}" class="fp-add">+ Añadir</a>
+            {% endif %}
+            {% if model.admin_url %}
+              <a href="{{ model.admin_url }}" class="fp-lst">{% if model.view_only %}Ver{% else %}Lista{% endif %}</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted mt-3">{% trans "You don't have permission to view or edit anything." %}</p>
+  {% endif %}
+
+</div>
+
+{% endblock %}

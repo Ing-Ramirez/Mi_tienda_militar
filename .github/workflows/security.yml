@@ -1,0 +1,130 @@
+# ──────────────────────────────────────────────────────────────────────────────
+#  Franja Pixelada — Pipeline de Seguridad CI/CD
+#  Se ejecuta en cada push y Pull Request a main/master
+#  Incluye: SCA (dependencias) · SAST (código) · Escaneo de imagen Docker
+# ──────────────────────────────────────────────────────────────────────────────
+
+name: Security Scan
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  # Escaneo semanal programado (detecta CVEs nuevos en dependencias existentes)
+  schedule:
+    - cron: '0 6 * * 1'   # Lunes 06:00 UTC
+
+jobs:
+
+  # ── 1. SCA — Auditoría de dependencias Python ────────────────────────────
+  dependency-audit:
+    name: Auditar dependencias (pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar pip-audit
+        run: pip install pip-audit
+
+      - name: Auditar dependencias contra CVEs conocidos
+        run: |
+          pip-audit \
+            --requirement backend/requirements.txt \
+            --format json \
+            --output pip-audit-report.json \
+            --strict
+        continue-on-error: false   # Falla el pipeline si hay CVEs críticos
+
+      - name: Subir reporte de auditoría
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-audit-report
+          path: pip-audit-report.json
+          retention-days: 30
+
+  # ── 2. SAST — Análisis estático de código Python ─────────────────────────
+  sast-bandit:
+    name: SAST — Bandit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar Bandit
+        run: pip install bandit[toml]
+
+      - name: Ejecutar análisis SAST
+        run: |
+          bandit \
+            --recursive backend/ \
+            --severity-level medium \
+            --confidence-level medium \
+            --exclude backend/*/migrations/,backend/*/tests/ \
+            --format json \
+            --output bandit-report.json
+        continue-on-error: false
+
+      - name: Subir reporte SAST
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-sast-report
+          path: bandit-report.json
+          retention-days: 30
+
+  # ── 3. Escaneo de imagen Docker con Trivy ────────────────────────────────
+  container-scan:
+    name: Escanear imagen Docker (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construir imagen backend
+        run: |
+          docker build \
+            --tag franja_pixelada_backend:${{ github.sha }} \
+            --file backend/Dockerfile \
+            backend/
+
+      - name: Escanear imagen con Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: franja_pixelada_backend:${{ github.sha }}
+          format: sarif
+          output: trivy-report.sarif
+          severity: HIGH,CRITICAL
+          exit-code: '1'          # Falla si encuentra HIGH o CRITICAL
+          ignore-unfixed: true    # Ignorar vulnerabilidades sin parche disponible
+
+      - name: Subir reporte Trivy a GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-report.sarif
+
+  # ── 4. Verificación de secretos en el código ─────────────────────────────
+  secrets-scan:
+    name: Detectar secretos (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Necesario para escanear el historial completo
+
+      - name: Escanear secretos con Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
