@@ -126,18 +126,17 @@
                     return s + (parseInt(data[k], 10) || 0);
                 }, 0);
                 if (total === 0) {
-                    /* Aviso visual — el formulario SÍ se envía */
                     var badge = document.getElementById('fp-tallas-total-badge');
                     if (badge) { badge.textContent = '⚠ Sin stock'; badge.style.background = '#c9a227'; }
                 }
             }
-            /* El formulario siempre se envía — solo marcamos el flag aquí */
-            localStorage.setItem('fp_saved', '1');
         });
 
-        /* Mostrar notificación de guardado si viene de un save anterior */
-        if (localStorage.getItem('fp_saved') === '1') {
-            localStorage.removeItem('fp_saved');
+        /* Mostrar notificación SOLO si Django guardó exitosamente.
+           Django añade el mensaje "fue cambiado exitosamente" en .success-message o
+           en el bloque .messagelist li.success tras un guardado real. */
+        var djangoSuccess = document.querySelector('.messagelist .success, ul.messagelist li.success');
+        if (djangoSuccess) {
             showAdminNotif('saved');
         }
     }

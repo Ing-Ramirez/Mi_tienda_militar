@@ -59,15 +59,14 @@ class SecurityHeadersMiddleware:
             # Fuentes tipográficas (self cubre Font Awesome en archivos estáticos)
             "font-src 'self' https://fonts.gstatic.com",
 
-            # Imágenes: mismo origen + data URIs (emojis/placeholders) + blobs
-            "img-src 'self' data: blob:",
+            # Imágenes: mismo origen + data URIs + blobs + thumbnails de YouTube/Vimeo
+            "img-src 'self' data: blob: https://i.ytimg.com https://i.vimeocdn.com",
 
-            # Conexiones fetch/XHR: solo API propia.
-            # Agregar https://api.stripe.com cuando se integre Stripe.js en frontend
+            # Conexiones fetch/XHR: API propia + tasa de cambio (llamada desde backend, no frontend)
             "connect-src 'self'",
 
-            # Frames: necesario para 3DS de Stripe cuando se integre
-            "frame-src 'none'",
+            # Frames: YouTube/Vimeo para video hero + 3DS de Stripe
+            "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com",
 
             # Sin plugins Flash ni objetos embebidos
             "object-src 'none'",

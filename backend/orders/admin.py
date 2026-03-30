@@ -186,8 +186,11 @@ class OrderAdmin(admin.ModelAdmin):
             return '—'
         url = obj.payment_proof.url
         return format_html(
-            '<a href="{}" target="_blank" rel="noopener">'
-            '<img src="{}" style="max-width:320px;max-height:320px" alt="Comprobante"/></a>',
+            '<a href="{}" target="_blank" rel="noopener" title="Ver imagen completa">'
+            '<div style="width:320px;height:320px;background:#1a1a1a;border:1px solid #444;'
+            'border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;">'
+            '<img src="{}" style="width:100%;height:100%;object-fit:contain;" alt="Comprobante"/>'
+            '</div></a>',
             url, url,
         )
     payment_proof_preview.short_description = 'Vista previa'

@@ -1,4 +1,4 @@
-# Franja Pixelada — Tienda Virtual de Equipamiento Táctico
+# Franja Pixelada — Tienda Virtual de Equipamiento Táctico militar
 
 [![Django](https://img.shields.io/badge/Django-5.0-092E20?style=flat-square&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![DRF](https://img.shields.io/badge/DRF-3.15-red?style=flat-square&logo=django&logoColor=white)](https://www.django-rest-framework.org/)

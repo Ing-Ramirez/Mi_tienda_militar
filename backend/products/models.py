@@ -357,7 +357,7 @@ class InventoryLog(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.product.name} {self.action:+d} ({self.quantity_change})'
+        return f'{self.product.name} [{self.action}] ({self.quantity_change:+d})'
 
 
 class Favorito(models.Model):

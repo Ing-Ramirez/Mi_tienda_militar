@@ -3,7 +3,42 @@ Franja Pixelada — Modelos de seguridad y auditoría
 """
 from django.db import models
 from django.utils import timezone
+from django.core.validators import MinValueValidator
 import uuid
+
+
+class ExchangeRate(models.Model):
+    """Tasa de cambio USD → COP definida manualmente por el administrador."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    rate = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        validators=[MinValueValidator(1)],
+        verbose_name='Tasa USD → COP',
+        help_text='Cuántos pesos COP equivalen a 1 USD. Ej: 4000.00',
+    )
+    rate_date = models.DateField(
+        verbose_name='Fecha de la tasa',
+        help_text='Fecha en que se estableció esta tasa',
+    )
+    notes = models.CharField(
+        max_length=255, blank=True,
+        verbose_name='Nota',
+        help_text='Opcional. Ej: "Fuente: Banco de la República"',
+    )
+    created_by = models.ForeignKey(
+        'users.User', on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name='Registrado por',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Tasa de Cambio'
+        verbose_name_plural = 'Tasas de Cambio'
+        ordering = ['-rate_date', '-created_at']
+
+    def __str__(self):
+        return f'1 USD = {self.rate:,.2f} COP  ({self.rate_date:%d/%m/%Y})'
 
 
 class LoginAttempt(models.Model):

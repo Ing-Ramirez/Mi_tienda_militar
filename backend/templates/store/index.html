@@ -472,9 +472,17 @@
     .hero {
       min-height: 88vh;
       position: relative;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
       overflow: hidden;
+    }
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 5fr 6fr;
+      min-height: 88vh;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
     .hero-bg {
       position: absolute;
@@ -495,7 +503,7 @@
     }
     
     .hero-content {
-      padding: 5rem 3rem 5rem 0;
+      padding: 5rem 2rem 5rem 8rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -585,6 +593,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 3rem 5rem 3rem 2rem;
       z-index: 2;
     }
     .hero-product-card {
@@ -2701,10 +2710,10 @@
        MOBILE RESPONSIVE
     ═══════════════════════════════════════ */
     @media (max-width: 1024px) {
-      .hero { grid-template-columns: 1fr; }
-      .hero-visual { display: flex; padding: 0 1.5rem 3rem; justify-content: center; }
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-visual { display: flex; padding: 0 2rem 3rem; justify-content: center; }
       .hero-video-card { max-width: 100%; }
-      .hero-content { padding: 4rem 0 2rem; }
+      .hero-content { padding: 4rem 2.5rem 2rem 2.5rem; max-width: 100%; }
       .product-grid { grid-template-columns: repeat(3, 1fr); }
       .footer-grid { grid-template-columns: 1fr 1fr; }
       .promo-banner { grid-template-columns: 1fr; }
@@ -2716,6 +2725,7 @@
       .product-grid { grid-template-columns: repeat(2, 1fr); }
       .cart-panel { width: 100%; }
       .hero-stats { gap: 1.5rem; }
+      .hero-content { padding: 3rem 1.5rem 2rem 1.5rem; }
       .promo-banner { padding: 2.5rem; }
       .features-grid { grid-template-columns: 1fr 1fr; }
       .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
@@ -3164,8 +3174,8 @@
   <div class="hero-bg"></div>
   <div class="hero-grid-overlay"></div>
   
-  <div class="container" style="display:contents">
-    <div class="hero-content" style="padding-left: 1.5rem;">
+  <div class="hero-inner">
+    <div class="hero-content">
       <div class="hero-label animate-fade-up">
         <div class="hero-label-line"></div>
         <span class="label" id="hero-collection-label">Nueva Colección 2025</span>
@@ -6963,8 +6973,8 @@
   //  Dejar src vacío para mostrar el placeholder.
   // ══════════════════════════════════════════════════════════════
   const HERO_VIDEO = {
-    src: '',
-    ref: '',
+    src: 'https://www.youtube.com/watch?v=HiXLkL42tMU',
+    ref: 'Git y Github | Curso Práctico de Git y Github Desde Cero',
     // Ejemplos:
     // YouTube : 'https://www.youtube.com/watch?v=XXXXXXXXXXX'
     // Vimeo   : 'https://vimeo.com/000000000'
@@ -6999,7 +7009,7 @@
 
     if (ytId) {
       embedEl = document.createElement('iframe');
-      embedEl.src = 'https://www.youtube.com/embed/' + ytId + '?rel=0&modestbranding=1';
+      embedEl.src = 'https://www.youtube-nocookie.com/embed/' + ytId + '?rel=0&modestbranding=1';
       embedEl.title = 'Video institucional Franja Pixelada';
       embedEl.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen');
       embedEl.setAttribute('allowfullscreen', '');
