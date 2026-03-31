@@ -2,11 +2,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
+from django.db import transaction
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+import logging
 from .models import Payment
 from orders.models import Order
 
+logger = logging.getLogger(__name__)
 
 class StripePaymentIntentView(APIView):
     permission_classes = [IsAuthenticated]
@@ -59,6 +62,9 @@ class StripeWebhookView(APIView):
 
     def post(self, request):
         import stripe
+        if not settings.STRIPE_WEBHOOK_SECRET and not settings.DEBUG:
+            logger.error('STRIPE_WEBHOOK_SECRET no configurado en producción')
+            return Response(status=503)
         stripe.api_key = settings.STRIPE_SECRET_KEY
         payload = request.body
         sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
@@ -72,25 +78,59 @@ class StripeWebhookView(APIView):
 
         if event['type'] == 'payment_intent.succeeded':
             intent = event['data']['object']
-            Payment.objects.filter(payment_id=intent['id']).update(status='succeeded')
+            payment_id = intent.get('id')
+            amount_received = intent.get('amount_received') or intent.get('amount') or 0
+            currency = (intent.get('currency') or '').lower()
             order_number = intent.get('metadata', {}).get('order_number')
-            Order.objects.filter(order_number=order_number).update(
-                payment_status='paid', status='confirmed',
-            )
-            # Encolar acumulación de puntos de fidelidad
-            if order_number:
+            if not payment_id or not order_number:
+                return Response(status=400)
+
+            with transaction.atomic():
                 try:
-                    order_id = str(
-                        Order.objects.only('id').get(order_number=order_number).pk
+                    payment = (
+                        Payment.objects
+                        .select_for_update()
+                        .select_related('order')
+                        .get(payment_id=payment_id)
                     )
-                    from loyalty.tasks import assign_loyalty_points
-                    assign_loyalty_points.delay(order_id)
-                except Order.DoesNotExist:
-                    pass
+                except Payment.DoesNotExist:
+                    return Response(status=404)
+
+                order = payment.order
+                expected_amount = int(order.total * 100)
+                if (
+                    order.order_number != order_number
+                    or currency != 'cop'
+                    or int(amount_received) != expected_amount
+                ):
+                    logger.warning(
+                        'Webhook Stripe inconsistente payment_id=%s order=%s metadata_order=%s amount=%s expected=%s currency=%s',
+                        payment_id, order.order_number, order_number, amount_received, expected_amount, currency,
+                    )
+                    return Response(status=400)
+
+                if payment.status != 'succeeded':
+                    payment.status = 'succeeded'
+                    payment.save(update_fields=['status', 'updated_at'])
+
+                should_enqueue_points = not order.loyalty_points_processed
+                if order.payment_status != 'paid' or order.status == 'pending':
+                    order.payment_status = 'paid'
+                    order.status = 'confirmed'
+                    order.save(update_fields=['payment_status', 'status', 'updated_at'])
+
+            if should_enqueue_points:
+                from loyalty.tasks import assign_loyalty_points
+                assign_loyalty_points.delay(str(order.pk))
 
         elif event['type'] == 'payment_intent.payment_failed':
             intent = event['data']['object']
-            Payment.objects.filter(payment_id=intent['id']).update(status='failed')
+            payment_id = intent.get('id')
+            if payment_id:
+                Payment.objects.filter(
+                    payment_id=payment_id,
+                    status__in=['pending', 'processing'],
+                ).update(status='failed')
 
         return Response({'status': 'ok'})
 

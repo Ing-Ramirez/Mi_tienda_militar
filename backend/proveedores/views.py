@@ -11,9 +11,11 @@ import logging
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.db.models import Count, OuterRef, Subquery, Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
+from franja_pixelada.pagination import StandardPagination
 
 from .models import Supplier, SupplierLog, EventType, LinkedProduct, SupplierVariant
 from .serializers import (
@@ -25,6 +27,19 @@ from .services.stock_dinamico import ServicioStockDinamico
 from .throttles import WebhookAnonThrottle
 
 logger = logging.getLogger(__name__)
+
+
+class AdminStandardPagination(StandardPagination):
+    page_size = 50
+    max_page_size = 200
+
+
+def _paginated_response(request, queryset, serializer_cls, *, pagination_class=AdminStandardPagination):
+    paginator = pagination_class()
+    page = paginator.paginate_queryset(queryset, request)
+    if page is None:
+        return Response(serializer_cls(queryset, many=True).data)
+    return paginator.get_paginated_response(serializer_cls(page, many=True).data)
 
 
 class WebhookProveedorView(APIView):
@@ -137,7 +152,19 @@ class EstadoProveedoresView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        proveedores = Supplier.objects.all()
+        last_log_qs = SupplierLog.objects.filter(supplier=OuterRef('pk')).order_by('-timestamp')
+        proveedores = Supplier.objects.annotate(
+            total_productos=Count('productos', distinct=True),
+            total_pedidos_pendientes=Count(
+                'pedidos',
+                filter=Q(pedidos__status='pendiente_envio'),
+                distinct=True,
+            ),
+            ultimo_log_tipo=Subquery(last_log_qs.values('event_type')[:1]),
+            ultimo_log_estado=Subquery(last_log_qs.values('status')[:1]),
+            ultimo_log_mensaje=Subquery(last_log_qs.values('message')[:1]),
+            ultimo_log_timestamp=Subquery(last_log_qs.values('timestamp')[:1]),
+        )
         return Response(ProveedorEstadoSerializer(proveedores, many=True).data)
 
 
@@ -179,7 +206,7 @@ class CatalogoProveedorView(APIView):
         if request.query_params.get('sin_vincular') == 'true':
             qs = qs.exclude(vinculos__is_active=True)
 
-        return Response(VarianteProveedorCatalogoSerializer(qs, many=True).data)
+        return _paginated_response(request, qs, VarianteProveedorCatalogoSerializer)
 
 
 class ProductoVinculadoView(APIView):
@@ -195,7 +222,7 @@ class ProductoVinculadoView(APIView):
         qs = LinkedProduct.objects.select_related(
             'supplier_variant__supplier_product__supplier', 'local_product',
         ).all()
-        return Response(ProductoVinculadoSerializer(qs, many=True).data)
+        return _paginated_response(request, qs, ProductoVinculadoSerializer)
 
     def post(self, request):
         serializer = ProductoVinculadoSerializer(data=request.data)

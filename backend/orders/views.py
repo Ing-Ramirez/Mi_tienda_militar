@@ -3,6 +3,7 @@ import mimetypes
 from django.conf import settings
 from django.core import signing
 from django.core.exceptions import ValidationError
+from django.db import transaction as db_transaction
 from django.db.models import Count
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
@@ -115,6 +116,11 @@ class CartViewSet(viewsets.GenericViewSet):
                 variant = ProductVariant.objects.get(id=request.data['variant'])
             except ProductVariant.DoesNotExist:
                 pass
+            if variant and variant.product_id != product.id:
+                return Response(
+                    {'detail': 'Variante inválida para el producto seleccionado.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         price = variant.final_price if variant else product.price
         has_personalization = bool(bordado or rh)
@@ -249,6 +255,8 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=['post'])
     def checkout(self, request):
+        from products.models import Product, ProductVariant
+
         cart, _ = Cart.objects.get_or_create(user=request.user)
         if not cart.items.exists():
             return Response({'detail': 'El carrito está vacío.'}, status=400)
@@ -259,68 +267,105 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
             if not request.data.get(field):
                 return Response({'detail': f'El campo {field} es requerido.'}, status=400)
 
-        # ── Validación final de stock antes de crear la orden ─────────────────
-        for item in cart.items.select_related('product'):
-            disponible = _stock_para_talla(item.product, item.talla or '')
-            # Para productos SIN talla: disponible=0 = sin restricción → skip
-            # Para productos CON talla: disponible=0 = talla agotada → bloquear
-            sin_restriccion = (disponible == 0 and not item.product.requires_size)
-            if not sin_restriccion and item.quantity > disponible:
-                talla_label = item.talla or '-'
-                return Response({
-                    'detail': (
-                        f'Stock insuficiente para "{item.product.name}" '
-                        f'(talla {talla_label}). '
-                        f'Disponible: {disponible}, solicitado: {item.quantity}.'
-                    ),
-                    'producto': item.product.name,
-                    'talla': talla_label,
-                    'stock_disponible': disponible,
-                    'qty_solicitada': item.quantity,
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-        subtotal = float(cart.subtotal)
-        shipping = 0.0 if subtotal >= settings.FREE_SHIPPING_THRESHOLD else settings.BASE_SHIPPING_COST
-        tax = round(subtotal * settings.TAX_RATE, 2)
-        total = subtotal + shipping + tax
-
-        order = Order.objects.create(
-            user=request.user,
-            email=request.data['email'],
-            shipping_full_name=request.data['shipping_full_name'],
-            shipping_phone=request.data['shipping_phone'],
-            shipping_country=request.data.get('shipping_country', 'Colombia'),
-            shipping_department=request.data['shipping_department'],
-            shipping_city=request.data['shipping_city'],
-            shipping_address_line1=request.data['shipping_address_line1'],
-            shipping_address_line2=request.data.get('shipping_address_line2', ''),
-            shipping_postal_code=request.data.get('shipping_postal_code', ''),
-            subtotal=subtotal,
-            shipping_cost=shipping,
-            tax_amount=tax,
-            total=total,
-            customer_notes=request.data.get('customer_notes', ''),
-            coupon_code=request.data.get('coupon_code', ''),
-        )
-
-        for item in cart.items.all():
-            price = item.variant.final_price if item.variant else item.product.price
-            OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                variant=item.variant,
-                product_name=item.product.name,
-                product_sku=item.product.sku,
-                variant_name=item.variant.name if item.variant else '',
-                talla=item.talla,
-                bordado=item.bordado,
-                rh=item.rh,
-                quantity=item.quantity,
-                unit_price=price,
-                line_total=item.line_total,
+        with db_transaction.atomic():
+            # Bloquear fila de carrito + ítems para snapshot consistente
+            cart = Cart.objects.select_for_update().get(pk=cart.pk)
+            cart_items = list(
+                cart.items.select_related('product', 'variant')
+                .select_for_update()
             )
 
-        cart.items.all().delete()
+            # Lock de productos y variantes para validación concurrente consistente
+            product_ids = {item.product_id for item in cart_items if item.product_id}
+            variant_ids = {item.variant_id for item in cart_items if item.variant_id}
+            locked_products = {
+                p.id: p for p in Product.objects.select_for_update().filter(id__in=product_ids)
+            }
+            locked_variants = {
+                v.id: v for v in ProductVariant.objects.select_for_update().filter(id__in=variant_ids)
+            }
+
+            for item in cart_items:
+                product = locked_products.get(item.product_id)
+                if not product:
+                    return Response(
+                        {'detail': 'Uno de los productos del carrito ya no está disponible.'},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                variant = locked_variants.get(item.variant_id) if item.variant_id else None
+                if variant and variant.product_id != product.id:
+                    return Response(
+                        {
+                            'detail': (
+                                f'La variante asociada a "{product.name}" no es válida para ese producto.'
+                            )
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                disponible = _stock_para_talla(product, item.talla or '')
+                # Para productos SIN talla: disponible=0 = sin restricción → skip
+                # Para productos CON talla: disponible=0 = talla agotada → bloquear
+                sin_restriccion = (disponible == 0 and not product.requires_size)
+                if not sin_restriccion and item.quantity > disponible:
+                    talla_label = item.talla or '-'
+                    return Response({
+                        'detail': (
+                            f'Stock insuficiente para "{product.name}" '
+                            f'(talla {talla_label}). '
+                            f'Disponible: {disponible}, solicitado: {item.quantity}.'
+                        ),
+                        'producto': product.name,
+                        'talla': talla_label,
+                        'stock_disponible': disponible,
+                        'qty_solicitada': item.quantity,
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+            subtotal = float(cart.subtotal)
+            shipping = 0.0 if subtotal >= settings.FREE_SHIPPING_THRESHOLD else settings.BASE_SHIPPING_COST
+            tax = round(subtotal * settings.TAX_RATE, 2)
+            total = subtotal + shipping + tax
+
+            order = Order.objects.create(
+                user=request.user,
+                email=request.data['email'],
+                shipping_full_name=request.data['shipping_full_name'],
+                shipping_phone=request.data['shipping_phone'],
+                shipping_country=request.data.get('shipping_country', 'Colombia'),
+                shipping_department=request.data['shipping_department'],
+                shipping_city=request.data['shipping_city'],
+                shipping_address_line1=request.data['shipping_address_line1'],
+                shipping_address_line2=request.data.get('shipping_address_line2', ''),
+                shipping_postal_code=request.data.get('shipping_postal_code', ''),
+                subtotal=subtotal,
+                shipping_cost=shipping,
+                tax_amount=tax,
+                total=total,
+                customer_notes=request.data.get('customer_notes', ''),
+                coupon_code=request.data.get('coupon_code', ''),
+            )
+
+            for item in cart_items:
+                product = locked_products[item.product_id]
+                variant = locked_variants.get(item.variant_id) if item.variant_id else None
+                price = variant.final_price if variant else product.price
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    variant=variant,
+                    product_name=product.name,
+                    product_sku=product.sku,
+                    variant_name=variant.name if variant else '',
+                    talla=item.talla,
+                    bordado=item.bordado,
+                    rh=item.rh,
+                    quantity=item.quantity,
+                    unit_price=price,
+                    line_total=item.line_total,
+                )
+
+            cart.items.all().delete()
 
         return Response({
             'order_number': order.order_number,

@@ -1330,3 +1330,21 @@ html.fp-dark .fp-action-btn--danger:hover:not(:disabled) {
   .fp-action-bar   { flex-wrap: wrap; }
   .fp-action-counter { margin-left: 0; width: 100%; text-align: right; }
 }
+
+/* ── Filas seleccionadas: sin cambio de fondo (preserva colores naturales) ── */
+#result_list tbody tr.selected td,
+#result_list tbody tr.selected th {
+  background: var(--fp-c-card) !important;
+}
+#result_list tbody tr.selected:nth-child(even) td,
+#result_list tbody tr.selected:nth-child(even) th {
+  background: var(--fp-c-card-alt) !important;
+}
+html.fp-dark #result_list tr.selected td,
+html.fp-dark #result_list tr.selected th {
+  background: var(--fp-c-card) !important;
+}
+html.fp-dark #result_list tr.selected:nth-child(even) td,
+html.fp-dark #result_list tr.selected:nth-child(even) th {
+  background: var(--fp-c-card-alt) !important;
+}

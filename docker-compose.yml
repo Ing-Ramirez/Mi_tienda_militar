@@ -14,8 +14,6 @@ services:
       POSTGRES_DB:       ${DB_NAME:-franja_pixelada_store}
       POSTGRES_USER:     ${DB_USER:-franja_pixelada_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD es obligatorio}
-    ports:
-      - "5432:5432"   # solo desarrollo — quitar en producción
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql:ro

@@ -1,0 +1,5 @@
+services:
+  db:
+    # Exponer PostgreSQL al host solo en desarrollo local.
+    ports:
+      - "5432:5432"

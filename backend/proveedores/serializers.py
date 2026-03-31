@@ -19,20 +19,36 @@ class ProveedorEstadoSerializer(serializers.ModelSerializer):
         ]
 
     def get_total_productos(self, obj) -> int:
-        return obj.productos.count()
+        return int(getattr(obj, 'total_productos', obj.productos.count()))
 
     def get_total_pedidos_pendientes(self, obj) -> int:
-        return obj.pedidos.filter(status='pendiente_envio').count()
+        return int(
+            getattr(
+                obj,
+                'total_pedidos_pendientes',
+                obj.pedidos.filter(status='pendiente_envio').count(),
+            )
+        )
 
     def get_ultimo_log(self, obj) -> dict | None:
-        log = obj.logs.first()
-        if not log:
+        log_tipo = getattr(obj, 'ultimo_log_tipo', None)
+        if log_tipo is None:
+            log = obj.logs.first()
+            if not log:
+                return None
+            return {
+                'tipo':      log.event_type,
+                'estado':    log.status,
+                'mensaje':   log.message,
+                'timestamp': log.timestamp,
+            }
+        if not getattr(obj, 'ultimo_log_timestamp', None):
             return None
         return {
-            'tipo':      log.event_type,
-            'estado':    log.status,
-            'mensaje':   log.message,
-            'timestamp': log.timestamp,
+            'tipo':      log_tipo,
+            'estado':    getattr(obj, 'ultimo_log_estado', ''),
+            'mensaje':   getattr(obj, 'ultimo_log_mensaje', ''),
+            'timestamp': getattr(obj, 'ultimo_log_timestamp'),
         }
 
 

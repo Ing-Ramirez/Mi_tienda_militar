@@ -289,6 +289,8 @@ X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+# Django debe confiar en el proto enviado por Nginx para tratar requests como HTTPS.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
@@ -526,6 +528,9 @@ SIEM_HOST = os.environ.get('SIEM_HOST', '').strip()
 SIEM_PORT = int(os.environ.get('SIEM_PORT', '514'))
 SIEM_PROTOCOL = os.environ.get('SIEM_PROTOCOL', 'udp').strip().lower()
 _SIEM_SOCKTYPE = socket.SOCK_STREAM if SIEM_PROTOCOL == 'tcp' else socket.SOCK_DGRAM
+# Política de retención de datos de auditoría (comando cleanup_logs).
+SUPPLIER_LOG_RETENTION_DAYS = int(os.environ.get('SUPPLIER_LOG_RETENTION_DAYS', '90'))
+PAYMENT_LOG_RETENTION_DAYS = int(os.environ.get('PAYMENT_LOG_RETENTION_DAYS', '365'))
 
 LOGGING = {
     'version': 1,

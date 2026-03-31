@@ -34,6 +34,10 @@ def validate_cart_for_checkout(cart: Cart) -> None:
     if not cart.items.exists():
         raise ValidationError('El carrito está vacío.')
     for item in cart.items.select_related('product'):
+        if item.variant_id and item.variant and item.variant.product_id != item.product_id:
+            raise ValidationError(
+                f'La variante de "{item.product.name}" no pertenece al producto seleccionado.'
+            )
         disponible = _stock_para_talla(item.product, item.talla or '')
         sin_restriccion = disponible == 0 and not item.product.requires_size
         if not sin_restriccion and item.quantity > disponible:
@@ -85,34 +89,69 @@ def create_order_neki_from_cart(
     descuento y descuenta los puntos de forma atómica con la creación de la orden.
     """
     from django.db import transaction as db_transaction
+    from products.models import Product, ProductVariant
     from orders.services import calculate_cart_totals
-
-    validate_cart_for_checkout(cart)
 
     if not payment_proof:
         raise ValidationError('Debe adjuntar una imagen de comprobante de pago.')
     validate_image_file(payment_proof)
 
-    totals = calculate_cart_totals(cart, coupon_code=coupon_code or '')
-
-    # ── Calcular descuento por puntos ──────────────────────────────────────────
-    loyalty_discount = Decimal('0')
-    points_applied = 0
-    if points_to_use > 0 and user:
-        from loyalty.services import preview_redemption
-        preview = preview_redemption(
-            user=user,
-            points_to_use=points_to_use,
-            order_total=Decimal(str(totals['total'])),
-        )
-        if not preview['valid']:
-            raise ValidationError(preview['reason'])
-        points_applied = preview['points_applied']
-        loyalty_discount = Decimal(str(preview['discount_amount']))
-
-    final_total = max(Decimal(str(totals['total'])) - loyalty_discount, Decimal('0'))
-
     with db_transaction.atomic():
+        cart = Cart.objects.select_for_update().get(pk=cart.pk)
+        cart_items = list(
+            cart.items.select_related('product', 'variant')
+            .select_for_update()
+        )
+        if not cart_items:
+            raise ValidationError('El carrito está vacío.')
+
+        product_ids = {item.product_id for item in cart_items if item.product_id}
+        variant_ids = {item.variant_id for item in cart_items if item.variant_id}
+        locked_products = {
+            p.id: p for p in Product.objects.select_for_update().filter(id__in=product_ids)
+        }
+        locked_variants = {
+            v.id: v for v in ProductVariant.objects.select_for_update().filter(id__in=variant_ids)
+        }
+
+        for item in cart_items:
+            product = locked_products.get(item.product_id)
+            if not product:
+                raise ValidationError('Uno de los productos del carrito ya no está disponible.')
+            variant = locked_variants.get(item.variant_id) if item.variant_id else None
+            if variant and variant.product_id != product.id:
+                raise ValidationError(
+                    f'La variante de "{product.name}" no pertenece al producto seleccionado.'
+                )
+
+            disponible = _stock_para_talla(product, item.talla or '')
+            sin_restriccion = disponible == 0 and not product.requires_size
+            if not sin_restriccion and item.quantity > disponible:
+                raise ValidationError(
+                    f'Stock insuficiente para "{product.name}" '
+                    f'(talla {item.talla or "-"}). '
+                    f'Disponible: {disponible}, solicitado: {item.quantity}.'
+                )
+
+        totals = calculate_cart_totals(cart, coupon_code=coupon_code or '')
+
+        # ── Calcular descuento por puntos ──────────────────────────────────────
+        loyalty_discount = Decimal('0')
+        points_applied = 0
+        if points_to_use > 0 and user:
+            from loyalty.services import preview_redemption
+            preview = preview_redemption(
+                user=user,
+                points_to_use=points_to_use,
+                order_total=Decimal(str(totals['total'])),
+            )
+            if not preview['valid']:
+                raise ValidationError(preview['reason'])
+            points_applied = preview['points_applied']
+            loyalty_discount = Decimal(str(preview['discount_amount']))
+
+        final_total = max(Decimal(str(totals['total'])) - loyalty_discount, Decimal('0'))
+
         order = Order(
             user=user,
             email=shipping_data['email'],
@@ -141,15 +180,17 @@ def create_order_neki_from_cart(
         order.payment_proof = payment_proof
         order.save()
 
-        for item in cart.items.all():
-            price = item.variant.final_price if item.variant else item.product.price
+        for item in cart_items:
+            product = locked_products[item.product_id]
+            variant = locked_variants.get(item.variant_id) if item.variant_id else None
+            price = variant.final_price if variant else product.price
             OrderItem.objects.create(
                 order=order,
-                product=item.product,
-                variant=item.variant,
-                product_name=item.product.name,
-                product_sku=item.product.sku,
-                variant_name=item.variant.name if item.variant else '',
+                product=product,
+                variant=variant,
+                product_name=product.name,
+                product_sku=product.sku,
+                variant_name=variant.name if variant else '',
                 talla=item.talla,
                 bordado=item.bordado,
                 rh=item.rh,

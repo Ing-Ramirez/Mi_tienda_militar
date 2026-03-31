@@ -6,7 +6,7 @@ Los CartItem y OrderItem soportan personalización (bordado / grupo sanguíneo)
 import uuid
 
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import IntegrityError, models
 
 from products.validators import validate_image_file
 
@@ -277,12 +277,24 @@ class Order(models.Model):
         return self.total
 
     def save(self, *args, **kwargs):
-        if not self.order_number:
-            import random
-            import string
+        import random
+        import string
+
+        if self.order_number:
+            super().save(*args, **kwargs)
+            return
+
+        # Evita colisiones esporádicas bajo concurrencia alta.
+        for _ in range(5):
             suffix = ''.join(random.choices(string.digits, k=8))
             self.order_number = f'FP{suffix}'
-        super().save(*args, **kwargs)
+            try:
+                super().save(*args, **kwargs)
+                return
+            except IntegrityError:
+                self.order_number = ''
+                continue
+        raise IntegrityError('No se pudo generar un número de orden único tras múltiples intentos.')
 
 
 class OrderItem(models.Model):

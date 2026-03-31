@@ -64,9 +64,19 @@ class ProductListSerializer(serializers.ModelSerializer):
             'stock', 'status', 'is_featured', 'is_new', 'created_at',
         )
 
+    def _active_stock_variants(self, obj):
+        # Usa prefetched variants para evitar N+1 por producto en listados.
+        variants = getattr(obj, 'variants', None)
+        if variants is None:
+            variants = obj.variants.all()
+        return sorted(
+            [v for v in variants.all() if v.is_active and int(v.stock or 0) > 0],
+            key=lambda v: (v.color or '', v.size or ''),
+        )
+
     def get_colores_disponibles(self, obj):
         vistos = {}
-        for v in obj.variants.filter(is_active=True, stock__gt=0).order_by('color'):
+        for v in self._active_stock_variants(obj):
             if v.color and v.color not in vistos:
                 imagen = None
                 if v.image:
@@ -81,7 +91,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     def get_tallas_por_color(self, obj):
         mapa = {}
-        for v in obj.variants.filter(is_active=True, stock__gt=0).order_by('size'):
+        for v in self._active_stock_variants(obj):
             clave = v.color or ''
             mapa.setdefault(clave, [])
             if v.size and v.size not in mapa[clave]:
@@ -127,7 +137,11 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         Cada entrada incluye color, hex e imagen representativa (primera variante activa de ese color).
         """
         vistos = {}
-        for v in obj.variants.filter(is_active=True, stock__gt=0).order_by('color'):
+        variants = sorted(
+            [v for v in obj.variants.all() if v.is_active and int(v.stock or 0) > 0],
+            key=lambda x: (x.color or '', x.size or ''),
+        )
+        for v in variants:
             if v.color and v.color not in vistos:
                 imagen = None
                 if v.image:
@@ -146,7 +160,11 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         Si no hay colores definidos, retorna { '' → [tallas con stock] }.
         """
         mapa = {}
-        for v in obj.variants.filter(is_active=True, stock__gt=0).order_by('size'):
+        variants = sorted(
+            [v for v in obj.variants.all() if v.is_active and int(v.stock or 0) > 0],
+            key=lambda x: (x.color or '', x.size or ''),
+        )
+        for v in variants:
             clave = v.color or ''
             mapa.setdefault(clave, [])
             if v.size and v.size not in mapa[clave]:
