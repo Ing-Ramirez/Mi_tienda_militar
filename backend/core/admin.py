@@ -1,7 +1,11 @@
+import threading
+
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import LoginAttempt, AdminAuditLog, ExchangeRate
 from .admin_site import admin_site
+
+_er_local = threading.local()
 
 
 @admin.register(LoginAttempt, site=admin_site)
@@ -84,6 +88,14 @@ class ExchangeRateAdmin(admin.ModelAdmin):
         }),
     )
 
+    def change_view(self, request, *args, **kwargs):
+        _er_local.csp_nonce = getattr(request, 'csp_nonce', '')
+        return super().change_view(request, *args, **kwargs)
+
+    def add_view(self, request, *args, **kwargs):
+        _er_local.csp_nonce = getattr(request, 'csp_nonce', '')
+        return super().add_view(request, *args, **kwargs)
+
     def save_model(self, request, obj, form, change):
         if not obj.created_by_id:
             obj.created_by = request.user
@@ -98,74 +110,76 @@ class ExchangeRateAdmin(admin.ModelAdmin):
     rate_display.short_description = 'Tasa'
 
     def conversor_widget(self, obj):
+        nonce = getattr(_er_local, 'csp_nonce', '')
         rate = float(obj.rate) if obj.rate is not None else 0
         rate_str = f'{rate:,.2f}'
-        return format_html('''
-        <div style="background:#1e2a1e;border:1px solid #4a7c3f;border-radius:8px;
-                    padding:1.5rem;max-width:520px;font-family:monospace">
+        return format_html(
+            '<div style="background:#1e2a1e;border:1px solid #4a7c3f;border-radius:8px;'
+            'padding:1.5rem;max-width:520px;font-family:monospace">'
 
-          <!-- Fila: tasa actual + botón obtener online -->
-          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
-            <div style="color:#c9a227;font-weight:bold;font-size:0.9rem">
-              // CONVERSOR USD → COP &nbsp;·&nbsp; Tasa guardada: <span id="conv-tasa-display">{}</span>
-            </div>
-            <button type="button" id="btn-obtener-tasa"
-              style="background:#1a3a5c;color:#7ec8e3;border:1px solid #2a5a8c;
-                     padding:0.35rem 0.9rem;border-radius:4px;cursor:pointer;
-                     font-size:0.78rem;font-weight:bold"
-              onclick="(function(){{
-                var btn = document.getElementById('btn-obtener-tasa');
-                btn.textContent = 'Consultando...'; btn.disabled = true;
-                fetch('/api/v1/core/exchange-rate/live/')
-                  .then(function(r){{ return r.json(); }})
-                  .then(function(d){{
-                    if (d.error) {{ alert('Error: ' + d.error); btn.textContent = '↻ Obtener tasa online'; btn.disabled=false; return; }}
-                    var r = d.rate;
-                    document.getElementById('conv-tasa-display').textContent = r.toLocaleString('es-CO', {{minimumFractionDigits:2}});
-                    document.getElementById('id_rate').value = r.toFixed(2);
-                    var hoy = new Date();
-                    var y=hoy.getFullYear(), m=String(hoy.getMonth()+1).padStart(2,'0'), dia=String(hoy.getDate()).padStart(2,'0');
-                    var dateField = document.getElementById('id_rate_date');
-                    if (dateField) dateField.value = y+'-'+m+'-'+dia;
-                    document.getElementById('conv-live-info').textContent =
-                      '✔ Tasa obtenida: 1 USD = ' + r.toLocaleString('es-CO',{{minimumFractionDigits:2}}) +
-                      ' COP  (' + (d.time_last_update || '') + ')';
-                    btn.textContent = '↻ Obtener tasa online'; btn.disabled=false;
-                  }})
-                  .catch(function(e){{ alert('Sin conexión: ' + e); btn.textContent='↻ Obtener tasa online'; btn.disabled=false; }});
-              }})()">
-              ↻ Obtener tasa online
-            </button>
-          </div>
+            '<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">'
+            '<div style="color:#c9a227;font-weight:bold;font-size:0.9rem">'
+            '// CONVERSOR USD &rarr; COP &nbsp;&middot;&nbsp; Tasa guardada: '
+            '<span id="conv-tasa-display">{}</span>'
+            '</div>'
+            '<button type="button" id="btn-obtener-tasa"'
+            ' style="background:#1a3a5c;color:#7ec8e3;border:1px solid #2a5a8c;'
+            'padding:0.35rem 0.9rem;border-radius:4px;cursor:pointer;'
+            'font-size:0.78rem;font-weight:bold">'
+            '&#x21BB; Obtener tasa online'
+            '</button>'
+            '</div>'
 
-          <div id="conv-live-info"
-               style="color:#4fc870;font-size:0.78rem;margin-bottom:0.75rem;min-height:1rem"></div>
+            '<div id="conv-live-info"'
+            ' style="color:#4fc870;font-size:0.78rem;margin-bottom:0.75rem;min-height:1rem"></div>'
 
-          <!-- Conversor manual -->
-          <div style="display:grid;gap:0.75rem">
-            <label style="color:#aaa;font-size:0.8rem">Convertir monto en USD</label>
-            <input id="conv-usd" type="number" min="0" step="0.01" placeholder="Ej: 25.00"
-                   style="background:#0d1a0d;border:1px solid #4a7c3f;color:#fff;
-                          padding:0.6rem 0.8rem;border-radius:4px;font-size:1rem;width:100%">
-            <button type="button" onclick="(function(){{
-                var usd = parseFloat(document.getElementById('conv-usd').value) || 0;
-                var tasa = parseFloat(document.getElementById('id_rate').value) || {};
-                if (usd <= 0) {{ document.getElementById('conv-result').textContent = '— ingresa un valor mayor a 0'; return; }}
-                var cop = usd * tasa;
-                var redondeado = Math.round(cop / 100) * 100;
-                document.getElementById('conv-result').innerHTML =
-                  usd.toLocaleString('es-CO') + ' USD &times; ' +
-                  tasa.toLocaleString('es-CO',{{minimumFractionDigits:2}}) + ' = <strong style=color:#4fc870>' +
-                  redondeado.toLocaleString('es-CO',{{minimumFractionDigits:0}}) + ' COP</strong>';
-            }})();"
-            style="background:#4a7c3f;color:#fff;border:none;padding:0.6rem 1.2rem;
-                   border-radius:4px;cursor:pointer;font-weight:bold;font-size:0.9rem;width:fit-content">
-              Convertir
-            </button>
-            <div id="conv-result"
-                 style="color:#aaa;font-size:0.95rem;padding:0.5rem 0;min-height:1.5rem">
-            </div>
-          </div>
-        </div>
-        ''', rate_str, rate)
+            '<div style="display:grid;gap:0.75rem">'
+            '<label style="color:#aaa;font-size:0.8rem">Convertir monto en USD</label>'
+            '<input id="conv-usd" type="number" min="0" step="0.01" placeholder="Ej: 25.00"'
+            ' style="background:#0d1a0d;border:1px solid #4a7c3f;color:#fff;'
+            'padding:0.6rem 0.8rem;border-radius:4px;font-size:1rem;width:100%">'
+            '<button type="button" id="btn-convertir"'
+            ' style="background:#4a7c3f;color:#fff;border:none;padding:0.6rem 1.2rem;'
+            'border-radius:4px;cursor:pointer;font-weight:bold;font-size:0.9rem;width:fit-content">'
+            'Convertir'
+            '</button>'
+            '<div id="conv-result"'
+            ' style="color:#aaa;font-size:0.95rem;padding:0.5rem 0;min-height:1.5rem">'
+            '</div>'
+            '</div>'
+            '</div>'
+
+            '<script nonce="{}">'
+            '(function(){{'
+            '  var tasaInicial = {};'
+            '  document.getElementById("btn-obtener-tasa").addEventListener("click", function(){{'
+            '    var btn = this;'
+            '    btn.textContent = "Consultando..."; btn.disabled = true;'
+            '    fetch("/api/v1/core/exchange-rate/live/")'
+            '      .then(function(r){{ return r.json(); }})'
+            '      .then(function(d){{'
+            '        if (d.error) {{ alert("Error: " + d.error); btn.textContent = "\u21bb Obtener tasa online"; btn.disabled = false; return; }}'
+            '        var r = d.rate;'
+            '        document.getElementById("conv-tasa-display").textContent = r.toLocaleString("es-CO", {{minimumFractionDigits: 2}});'
+            '        document.getElementById("id_rate").value = r.toFixed(2);'
+            '        var hoy = new Date();'
+            '        var y = hoy.getFullYear(), m = String(hoy.getMonth()+1).padStart(2,"0"), dia = String(hoy.getDate()).padStart(2,"0");'
+            '        var df = document.getElementById("id_rate_date"); if (df) df.value = y+"-"+m+"-"+dia;'
+            '        document.getElementById("conv-live-info").textContent = "\u2714 Tasa obtenida: 1 USD = " + r.toLocaleString("es-CO",{{minimumFractionDigits:2}}) + " COP  (" + (d.time_last_update||"") + ")";'
+            '        btn.textContent = "\u21bb Obtener tasa online"; btn.disabled = false;'
+            '      }})'
+            '      .catch(function(e){{ alert("Sin conexi\xf3n: " + e); btn.textContent = "\u21bb Obtener tasa online"; btn.disabled = false; }});'
+            '  }});'
+            '  document.getElementById("btn-convertir").addEventListener("click", function(){{'
+            '    var usd = parseFloat(document.getElementById("conv-usd").value) || 0;'
+            '    var tasa = parseFloat(document.getElementById("id_rate").value) || tasaInicial;'
+            '    if (usd <= 0) {{ document.getElementById("conv-result").textContent = "\u2014 ingresa un valor mayor a 0"; return; }}'
+            '    var cop = usd * tasa;'
+            '    var red = Math.round(cop / 100) * 100;'
+            '    document.getElementById("conv-result").innerHTML = usd.toLocaleString("es-CO") + " USD &times; " + tasa.toLocaleString("es-CO",{{minimumFractionDigits:2}}) + " = <strong style=\\"color:#4fc870\\">" + red.toLocaleString("es-CO",{{minimumFractionDigits:0}}) + " COP</strong>";'
+            '  }});'
+            '}})();'
+            '</script>',
+            rate_str, nonce, rate,
+        )
     conversor_widget.short_description = 'Conversor rápido'

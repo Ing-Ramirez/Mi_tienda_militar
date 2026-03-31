@@ -35,29 +35,7 @@
     object-fit: cover !important; border-radius: 4px; display: block;
 }
 
-/* ── 3. BARRA DE ACCIONES RÁPIDAS (lista de productos) ───────────────────── */
-#fp-action-bar {
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    padding: 10px 0 14px; border-bottom: 1px solid #dee2e6; margin-bottom: 12px;
-}
-#fp-action-bar .fp-action-label {
-    font-size: 12px; font-weight: 600; color: #6c757d;
-    text-transform: uppercase; letter-spacing: .5px; margin-right: 4px;
-}
-.fp-action-btn {
-    padding: 6px 14px; border: none; border-radius: 4px;
-    font-size: 12px; font-weight: 500; cursor: pointer;
-    transition: opacity .2s, transform .1s; white-space: nowrap;
-}
-.fp-action-btn:hover:not(:disabled) { opacity: .85; transform: translateY(-1px); }
-.fp-action-btn:disabled              { opacity: .35; cursor: not-allowed; }
-.fp-btn-activate   { background: #4a7c3f; color: #fff; }
-.fp-btn-deactivate { background: #6c757d; color: #fff; }
-.fp-btn-export     { background: #2472a4; color: #fff; }
-.fp-btn-default    { background: #495057; color: #fff; }
-#fp-selection-count {
-    font-size: 12px; color: #6c757d; margin-left: auto; font-style: italic;
-}
+/* Lista de productos: barra de acciones = franja_admin.css + franja_admin_global.js */
 
 /* ═══════════════════════════════════════════════════════════════════════════
    4. LAYOUT PLANO VERTICAL

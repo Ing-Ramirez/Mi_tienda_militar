@@ -49,6 +49,7 @@ services:
       - ./nginx/proxy_params.conf:/etc/nginx/conf.d/proxy_params.conf:ro
       - static_files:/app/staticfiles:ro
       - media_files:/app/media:ro
+      - ./logs/nginx:/var/log/nginx
       - certbot_www:/var/www/certbot:ro
       - certbot_certs:/etc/letsencrypt:ro
     restart: always

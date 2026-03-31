@@ -39,6 +39,11 @@ class User(AbstractUser):
         help_text='Activa la verificación en dos pasos vía SMS'
     )
 
+    profile_image = models.ImageField(
+        upload_to='protected/profile_images/', null=True, blank=True,
+        verbose_name='Foto de perfil'
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

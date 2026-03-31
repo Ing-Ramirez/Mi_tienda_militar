@@ -479,7 +479,7 @@
       grid-template-columns: 5fr 6fr;
       min-height: 88vh;
       width: 100%;
-      max-width: 1400px;
+      max-width: 1320px;
       margin: 0 auto;
       position: relative;
       z-index: 1;
@@ -503,7 +503,7 @@
     }
     
     .hero-content {
-      padding: 5rem 2rem 5rem 8rem;
+      padding: 5rem 2rem 5rem 1.5rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -2151,15 +2151,28 @@
       display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center;
     }
     .up-avatar {
-      width: 64px; height: 64px; background: var(--olive-600); border: 2px solid var(--olive-400);
+      width: 72px; height: 72px; background: var(--olive-600); border: 2px solid var(--olive-400);
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; color: var(--white); margin-bottom: 0.25rem;
+      font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; color: var(--white);
+      margin-bottom: 0.25rem; cursor: pointer; position: relative; overflow: hidden;
+      transition: border-color var(--transition);
     }
+    .up-avatar:hover { border-color: var(--accent); }
+    .up-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .up-avatar-cam {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.55);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity var(--transition);
+      font-size: 1.1rem;
+    }
+    .up-avatar:hover .up-avatar-cam { opacity: 1; }
+    .up-sidebar-userinfo { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
     .up-user-name {
       font-family: var(--font-display); font-size: 1rem; font-weight: 700;
       letter-spacing: 0.06em; text-transform: uppercase; color: var(--white);
     }
     .up-user-email { font-family: var(--font-mono); font-size: 0.65rem; color: var(--ash); letter-spacing: 0.05em; }
+    .up-user-phone { font-family: var(--font-mono); font-size: 0.63rem; color: var(--olive-300); letter-spacing: 0.04em; margin-top: 0.1rem; }
     .up-nav { flex: 1; padding: 0.75rem 0; }
     .up-nav-item {
       display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.8rem 1.25rem;
@@ -2297,7 +2310,7 @@
     .up-points-how-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 0.1rem; }
     .up-points-how strong { color: var(--gold); }
 
-    .up-content-inner { padding: 2rem; flex: 1; max-width: 900px; width: 100%; }
+    .up-content-inner { padding: 2.5rem 2.5rem 3rem; flex: 1; max-width: 920px; width: 100%; }
     .up-section { display: none; }
     .up-section.active { display: block; }
     .up-section-title {
@@ -2430,24 +2443,24 @@
     .up-tx-pts.positive { color: var(--success-ui); }
     .up-tx-pts.negative { color: var(--danger-soft); }
 
-    .up-form-group { margin-bottom: 1.25rem; }
+    .up-form-group { margin-bottom: 1.4rem; }
     .up-form-label {
-      display: block; font-family: var(--font-mono); font-size: 0.62rem;
-      letter-spacing: 0.12em; text-transform: uppercase; color: var(--ash); margin-bottom: 0.4rem;
+      display: block; font-family: var(--font-mono); font-size: 0.63rem;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--olive-300); margin-bottom: 0.45rem;
     }
     .up-form-input {
-      width: 100%; padding: 0.65rem 0.85rem; background: var(--iron); border: 1px solid var(--slate);
-      color: var(--white); font-family: var(--font-body); font-size: 0.9rem;
+      width: 100%; padding: 0.72rem 1rem; background: var(--iron); border: 1px solid var(--slate);
+      color: var(--white); font-family: var(--font-body); font-size: 0.92rem;
       border-radius: var(--radius); transition: border-color var(--transition); outline: none;
     }
-    .up-form-input:focus { border-color: var(--accent); }
+    .up-form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(201,162,39,0.12); }
     .up-form-input::placeholder { color: var(--ash); }
     .up-form-select {
       appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%238a8f96' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
       background-repeat: no-repeat; background-position: right 0.85rem center; padding-right: 2.2rem;
     }
-    .up-form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .up-form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
     .up-form-msg {
       font-size: 0.82rem; padding: 0.6rem 0.85rem; border-radius: var(--radius);
       margin-bottom: 1rem; display: none;
@@ -2456,11 +2469,13 @@
     .up-form-msg.error   { background: rgba(184,50,50,0.15); border: 1px solid var(--danger); color: var(--danger-soft); }
     .up-card {
       background: var(--steel); border: 1px solid var(--iron); border-radius: var(--radius-md);
-      margin-bottom: 1.25rem; overflow: hidden;
+      margin-bottom: 1.75rem; overflow: hidden;
     }
     .up-card-title {
-      font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--ash); margin-bottom: 1rem;
+      font-family: var(--font-display); font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--white);
+      margin-bottom: 1.25rem; padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
     }
     .up-card-head {
       padding: 0.85rem 1.25rem; background: var(--iron);
@@ -2468,7 +2483,7 @@
       letter-spacing: 0.1em; text-transform: uppercase; color: var(--mist);
       border-bottom: 1px solid var(--slate); display: flex; align-items: center; gap: 0.5rem;
     }
-    .up-card-body { padding: 1.25rem; }
+    .up-card-body { padding: 1.5rem 1.75rem; }
     .up-loading {
       display: flex; align-items: center; justify-content: center; padding: 3rem;
       color: var(--ash); font-family: var(--font-mono); font-size: 0.7rem;
@@ -2488,6 +2503,32 @@
     .up-page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
     .up-page-info { font-family: var(--font-mono); font-size: 0.65rem; color: var(--ash); letter-spacing: 0.08em; }
 
+    /* ── Modal preview foto de perfil ── */
+    .up-avatar-modal {
+      position: fixed; inset: 0; z-index: 3000;
+      background: rgba(0,0,0,0.75); display: none;
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    .up-avatar-modal.open { display: flex; }
+    .up-avatar-modal-box {
+      background: var(--forest-dark); border: 1px solid var(--olive-600);
+      border-radius: var(--radius-md); padding: 1.75rem; max-width: 340px; width: 100%;
+      display: flex; flex-direction: column; align-items: center; gap: 1.25rem;
+    }
+    .up-avatar-modal-title {
+      font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--white);
+    }
+    .up-avatar-preview {
+      width: 120px; height: 120px; border-radius: 50%; overflow: hidden;
+      border: 3px solid var(--olive-500); background: var(--iron);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .up-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .up-avatar-modal-hint { font-family: var(--font-mono); font-size: 0.62rem; color: var(--ash); text-align: center; letter-spacing: 0.05em; }
+    .up-avatar-modal-actions { display: flex; gap: 0.75rem; width: 100%; }
+    .up-avatar-modal-actions .btn { flex: 1; justify-content: center; }
+
     @media (max-width: 768px) {
       .up-panel { flex-direction: column; }
       .up-sidebar { width: 100%; flex-shrink: 0; border-right: none; border-bottom: 1px solid var(--olive-700); }
@@ -2501,7 +2542,8 @@
       }
       .up-nav-item.active { border-bottom-color: var(--accent); border-left-color: transparent; }
       .up-sidebar-footer { display: none; }
-      .up-content-inner { padding: 1.25rem; }
+      .up-content-inner { padding: 1.25rem 1rem; }
+      .up-sidebar-userinfo { align-items: flex-start; }
       .up-stat-grid { grid-template-columns: repeat(2, 1fr); }
       .up-order-row { grid-template-columns: 1fr auto; }
       .up-order-num { grid-column: 1 / -1; }
@@ -2512,6 +2554,7 @@
     @media (max-width: 480px) {
       .up-stat-grid { grid-template-columns: 1fr 1fr; }
       .up-order-row { grid-template-columns: 1fr; gap: 0.5rem; }
+      .up-card-body { padding: 1.1rem 1.1rem; }
     }
 
     .cart-empty {
@@ -3081,6 +3124,10 @@
       outline: 2px solid var(--gold) !important;
       outline-offset: 3px !important;
     }
+    /* Utility: hidden-by-default elements (avoids CSP-blocked style="display:none" attributes) */
+    .d-none { display: none; }
+    .up-pts-msg { color: var(--ash); font-size: 0.85rem; padding: 1rem; }
+    .up-avatar-msg { font-size: 0.78rem; color: var(--danger-soft); text-align: center; }
   </style>
 </head>
 <body>
@@ -3126,7 +3173,7 @@
           </svg>
         </span>
         <input type="text" placeholder="Buscar productos tácticos..." id="search-input" autocomplete="off">
-        <div class="search-results" id="search-results" style="display:none"></div>
+        <div class="search-results d-none" id="search-results"></div>
       </div>
 
       <!-- Actions -->
@@ -3140,7 +3187,7 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
-          <span class="cart-count" id="wish-count" style="display:none">0</span>
+          <span class="cart-count d-none" id="wish-count">0</span>
         </button>
         <button class="nav-action-btn" title="Carrito" id="cart-btn" data-i18n-title="nav.cart_title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
@@ -3480,7 +3527,7 @@
   </div>
 
   <!-- cart-footer: solo botones de acción (siempre oculto cuando carrito vacío) -->
-  <div class="cart-footer" id="cart-footer" style="display:none">
+  <div class="cart-footer d-none" id="cart-footer">
     <button class="btn btn-accent" style="width:100%;justify-content:center;font-size:1.05rem" data-action="goToCheckout" id="cart-btn-checkout" data-i18n="cart_panel.checkout_nequi">
       Proceder al pago (Nequi)
     </button>
@@ -3509,7 +3556,7 @@
         <span id="summary-empty-text" data-i18n="cart_panel.summary_empty">El carrito está vacío</span>
       </div>
     </div>
-    <div class="summary-footer" id="summary-footer" style="display:none">
+    <div class="summary-footer d-none" id="summary-footer">
       <div class="summary-total-row" style="margin-bottom:0.75rem">
         <span id="summary-qty-label" style="color:var(--ash);font-size:0.8rem">0 productos</span>
         <span class="amount" id="summary-pending-total" style="font-size:0.9rem;font-weight:700">$0</span>
@@ -3541,7 +3588,7 @@
   <div class="size-body">
     <div class="size-prompt" id="size-modal-prompt">Selecciona tu talla:</div>
     <div class="size-options" id="size-options"></div>
-    <div class="size-error" id="size-error" style="display:none">Debes seleccionar una talla antes de continuar.</div>
+    <div class="size-error d-none" id="size-error">Debes seleccionar una talla antes de continuar.</div>
     <div class="size-actions">
       <button class="btn btn-primary" data-action="confirmSizeSelection" id="size-modal-confirm">Agregar al carrito</button>
       <button class="btn btn-ghost" data-action="closeSizeModal" id="size-modal-cancel">Cancelar</button>
@@ -3639,12 +3686,12 @@
         <input class="auth-input" type="text" id="co-notes" name="customer_notes" placeholder="Indicaciones de entrega">
       </div>
       <!-- ── Puntos de fidelidad ── -->
-      <div class="loyalty-section" id="loyalty-section" style="display:none">
+      <div class="loyalty-section d-none" id="loyalty-section">
         <div class="loyalty-section-label">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color:var(--gold)"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
           Puntos de fidelidad
         </div>
-        <div id="loyalty-balance-display" class="loyalty-balance-badge" style="display:none">
+        <div id="loyalty-balance-display" class="loyalty-balance-badge d-none">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
           <span id="loyalty-pts-label">0 pts</span>
           <span style="color:var(--ash)">≈</span>
@@ -3657,7 +3704,7 @@
             Aplicar
           </button>
         </div>
-        <div id="loyalty-applied-display" style="display:none">
+        <div id="loyalty-applied-display" class="d-none">
           <div class="loyalty-applied">
             <div class="loyalty-applied-info">
               <span class="loyalty-applied-pts" id="loyalty-applied-pts-val">0 pts</span>
@@ -3694,7 +3741,7 @@
   </div>
 
   <!-- Panel sesión activa -->
-  <div id="auth-logged-in" style="display:none">
+  <div id="auth-logged-in" class="d-none">
     <div class="auth-user-info">
       <div class="auth-user-avatar" id="auth-avatar-initials">?</div>
       <div class="auth-user-name" id="auth-user-name">—</div>
@@ -3766,10 +3813,15 @@
   <!-- SIDEBAR -->
   <aside class="up-sidebar">
     <div class="up-sidebar-header">
-      <div class="up-avatar" id="up-avatar">?</div>
-      <div>
+      <div class="up-avatar" id="up-avatar" title="Cambiar foto de perfil">
+        <span id="up-avatar-initials">?</span>
+        <img id="up-avatar-img" src="" alt="" class="d-none">
+        <div class="up-avatar-cam">📷</div>
+      </div>
+      <div class="up-sidebar-userinfo">
         <div class="up-user-name" id="up-user-name">Usuario</div>
         <div class="up-user-email" id="up-user-email">—</div>
+        <div class="up-user-phone d-none" id="up-user-phone"></div>
       </div>
     </div>
     <nav class="up-nav" aria-label="Secciones del panel">
@@ -3897,7 +3949,7 @@
           <div id="up-orders-container"></div>
           <div class="up-pagination" id="up-orders-pagination"></div>
         </div>
-        <div id="up-order-detail-view" style="display:none">
+        <div id="up-order-detail-view" class="d-none">
           <button class="up-back-btn" data-action="upOrderBack">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="15 18 9 12 15 6"/>
@@ -3945,50 +3997,67 @@
         <div class="up-section-subtitle">Información personal y de contacto</div>
         <div class="up-form-msg" id="up-profile-msg"></div>
         <form id="up-profile-form">
-          <div class="up-card" style="padding:1.25rem;">
-            <div class="up-card-title">Información personal</div>
-            <div class="up-form-2col">
-              <div class="up-form-group">
-                <label class="up-form-label" for="up-first-name">Nombre</label>
-                <input class="up-form-input" type="text" id="up-first-name" autocomplete="given-name">
-              </div>
-              <div class="up-form-group">
-                <label class="up-form-label" for="up-last-name">Apellido</label>
-                <input class="up-form-input" type="text" id="up-last-name" autocomplete="family-name">
-              </div>
+
+          <div class="up-card">
+            <div class="up-card-head">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              Información personal
             </div>
-            <div class="up-form-group" style="margin-bottom:0">
-              <label class="up-form-label" for="up-email">Correo electrónico</label>
-              <input class="up-form-input" type="email" id="up-email" autocomplete="email">
+            <div class="up-card-body">
+              <div class="up-form-2col">
+                <div class="up-form-group">
+                  <label class="up-form-label" for="up-first-name">Nombre</label>
+                  <input class="up-form-input" type="text" id="up-first-name" autocomplete="given-name">
+                </div>
+                <div class="up-form-group">
+                  <label class="up-form-label" for="up-last-name">Apellido</label>
+                  <input class="up-form-input" type="text" id="up-last-name" autocomplete="family-name">
+                </div>
+              </div>
+              <div class="up-form-group" style="margin-bottom:0">
+                <label class="up-form-label" for="up-email">Correo electrónico</label>
+                <input class="up-form-input" type="email" id="up-email" autocomplete="email">
+              </div>
             </div>
           </div>
-          <div class="up-card" style="padding:1.25rem;">
-            <div class="up-card-title">Datos de contacto</div>
-            <div class="up-form-2col">
-              <div class="up-form-group">
-                <label class="up-form-label" for="up-phone">Teléfono</label>
-                <input class="up-form-input" type="tel" id="up-phone" autocomplete="tel" placeholder="Ej: 3001234567">
+
+          <div class="up-card">
+            <div class="up-card-head">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13 19.79 19.79 0 0 1 1.08 4.4 2 2 0 0 1 3.07 2.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 16.92z"/>
+              </svg>
+              Datos de contacto
+            </div>
+            <div class="up-card-body">
+              <div class="up-form-2col">
+                <div class="up-form-group">
+                  <label class="up-form-label" for="up-phone">Teléfono</label>
+                  <input class="up-form-input" type="tel" id="up-phone" autocomplete="tel" placeholder="Ej: 3001234567">
+                </div>
+                <div class="up-form-group">
+                  <label class="up-form-label" for="up-doc-type">Tipo de documento</label>
+                  <select class="up-form-input up-form-select" id="up-doc-type">
+                    <option value="">Seleccionar...</option>
+                    <option value="CC">Cédula de ciudadanía</option>
+                    <option value="CE">Cédula de extranjería</option>
+                    <option value="NIT">NIT</option>
+                    <option value="PP">Pasaporte</option>
+                  </select>
+                </div>
               </div>
               <div class="up-form-group">
-                <label class="up-form-label" for="up-doc-type">Tipo de documento</label>
-                <select class="up-form-input up-form-select" id="up-doc-type">
-                  <option value="">Seleccionar...</option>
-                  <option value="CC">Cédula de ciudadanía</option>
-                  <option value="CE">Cédula de extranjería</option>
-                  <option value="NIT">NIT</option>
-                  <option value="PP">Pasaporte</option>
-                </select>
+                <label class="up-form-label" for="up-doc-num">Número de documento</label>
+                <input class="up-form-input" type="text" id="up-doc-num" placeholder="Ej: 1234567890">
               </div>
-            </div>
-            <div class="up-form-group">
-              <label class="up-form-label" for="up-doc-num">Número de documento</label>
-              <input class="up-form-input" type="text" id="up-doc-num" placeholder="Ej: 1234567890">
-            </div>
-            <div class="up-form-group" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0">
-              <input type="checkbox" id="up-marketing" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer;">
-              <label for="up-marketing" style="font-size:0.82rem;color:var(--ash);cursor:pointer;">Quiero recibir noticias, ofertas y promociones</label>
+              <div class="up-form-group" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0">
+                <input type="checkbox" id="up-marketing" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer;">
+                <label for="up-marketing" style="font-size:0.82rem;color:var(--ash);cursor:pointer;">Quiero recibir noticias, ofertas y promociones</label>
+              </div>
             </div>
           </div>
+
           <button type="submit" class="btn btn-primary" style="min-width:160px;">Guardar cambios</button>
         </form>
       </div>
@@ -4055,6 +4124,27 @@
   </main>
 
 </div><!-- /up-panel -->
+
+<!-- Input de archivo para avatar (oculto, fuera del layout) -->
+<input type="file" id="up-avatar-input" accept="image/jpeg,image/png,image/webp"
+  aria-hidden="true" tabindex="-1"
+  style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;left:-9999px;">
+
+<!-- ── Modal preview foto de perfil ── -->
+<div class="up-avatar-modal" id="up-avatar-modal">
+  <div class="up-avatar-modal-box">
+    <div class="up-avatar-modal-title">Cambiar foto de perfil</div>
+    <div class="up-avatar-preview">
+      <img id="up-avatar-preview-img" src="" alt="Preview">
+    </div>
+    <div class="up-avatar-modal-hint">Formatos: JPG, PNG, WebP &middot; M&aacute;x. 2 MB</div>
+    <div id="up-avatar-modal-msg" class="up-avatar-msg d-none"></div>
+    <div class="up-avatar-modal-actions">
+      <button class="btn btn-ghost" id="up-avatar-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="up-avatar-save">Guardar foto</button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════ CONFIRMACIÓN ═══════════════ -->
 <div class="up-confirm-overlay" id="up-confirm-overlay"></div>
@@ -5247,7 +5337,7 @@
         <div class="summary-row" style="flex-direction:column;align-items:stretch;gap:0">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.75rem">
             <div style="flex:1;min-width:0">
-              <div class="summary-prod-name" style="margin-bottom:0.2rem">${item.emoji} ${escHtml(item.name)}</div>
+              <div class="summary-prod-name" style="margin-bottom:0.2rem">${escHtml(item.emoji || '')} ${escHtml(item.name)}</div>
               <div class="summary-prod-meta">${escHtml(t('summary.sku_prefix', 'SKU'))}: ${escHtml(item.sku)} · ${fmt(price)} ${escHtml(t('summary.per_unit', 'c/u'))}</div>
               ${item.bordado ? `<div style="margin-top:0.3rem;font-size:0.72rem">
                 <span style="color:var(--ash)">${escHtml(t('summary.embroidery_prefix', 'Texto bordado:'))} </span>
@@ -5655,7 +5745,7 @@
 
     body.innerHTML = wishlist.map(item => `
       <div class="wish-item">
-        <div class="wish-item-img">${item.image ? '<img src="' + escHtml(item.image) + '" alt="' + escHtml(item.name) + '">' : item.emoji}</div>
+        <div class="wish-item-img">${item.image ? '<img src="' + escHtml(item.image) + '" alt="' + escHtml(item.name) + '">' : escHtml(item.emoji || '')}</div>
         <div class="wish-item-info">
           <div class="wish-item-name">${escHtml(item.name)}</div>
           <div class="wish-item-price">${fmt(item.price)}</div>
@@ -5878,7 +5968,7 @@
         <div class="pdp-main-img-wrap" id="pdp-main-img-wrap">
           ${p.image
             ? `<img src="${escHtml(p.image)}" alt="${escHtml(p.name)}">`
-            : `<span class="pdp-emoji-inner">${p.emoji}</span>`}
+            : `<span class="pdp-emoji-inner">${escHtml(p.emoji || '')}</span>`}
         </div>
         ${galeriaHTML}
         ${p.badge ? `<span class="badge ${p.badge==='featured'?'badge-accent':p.badge==='new'?'badge-olive':'badge-danger'}" style="align-self:center;margin-top:0.25rem">${escHtml(t(`badges.${p.badge}`, p.badge))}</span>` : ''}
@@ -6132,7 +6222,7 @@
     searchResults.style.display = 'block';
     searchResults.innerHTML = matches.map(p => `
       <div class="search-result-item" data-action="searchSelect" data-id="${p.id}">
-        <div class="search-result-img">${p.image ? '<img src="' + escHtml(p.image) + '" alt="' + escHtml(p.name) + '">' : p.emoji}</div>
+        <div class="search-result-img">${p.image ? '<img src="' + escHtml(p.image) + '" alt="' + escHtml(p.name) + '">' : escHtml(p.emoji || '')}</div>
         <div>
           <div class="search-result-name">${escHtml(p.name)}</div>
           <div class="search-result-price">${fmt(p.price)}</div>
@@ -6228,9 +6318,11 @@
     const user = JSON.parse(sessionStorage.getItem('auth_user') || '{}');
     const name = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email || 'Usuario';
     const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-    document.getElementById('up-avatar').textContent = initials || '?';
+    upSetAvatarDisplay(initials || '?', user.profile_image || null);
     document.getElementById('up-user-name').textContent = name;
     document.getElementById('up-user-email').textContent = user.email || '';
+    const phoneEl = document.getElementById('up-user-phone');
+    if (phoneEl) { phoneEl.textContent = user.phone || ''; phoneEl.style.display = user.phone ? '' : 'none'; }
     const topbarUser = document.getElementById('up-topbar-user');
     if (topbarUser) topbarUser.textContent = name;
     document.getElementById('up-overlay').classList.add('open');
@@ -6238,6 +6330,8 @@
     document.body.style.overflow = 'hidden';
     upUpdateTopbar(_upCurrentSection);
     upNav(_upCurrentSection);
+    // Siempre recargar dashboard al abrir el panel (datos frescos)
+    loadUpDashboard();
   }
 
   function closeUserPanel() {
@@ -6265,8 +6359,8 @@
   async function loadUpDashboard() {
     try {
       const [ordersRes, loyaltyRes] = await Promise.all([
-        fetch(`${UP_ORDERS_API}?page_size=3`, { headers: _authHeader() }),
-        fetch(`${LOYALTY_API}balance/`,       { headers: _authHeader() }),
+        fetch(`${UP_ORDERS_API}?page_size=3&ordering=-created_at`, { headers: _authHeader() }),
+        fetch(`${LOYALTY_API}balance/`,                             { headers: _authHeader() }),
       ]);
       if (ordersRes.ok) {
         const data = await ordersRes.json();
@@ -6286,7 +6380,8 @@
 
   function renderUpDashOrders(orders) {
     const el = document.getElementById('up-dash-recent-orders');
-    if (!orders.length) {
+    const valid = (orders || []).filter(o => o && (o.id || o.order_number));
+    if (!valid.length) {
       el.innerHTML = `<div class="up-empty">
         <div class="up-empty-icon">📭</div>
         <div class="up-empty-text">Aún no tienes pedidos</div>
@@ -6294,21 +6389,25 @@
       </div>`;
       return;
     }
-    el.innerHTML = `<div class="up-orders-list">${orders.map(o => renderUpOrderRow(o)).join('')}</div>`;
+    el.innerHTML = `<div class="up-orders-list">${valid.map(o => renderUpOrderRow(o)).join('')}</div>`;
   }
 
   function renderUpOrderRow(o) {
-    const sc = upOrderStatusClass(o.status || 'pending');
-    const sl = upOrderStatusLabel(o.status || 'pending');
-    const cnt = (o.items || []).length;
-    return `<div class="up-order-row" data-action="upOpenOrder" data-order-id="${escHtml(String(o.id))}">
-      <div class="up-order-num">#${escHtml(o.order_number || String(o.id))}</div>
+    if (!o) return '';
+    const orderId   = o.id ? String(o.id) : '';
+    const orderNum  = o.order_number || (orderId ? 'FP-' + orderId.slice(0, 8).toUpperCase() : 'S/N');
+    const sc  = upOrderStatusClass(o.status || 'pending');
+    const sl  = upOrderStatusLabel(o.status || 'pending');
+    const cnt = Array.isArray(o.items) ? o.items.length : (Number(o.items_count) || 0);
+    const total = Number(o.total) || 0;
+    return `<div class="up-order-row" data-action="upOpenOrder" data-order-id="${escHtml(orderId)}">
+      <div class="up-order-num">#${escHtml(orderNum)}</div>
       <div class="up-order-info">
         <div class="up-order-date">${fmtDate(o.created_at)}</div>
         <div class="up-order-items">${cnt} producto${cnt !== 1 ? 's' : ''}</div>
       </div>
       <div class="up-order-status ${sc}">${escHtml(sl)}</div>
-      <div class="up-order-total">${fmtCOP(o.total || 0)}</div>
+      <div class="up-order-total">${fmtCOP(total)}</div>
     </div>`;
   }
 
@@ -6320,7 +6419,7 @@
     document.getElementById('up-orders-list-view').style.display = 'block';
     document.getElementById('up-order-detail-view').style.display = 'none';
     try {
-      const res = await fetch(`${UP_ORDERS_API}?page=${page}&page_size=10`, { headers: _authHeader() });
+      const res = await fetch(`${UP_ORDERS_API}?page=${page}&page_size=10&ordering=-created_at`, { headers: _authHeader() });
       if (!res.ok) { el.innerHTML = `<div class="up-empty"><div class="up-empty-text">Error al cargar pedidos</div></div>`; return; }
       const data = await res.json();
       const orders = data.results || [];
@@ -6448,7 +6547,7 @@
           </div>`;
         upUpdatePtsRate(pts.point_value_cop || 10);
       } else {
-        header.innerHTML = `<div style="color:var(--ash);font-size:0.85rem;padding:1rem;">No disponible</div>`;
+        header.innerHTML = `<div class="up-pts-msg">No disponible</div>`;
       }
       if (txRes.ok) {
         const txData = await txRes.json();
@@ -6478,7 +6577,7 @@
         renderUpTxPagination();
       }
     } catch {
-      header.innerHTML = `<div style="color:var(--ash);font-size:0.85rem;padding:1rem;">Error de conexión</div>`;
+      header.innerHTML = `<div class="up-pts-msg">Error de conexión</div>`;
     }
   }
 
@@ -6504,6 +6603,26 @@
       document.getElementById('up-doc-type').value   = user.document_type   || '';
       document.getElementById('up-doc-num').value    = user.document_number || '';
       document.getElementById('up-marketing').checked = !!user.accepts_marketing;
+      // Actualizar avatar si el backend devuelve la URL
+      {
+        const prev = JSON.parse(sessionStorage.getItem('auth_user') || '{}');
+        let changed = false;
+        if (user.account_type && prev.account_type !== user.account_type) {
+          prev.account_type = user.account_type;
+          changed = true;
+        }
+        if (user.profile_image && prev.profile_image !== user.profile_image) {
+          prev.profile_image = user.profile_image;
+          changed = true;
+        }
+        if (changed) {
+          sessionStorage.setItem('auth_user', JSON.stringify(prev));
+        }
+      }
+      if (user.profile_image) {
+        const initialsEl = document.getElementById('up-avatar-initials');
+        upSetAvatarDisplay(initialsEl ? initialsEl.textContent : '?', user.profile_image);
+      }
     } catch { /* silencioso */ }
   }
 
@@ -6529,12 +6648,22 @@
       const data = await res.json();
       if (res.ok) {
         const prev = JSON.parse(sessionStorage.getItem('auth_user') || '{}');
-        sessionStorage.setItem('auth_user', JSON.stringify({ ...prev, ...data }));
+        const next = {
+          email: data.email || prev.email,
+          first_name: data.first_name || prev.first_name,
+          last_name: data.last_name || prev.last_name,
+          phone: data.phone || prev.phone || '',
+          account_type: data.account_type || prev.account_type || 'customer',
+          profile_image: data.profile_image || prev.profile_image || null,
+        };
+        sessionStorage.setItem('auth_user', JSON.stringify(next));
         const name = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.email || 'Usuario';
         const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-        document.getElementById('up-avatar').textContent    = initials || '?';
+        upSetAvatarDisplay(initials || '?', data.profile_image || null);
         document.getElementById('up-user-name').textContent = name;
         document.getElementById('up-user-email').textContent = data.email || '';
+        const phoneEl2 = document.getElementById('up-user-phone');
+        if (phoneEl2) { phoneEl2.textContent = data.phone || ''; phoneEl2.style.display = data.phone ? '' : 'none'; }
         updateAccountBtn();
         msg.className = 'up-form-msg success';
         msg.textContent = 'Perfil actualizado correctamente.';
@@ -6727,7 +6856,15 @@
       if (data.access) {
         _accessToken = data.access;
         // refresh viaja en HttpOnly cookie (establecida por el servidor)
-        sessionStorage.setItem('auth_user', JSON.stringify(data.user || { email, first_name: firstName, last_name: lastName }));
+        const u = data.user || {};
+        sessionStorage.setItem('auth_user', JSON.stringify({
+          email: u.email || email,
+          first_name: u.first_name || firstName,
+          last_name: u.last_name || lastName,
+          phone: u.phone || '',
+          account_type: u.account_type || 'customer',
+          profile_image: u.profile_image || null,
+        }));
       }
       closeAuthModal();
       showToast(t('auth.welcome', '¡Bienvenido! Cuenta creada correctamente.'), '✅');
@@ -6755,7 +6892,15 @@
       }
       _accessToken = data.access;
       // refresh viaja en HttpOnly cookie (establecida por el servidor)
-      sessionStorage.setItem('auth_user', JSON.stringify(data.user || { email }));
+      const u = data.user || {};
+      sessionStorage.setItem('auth_user', JSON.stringify({
+        email: u.email || email,
+        first_name: u.first_name || '',
+        last_name: u.last_name || '',
+        phone: u.phone || '',
+        account_type: u.account_type || 'customer',
+        profile_image: u.profile_image || null,
+      }));
       closeAuthModal();
       showToast(t('auth.login_ok', 'Sesión iniciada correctamente.'), '✅');
       updateAccountBtn(); updateAdminBtn();
@@ -6795,10 +6940,110 @@
 
   function updateAdminBtn() {
     const user = JSON.parse(sessionStorage.getItem('auth_user') || '{}');
-    const isAdmin = !!(user.is_staff || user.is_superuser);
+    const isAdmin = user.account_type === 'staff';
     const btn = document.getElementById('admin-btn');
     btn.classList.toggle('visible', isAdmin);
   }
+
+  // ── Avatar ────────────────────────────────────────────
+  function upSetAvatarDisplay(initials, imageUrl) {
+    const initialsEl = document.getElementById('up-avatar-initials');
+    const imgEl      = document.getElementById('up-avatar-img');
+    if (!initialsEl || !imgEl) return;
+    if (imageUrl) {
+      imgEl.src = imageUrl;
+      imgEl.style.display = 'block';
+      initialsEl.style.display = 'none';
+    } else {
+      imgEl.src = '';
+      imgEl.style.display = 'none';
+      initialsEl.style.display = '';
+      initialsEl.textContent = initials || '?';
+    }
+  }
+
+  (function _initAvatarUpload() {
+    const avatarDiv    = document.getElementById('up-avatar');
+    const fileInput    = document.getElementById('up-avatar-input');
+    const modal        = document.getElementById('up-avatar-modal');
+    const previewImg   = document.getElementById('up-avatar-preview-img');
+    const msgEl        = document.getElementById('up-avatar-modal-msg');
+    const saveBtn      = document.getElementById('up-avatar-save');
+    const cancelBtn    = document.getElementById('up-avatar-cancel');
+    if (!avatarDiv || !fileInput || !modal) return;
+
+    function closeAvatarModal() {
+      modal.classList.remove('open');
+      fileInput.value = '';
+      msgEl.style.display = 'none';
+      saveBtn.textContent = 'Guardar foto';
+      saveBtn.disabled = false;
+    }
+
+    avatarDiv.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowed.includes(file.type)) {
+        alert('Solo se permiten imágenes JPG, PNG o WebP.');
+        fileInput.value = '';
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        alert('La imagen no puede superar 2 MB.');
+        fileInput.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = e => { previewImg.src = e.target.result; };
+      reader.readAsDataURL(file);
+      msgEl.style.display = 'none';
+      modal.classList.add('open');
+    });
+
+    cancelBtn.addEventListener('click', closeAvatarModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeAvatarModal(); });
+
+    saveBtn.addEventListener('click', async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      saveBtn.textContent = 'Guardando...';
+      saveBtn.disabled = true;
+      msgEl.style.display = 'none';
+      try {
+        const form = new FormData();
+        form.append('avatar', file);
+        const res = await fetch('/api/v1/auth/me/avatar/', {
+          method: 'POST',
+          headers: _authHeader(),
+          body: form,
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          msgEl.textContent = data.detail || 'Error al subir la imagen.';
+          msgEl.style.display = 'block';
+          saveBtn.textContent = 'Guardar foto';
+          saveBtn.disabled = false;
+          return;
+        }
+        // Actualizar sessionStorage y display
+        const prev = JSON.parse(sessionStorage.getItem('auth_user') || '{}');
+        prev.profile_image = data.profile_image;
+        sessionStorage.setItem('auth_user', JSON.stringify(prev));
+        const initialsEl = document.getElementById('up-avatar-initials');
+        const currentInitials = initialsEl ? initialsEl.textContent : '?';
+        upSetAvatarDisplay(currentInitials, data.profile_image);
+        closeAvatarModal();
+      } catch {
+        msgEl.textContent = 'No se pudo conectar con el servidor.';
+        msgEl.style.display = 'block';
+        saveBtn.textContent = 'Guardar foto';
+        saveBtn.disabled = false;
+      }
+    });
+  })();
 
   // ── INIT ────────────────────────────────────────────
   document.getElementById('cart-btn').addEventListener('click', openCart);

@@ -195,7 +195,7 @@ class Order(models.Model):
 
     # Pago manual Neki (comprobante)
     payment_proof = models.ImageField(
-        upload_to='payment_proofs/neki/%Y/%m/',
+        upload_to='protected/payment_proofs/neki/%Y/%m/',
         blank=True,
         null=True,
         verbose_name='Comprobante de pago',

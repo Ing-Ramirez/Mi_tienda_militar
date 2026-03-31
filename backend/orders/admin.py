@@ -184,13 +184,15 @@ class OrderAdmin(admin.ModelAdmin):
     def payment_proof_preview(self, obj):
         if not obj.payment_proof:
             return '—'
-        url = obj.payment_proof.url
+        from django.urls import reverse
+        url = reverse('staff_order_payment_proof', kwargs={'order_id': obj.pk})
         return format_html(
             '<a href="{}" target="_blank" rel="noopener" title="Ver imagen completa">'
-            '<div style="width:320px;height:320px;background:#1a1a1a;border:1px solid #444;'
-            'border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;">'
-            '<img src="{}" style="width:100%;height:100%;object-fit:contain;" alt="Comprobante"/>'
-            '</div></a>',
+            '<img src="{}"'
+            ' style="max-width:440px;max-height:52vh;width:auto;height:auto;display:block;'
+            'border:1px solid #444;border-radius:6px;background:#1a1a1a;"'
+            ' alt="Comprobante"/>'
+            '</a>',
             url, url,
         )
     payment_proof_preview.short_description = 'Vista previa'

@@ -9,6 +9,8 @@ import base64
 import os
 import time
 import logging
+import re
+import uuid
 from datetime import timedelta
 
 from django.conf import settings
@@ -108,6 +110,7 @@ class SecurityHeadersMiddleware:
         response.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
 
 logger = logging.getLogger('core.security')
+security_events_logger = logging.getLogger('security.events')
 
 ADMIN_URL = getattr(settings, 'ADMIN_URL', 'panel-fp-admin/')
 LOCKOUT_SOFT_ATTEMPTS = 5        # Intentos antes de bloqueo corto
@@ -171,7 +174,8 @@ class AdminBruteForceMiddleware:
 
         # Antes de procesar el POST de login, verificar bloqueo
         if request.path == admin_login_path and request.method == 'POST':
-            username = request.POST.get('username', '').strip()
+            raw_username = request.POST.get('username', '').strip()
+            username = raw_username or '__anonymous__'
             ip = _get_client_ip(request)
 
             block_response = self._check_lockout(username, ip)
@@ -182,7 +186,8 @@ class AdminBruteForceMiddleware:
 
         # Después de procesar el login, registrar el intento
         if request.path == admin_login_path and request.method == 'POST':
-            username = request.POST.get('username', '').strip()
+            raw_username = request.POST.get('username', '').strip()
+            username = raw_username or '__anonymous__'
             ip = _get_client_ip(request)
             # Éxito = redirige (302) al panel; fallo = renderiza login de nuevo (200)
             was_successful = response.status_code in (301, 302)
@@ -191,8 +196,6 @@ class AdminBruteForceMiddleware:
         return response
 
     def _check_lockout(self, username, ip):
-        if not username:
-            return None
         try:
             from .models import LoginAttempt
             one_hour_ago = timezone.now() - timedelta(hours=1)
@@ -300,3 +303,57 @@ class AdminSessionTimeoutMiddleware:
             request.session['admin_last_activity'] = now
 
         return self.get_response(request)
+
+
+class SecurityMonitoringMiddleware:
+    """
+    Telemetría defensiva para SIEM:
+    - Asigna/propaga X-Request-ID.
+    - Reporta señales de probing/inyección para correlación.
+    - Registra respuestas de abuso (401/403/405/429) en rutas críticas.
+    """
+
+    _SUSPICIOUS_RE = re.compile(
+        r"(<script|%3cscript|union(?:\+|%20)select|sleep\(|benchmark\(|\.\./|or(?:\+|%20)1=1)",
+        re.IGNORECASE,
+    )
+    _CRITICAL_PREFIXES = (
+        "/api/v1/auth/",
+        "/api/v1/orders/",
+        "/api/v1/payments/",
+    )
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        request_id = request.META.get("HTTP_X_REQUEST_ID") or str(uuid.uuid4())
+        request.request_id = request_id
+        request.META["HTTP_X_REQUEST_ID"] = request_id
+
+        response = self.get_response(request)
+        response.setdefault("X-Request-ID", request_id)
+
+        ip = _get_client_ip(request)
+        path = request.path or ""
+        qs = request.META.get("QUERY_STRING", "")
+        ua = (request.META.get("HTTP_USER_AGENT", "") or "")[:300]
+        status_code = int(getattr(response, "status_code", 0) or 0)
+
+        suspicious_input = bool(self._SUSPICIOUS_RE.search(path) or self._SUSPICIOUS_RE.search(qs))
+        critical_path = path.startswith(self._CRITICAL_PREFIXES)
+        abuse_status = status_code in (401, 403, 405, 429)
+
+        if suspicious_input or (critical_path and abuse_status):
+            security_events_logger.warning(
+                "SECURITY_EVENT path=%s status=%s ip=%s method=%s request_id=%s ua=%s qs=%s",
+                path,
+                status_code,
+                ip,
+                request.method,
+                request_id,
+                ua,
+                qs[:500],
+            )
+
+        return response

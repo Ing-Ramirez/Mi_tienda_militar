@@ -22,6 +22,7 @@ from .serializers import (
 )
 from .tasks import procesar_webhook
 from .services.stock_dinamico import ServicioStockDinamico
+from .throttles import WebhookAnonThrottle
 
 logger = logging.getLogger(__name__)
 
@@ -43,11 +44,11 @@ class WebhookProveedorView(APIView):
     Seguridad:
       - Sin autenticación JWT (el proveedor externo no tiene tokens internos).
       - Validación por firma HMAC-SHA256 (cabecera X-Webhook-Signature o X-Hub-Signature-256).
-      - Sin rate limiting global — los proveedores legítimos envían a tasas controladas.
+      - Límite de tasa por IP para contener abuso y picos anómalos.
     """
     authentication_classes = []
     permission_classes     = []
-    throttle_classes       = []
+    throttle_classes       = [WebhookAnonThrottle]
 
     def post(self, request, proveedor_slug):
         # 1. Buscar proveedor activo o en prueba
@@ -100,11 +101,11 @@ class WebhookProveedorView(APIView):
     def _validar_firma(self, request, proveedor) -> bool:
         """
         Valida la firma HMAC-SHA256 del payload.
-        En producción, exige `webhook_secret` para evitar webhooks sin firma.
-        En DEBUG permite omitirlo para facilitar pruebas locales.
+        Sin `webhook_secret`, solo se acepta el cuerpo si WEBHOOK_ALLOW_UNSIGNED=True
+        (.env de desarrollo explícito — nunca en producción).
         """
         if not proveedor.webhook_secret:
-            return bool(settings.DEBUG)
+            return bool(getattr(settings, 'WEBHOOK_ALLOW_UNSIGNED', False))
 
         # Soporta tanto X-Webhook-Signature como X-Hub-Signature-256 (formato GitHub)
         firma_recibida = (

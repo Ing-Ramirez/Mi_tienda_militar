@@ -1,14 +1,27 @@
+import mimetypes
+
 from django.conf import settings
+from django.core import signing
 from django.core.exceptions import ValidationError
-from rest_framework import serializers, status, viewsets
+from django.db.models import Count
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Cart, CartItem, Coupon, Order, OrderItem
-from .serializers import CartSerializer, CartItemSerializer
+from .serializers import (
+    CartSerializer,
+    CartItemSerializer,
+    OrderSummarySerializer,
+    OrderDetailSerializer,
+)
+from .media_tokens import parse_payment_proof_token
+from .throttles import PaymentProofMediaAnonThrottle
 
 
 # ── Helpers de validación de stock ────────────────────────────────────────────
@@ -77,7 +90,18 @@ class CartViewSet(viewsets.GenericViewSet):
         talla = request.data.get('talla', '')
         bordado = request.data.get('bordado', '').upper()[:30]
         rh = request.data.get('rh', '')
-        quantity = int(request.data.get('quantity', 1))
+        try:
+            quantity = int(request.data.get('quantity', 1))
+        except (TypeError, ValueError):
+            return Response(
+                {'detail': 'Cantidad no válida.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if quantity < 1:
+            return Response(
+                {'detail': 'La cantidad debe ser al menos 1.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         from products.models import Product, ProductVariant
         try:
@@ -138,7 +162,13 @@ class CartViewSet(viewsets.GenericViewSet):
             item = CartItem.objects.get(id=item_id, cart=cart)
         except CartItem.DoesNotExist:
             return Response({'detail': 'Ítem no encontrado.'}, status=404)
-        quantity = int(request.data.get('quantity', item.quantity))
+        try:
+            quantity = int(request.data.get('quantity', item.quantity))
+        except (TypeError, ValueError):
+            return Response(
+                {'detail': 'Cantidad no válida.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         if quantity <= 0:
             item.delete()
         else:
@@ -204,10 +234,18 @@ class CartViewSet(viewsets.GenericViewSet):
 
 class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = serializers.Serializer  # Replaced at runtime
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user).prefetch_related('items')
+        return (
+            Order.objects.filter(user=self.request.user)
+            .prefetch_related('items')
+            .annotate(items_count=Count('items', distinct=True))
+        )
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return OrderDetailSerializer
+        return OrderSummarySerializer
 
     @action(detail=False, methods=['post'])
     def checkout(self, request):
@@ -370,6 +408,41 @@ class CheckoutNekiView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+
+class OrderPaymentProofMediaView(APIView):
+    """
+    Comprobante Neki para el dueño del pedido (URL firmada en payment_proof_url).
+    """
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    throttle_classes = [PaymentProofMediaAnonThrottle]
+
+    def get(self, request, pk):
+        token = request.query_params.get('t')
+        if not token:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            data = parse_payment_proof_token(token)
+        except signing.SignatureExpired:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        except signing.BadSignature:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        if str(data['o']) != str(pk):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        order = get_object_or_404(Order, pk=pk)
+        if not order.payment_proof or order.payment_proof.name != data['f']:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        if str(order.user_id) != str(data['u']):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        try:
+            fp = order.payment_proof.open('rb')
+        except FileNotFoundError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        mime, _ = mimetypes.guess_type(order.payment_proof.name)
+        resp = FileResponse(fp, content_type=mime or 'application/octet-stream')
+        resp['Cache-Control'] = 'private, no-store'
+        return resp
 
 
 class CouponValidateView(APIView):

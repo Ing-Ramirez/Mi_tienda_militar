@@ -31,5 +31,8 @@ def exchange_rate_live(request):
             'time_last_update': data.get('time_last_update_utc', ''),
         })
     except Exception as e:
-        logger.warning('Error consultando tasa de cambio: %s', e)
-        return JsonResponse({'error': str(e)}, status=502)
+        logger.warning('Error consultando tasa de cambio: %s', e, exc_info=True)
+        return JsonResponse(
+            {'error': 'No se pudo obtener la tasa de cambio.'},
+            status=502,
+        )

@@ -158,19 +158,15 @@ class ProductAdmin(admin.ModelAdmin):
             img = obj.main_image
             if img and img.image:
                 return format_html(
-                    '<div style="width:52px;height:52px;overflow:hidden;border-radius:4px;'
-                    'border:1px solid #dee2e6;flex-shrink:0">'
-                    '<img src="{}" style="width:100%;height:100%;object-fit:cover;display:block">'
+                    '<div class="fp-thumb-wrap">'
+                    '<img src="{}" class="fp-thumb-img" alt="">'
                     '</div>',
                     img.image.url
                 )
         except Exception:
             pass
         return format_html(
-            '<div style="width:52px;height:52px;display:flex;align-items:center;'
-            'justify-content:center;background:#f8f9fa;border-radius:4px;'
-            'border:1px solid #dee2e6;font-size:1.4rem">{}</div>',
-            '📦'
+            '<div class="fp-thumb-wrap fp-thumb-empty">📦</div>'
         )
     thumbnail_preview.short_description = 'Imagen'
 

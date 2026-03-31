@@ -8,4 +8,6 @@ urlpatterns = [
     # El refresh token viaja en HttpOnly cookie, no en el body
     path('token/refresh/', views.CookieTokenRefreshView.as_view(), name='token_refresh'),
     path('me/', views.MeView.as_view(), name='me'),
+    path('me/avatar/', views.AvatarUploadView.as_view(), name='avatar_upload'),
+    path('me/avatar/file/', views.AvatarMediaView.as_view(), name='avatar_media'),
 ]

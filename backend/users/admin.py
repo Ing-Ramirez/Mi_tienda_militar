@@ -1,11 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User
+from .forms import UserAdminForm
 from core.admin_site import admin_site
 
 
 @admin.register(User, site=admin_site)
 class UserAdmin(BaseUserAdmin):
+    form = UserAdminForm
     list_display = (
         'email',
         'nombre_display',

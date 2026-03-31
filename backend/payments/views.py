@@ -33,13 +33,20 @@ class StripePaymentIntentView(APIView):
             },
         )
 
+        raw_safe = {
+            'id': intent.get('id'),
+            'status': intent.get('status'),
+            'amount': intent.get('amount'),
+            'currency': intent.get('currency'),
+            'created': intent.get('created'),
+        }
         Payment.objects.create(
             order=order,
             method='stripe',
             payment_id=intent['id'],
             amount=order.total,
             status='pending',
-            raw_response=intent,
+            raw_response=raw_safe,
         )
 
         return Response({'client_secret': intent['client_secret']})

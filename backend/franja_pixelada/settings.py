@@ -2,6 +2,7 @@
 Franja Pixelada — Django Settings
 """
 import os
+import socket
 from pathlib import Path
 from datetime import timedelta
 from django.core.exceptions import ImproperlyConfigured
@@ -75,6 +76,14 @@ if not DEBUG:
             '\n  - '.join(_errors)
         )
 
+# Webhooks de proveedores sin HMAC: solo en desarrollo local explícito (.env).
+# Nunca usar True en producción (accesible públicamente sin firma si el proveedor no tiene secreto).
+WEBHOOK_ALLOW_UNSIGNED = os.environ.get('WEBHOOK_ALLOW_UNSIGNED', 'False') == 'True'
+if not DEBUG and WEBHOOK_ALLOW_UNSIGNED:
+    raise ImproperlyConfigured(
+        'WEBHOOK_ALLOW_UNSIGNED no está permitido cuando DEBUG=False.'
+    )
+
 INSTALLED_APPS = [
     'jazzmin',
     'django.contrib.admin',
@@ -117,6 +126,8 @@ MIDDLEWARE = [
     'core.middleware.SecurityHeadersMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    # Telemetría de seguridad para SIEM (request-id + eventos sospechosos)
+    'core.middleware.SecurityMonitoringMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # OTP: desactivado si DISABLE_ADMIN_OTP=True en .env
@@ -417,6 +428,8 @@ JAZZMIN_SETTINGS = {
 
     # Estilos propios (paridad de marca con la tienda — ver static/css/franja_admin.css)
     "custom_css": "css/franja_admin.css",
+    # JS global: reinicializa select-all tras navegación pjax de Jazzmin
+    "custom_js": "js/franja_admin_global.js",
 
     # Íconos por modelo (Font Awesome 5)
     "icons": {
@@ -508,6 +521,12 @@ JAZZMIN_UI_TWEAKS = {
 }
 
 # ── Logging ────────────────────────────────────────────────────────────────
+SIEM_ENABLED = os.environ.get('SIEM_ENABLED', 'False') == 'True'
+SIEM_HOST = os.environ.get('SIEM_HOST', '').strip()
+SIEM_PORT = int(os.environ.get('SIEM_PORT', '514'))
+SIEM_PROTOCOL = os.environ.get('SIEM_PROTOCOL', 'udp').strip().lower()
+_SIEM_SOCKTYPE = socket.SOCK_STREAM if SIEM_PROTOCOL == 'tcp' else socket.SOCK_DGRAM
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -528,9 +547,33 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
+        **(
+            {
+                'siem': {
+                    'level': 'WARNING',
+                    'class': 'logging.handlers.SysLogHandler',
+                    'address': (SIEM_HOST, SIEM_PORT),
+                    'socktype': _SIEM_SOCKTYPE,
+                    'formatter': 'verbose',
+                }
+            }
+            if SIEM_ENABLED and SIEM_HOST else {}
+        ),
+    },
+    'loggers': {
+        'core.security': {
+            'handlers': ['console', 'file', *(['siem'] if SIEM_ENABLED and SIEM_HOST else [])],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'security.events': {
+            'handlers': ['console', 'file', *(['siem'] if SIEM_ENABLED and SIEM_HOST else [])],
+            'level': 'WARNING',
+            'propagate': False,
+        },
     },
     'root': {
-        'handlers': ['console', 'file'],
+        'handlers': ['console', 'file', *(['siem'] if SIEM_ENABLED and SIEM_HOST else [])],
         'level': 'WARNING',
     },
 }

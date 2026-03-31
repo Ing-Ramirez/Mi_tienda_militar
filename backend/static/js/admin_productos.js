@@ -439,63 +439,7 @@
         });
     }
 
-    /* ══════════════════════════════════════════════════════════════════════
-       BARRA DE ACCIONES RÁPIDAS (página de lista)
-       ══════════════════════════════════════════════════════════════════════ */
-    function initActionBar() {
-        var ACTION_STYLES = {
-            activate_products:    'fp-btn-activate',
-            deactivate_products:  'fp-btn-deactivate',
-            export_inventory_csv: 'fp-btn-export',
-        };
-        var form   = document.getElementById('changelist-form');
-        var select = form && form.querySelector('select[name="action"]');
-        if (!select) return;
-
-        var bar = document.createElement('div');
-        bar.id = 'fp-action-bar';
-        var lbl = document.createElement('span');
-        lbl.className = 'fp-action-label'; lbl.textContent = 'Acciones:';
-        bar.appendChild(lbl);
-
-        var buttons = [];
-        select.querySelectorAll('option').forEach(function (opt) {
-            if (!opt.value) return;
-            var btn = document.createElement('button');
-            btn.type              = 'button';
-            btn.textContent       = opt.textContent.trim();
-            btn.dataset.actionValue = opt.value;
-            btn.disabled          = true;
-            btn.className         = 'fp-action-btn ' + (ACTION_STYLES[opt.value] || 'fp-btn-default');
-            btn.addEventListener('click', function () {
-                select.value = this.dataset.actionValue;
-                var go = form.querySelector('.button[name="index"], button[name="index"], input[name="index"]');
-                if (go) { go.click(); } else {
-                    var h = document.createElement('input');
-                    h.type = 'hidden'; h.name = 'index'; h.value = '0';
-                    form.appendChild(h); form.submit();
-                }
-            });
-            bar.appendChild(btn);
-            buttons.push(btn);
-        });
-
-        var counter = document.createElement('span');
-        counter.id = 'fp-selection-count';
-        bar.appendChild(counter);
-
-        var rl = document.getElementById('result_list');
-        if (rl) rl.parentNode.insertBefore(bar, rl);
-        else { var ab = form.querySelector('.actions'); if (ab) ab.after(bar); }
-
-        function refresh() {
-            var n = form.querySelectorAll('#result_list tbody input[type="checkbox"]:checked').length;
-            buttons.forEach(function (b) { b.disabled = n === 0; });
-            counter.textContent = n > 0 ? n + ' seleccionado' + (n > 1 ? 's' : '') : '';
-        }
-        form.addEventListener('change', function (e) { if (e.target.type === 'checkbox') refresh(); });
-        refresh();
-    }
+    /* Barra de acciones del changelist: franja_admin_global.js (única fuente). */
 
     /* ── Utilidades ──────────────────────────────────────────────────────── */
     function escText(s) {
@@ -511,7 +455,9 @@
         var hasProductForm = document.getElementById('id_sku') !== null &&
                              document.getElementById('id_price') !== null;
         if (hasProductForm) initFlatLayout();
-        initActionBar();
+        if (window.FPAdminChangelist && typeof window.FPAdminChangelist.schedule === 'function') {
+            window.FPAdminChangelist.schedule();
+        }
     }
 
     if (document.readyState === 'loading') {

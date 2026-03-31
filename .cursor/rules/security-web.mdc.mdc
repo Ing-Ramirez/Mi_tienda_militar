@@ -1,0 +1,194 @@
+---
+description: "Estándares obligatorios de seguridad para desarrollo web (frontend, backend, APIs y autenticación)"
+alwaysApply: true
+---
+
+# PRINCIPIO GENERAL
+Todo desarrollo debe seguir el enfoque **secure-by-design** y **least privilege**. 
+El agente debe asumir que cualquier entrada externa es maliciosa hasta validarse.
+
+---
+
+# 1. VALIDACIÓN Y SANITIZACIÓN DE ENTRADAS
+
+- Validar TODAS las entradas del usuario tanto en frontend como backend.
+- Nunca confiar en validaciones del cliente.
+- Usar validación estricta por tipo, longitud y formato.
+- Escapar/sanitizar datos antes de renderizarlos en HTML.
+
+OBLIGATORIO:
+- Prevenir XSS (Cross-Site Scripting)
+- Prevenir inyección SQL / NoSQL
+- Prevenir inyección de comandos
+
+EJECUCIÓN:
+- Usar librerías de validación (ej: Zod, Joi, Yup)
+- Usar consultas parametrizadas (NO concatenar strings)
+
+---
+
+# 2. AUTENTICACIÓN Y AUTORIZACIÓN
+
+- Implementar autenticación segura basada en tokens (JWT o sesiones seguras).
+- Nunca almacenar contraseñas en texto plano.
+
+OBLIGATORIO:
+- Hash de contraseñas con bcrypt o argon2
+- Implementar expiración de sesiones/tokens
+- Uso de refresh tokens seguros
+
+AUTORIZACIÓN:
+- Aplicar control de acceso por roles (RBAC)
+- Verificar permisos en backend SIEMPRE
+
+PROHIBIDO:
+- Confiar en roles enviados desde el frontend
+
+---
+
+# 3. MANEJO DE DATOS SENSIBLES
+
+- Nunca exponer datos sensibles en:
+  - logs
+  - respuestas API
+  - frontend
+
+OBLIGATORIO:
+- Encriptar datos sensibles en tránsito (HTTPS obligatorio)
+- Encriptar datos críticos en reposo si aplica
+
+EJECUCIÓN:
+- Usar variables de entorno para credenciales
+- Nunca hardcodear secretos
+
+---
+
+# 4. SEGURIDAD EN APIs
+
+- Todas las APIs deben requerir autenticación (excepto endpoints públicos controlados)
+- Implementar rate limiting
+
+OBLIGATORIO:
+- Validar input en cada endpoint
+- Manejar errores sin exponer detalles internos
+
+PROHIBIDO:
+- Exponer stack traces en producción
+
+EJECUCIÓN:
+- Usar códigos HTTP correctos
+- Implementar CORS restrictivo
+
+---
+
+# 5. PROTECCIÓN CONTRA ATAQUES COMUNES
+
+El agente debe prevenir automáticamente:
+
+- XSS
+- CSRF
+- SQL Injection
+- Clickjacking
+- Broken Authentication
+- Sensitive Data Exposure
+
+EJECUCIÓN:
+
+- CSRF:
+  - Usar tokens CSRF en formularios
+
+- Headers de seguridad obligatorios:
+  - Content-Security-Policy
+  - X-Frame-Options
+  - X-Content-Type-Options
+  - Strict-Transport-Security
+
+---
+
+# 6. SEGURIDAD EN FRONTEND
+
+- Nunca almacenar tokens en localStorage si son sensibles
+- Preferir cookies HttpOnly y Secure
+
+OBLIGATORIO:
+- Evitar renderizado inseguro de HTML (dangerouslySetInnerHTML)
+
+EJECUCIÓN:
+- Sanitizar cualquier contenido dinámico
+
+---
+
+# 7. CONTROL DE ERRORES Y LOGS
+
+- Los errores deben ser genéricos para el usuario
+- Los logs deben ser detallados SOLO en backend
+
+PROHIBIDO:
+- Mostrar información del sistema (rutas, BD, stack)
+
+---
+
+# 8. DEPENDENCIAS Y LIBRERÍAS
+
+- Usar solo librerías confiables y actualizadas
+- Evitar paquetes abandonados
+
+EJECUCIÓN:
+- Revisar vulnerabilidades (npm audit o similar)
+
+---
+
+# 9. CONFIGURACIÓN DEL ENTORNO
+
+- Separar entornos: dev / staging / producción
+
+OBLIGATORIO:
+- Variables sensibles solo en entorno seguro (.env)
+
+PROHIBIDO:
+- Subir archivos .env al repositorio
+
+---
+
+# 10. PRINCIPIO DE MENOR PRIVILEGIO
+
+- Cada componente solo debe tener acceso a lo necesario
+
+EJECUCIÓN:
+- Limitar permisos en:
+  - base de datos
+  - APIs
+  - servicios externos
+
+---
+
+# 11. REGLA DE IMPLEMENTACIÓN PARA EL AGENTE
+
+Cuando el agente genere código:
+
+DEBE:
+- Incluir validación de datos
+- Incluir manejo seguro de errores
+- Incluir protección contra inyección
+- Usar buenas prácticas de autenticación
+
+NO DEBE:
+- Generar código inseguro por simplicidad
+- Omitir validaciones
+- Exponer datos sensibles
+
+---
+
+# 12. CHECKLIST AUTOMÁTICO (ANTES DE ENTREGAR CÓDIGO)
+
+Antes de finalizar cualquier implementación, verificar:
+
+- [ ] Validación de inputs implementada
+- [ ] Autenticación aplicada correctamente
+- [ ] Autorización verificada en backend
+- [ ] No hay datos sensibles expuestos
+- [ ] Headers de seguridad configurados
+- [ ] Manejo de errores seguro
+- [ ] No hay secretos en el código
+
+Si alguna condición no se cumple, el agente debe corregir automáticamente.
