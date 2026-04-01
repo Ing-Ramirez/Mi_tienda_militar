@@ -384,6 +384,30 @@
       position: relative;
     }
     .nav-action-btn:hover { border-color: var(--olive-500); color: var(--olive-200); background: var(--olive-900); }
+    .account-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      display: block;
+      flex-shrink: 0;
+    }
+    /* Contenedor invisible cuando hay avatar */
+    .nav-action-btn.has-avatar {
+      background: transparent !important;
+      border-color: transparent !important;
+      padding: 0;
+    }
+    .nav-action-btn.has-avatar:hover {
+      background: transparent !important;
+      border-color: transparent !important;
+    }
+    .nav-action-btn.has-avatar:hover .account-avatar {
+      transform: scale(1.08);
+      border-color: var(--olive-200);
+    }
     .nav-admin-btn {
       display: flex;
       align-items: center;
@@ -470,14 +494,14 @@
        HERO SECTION
     ═══════════════════════════════════════ */
     .hero {
-      min-height: 88vh;
+      min-height: 75vh;
       position: relative;
       overflow: hidden;
     }
     .hero-inner {
       display: grid;
       grid-template-columns: 5fr 6fr;
-      min-height: 88vh;
+      min-height: 75vh;
       width: 100%;
       max-width: 1320px;
       margin: 0 auto;
@@ -503,7 +527,7 @@
     }
     
     .hero-content {
-      padding: 5rem 2rem 5rem 1.5rem;
+      padding: 2.5rem 2rem 2.5rem 1.5rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -570,8 +594,8 @@
     .hero-stats {
       display: flex;
       gap: 2.5rem;
-      margin-top: 3rem;
-      padding-top: 2rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
       border-top: 1px solid var(--iron);
     }
     .hero-stat-num {
@@ -591,9 +615,9 @@
     .hero-visual {
       position: relative;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      padding: 3rem 5rem 3rem 2rem;
+      padding: 2.5rem 3rem 2rem 1.5rem;
       z-index: 2;
     }
     .hero-product-card {
@@ -800,8 +824,8 @@
 
     .product-img-wrap {
       position: relative;
-      aspect-ratio: 1;
-      background: var(--iron);
+      aspect-ratio: 4 / 3;
+      background: var(--steel);
       overflow: hidden;
     }
     .product-img-placeholder {
@@ -1584,7 +1608,7 @@
       color: var(--accent);
       border-bottom-color: var(--accent);
     }
-    .auth-body { padding: 1.5rem; }
+    .auth-body { padding: 1.5rem; max-height: 72vh; overflow-y: auto; }
 
     /* ═══════════════════════════════════════
        CHECKOUT NEQUI (comprobante manual)
@@ -1775,6 +1799,86 @@
       text-decoration: underline;
     }
     .auth-switch button:hover { color: var(--accent-dark); }
+    /* ── Auth: validación inline ── */
+    .auth-input.is-valid   { border-color: #4ade80; }
+    .auth-input.is-invalid { border-color: var(--danger); }
+    .auth-field-msg {
+      display: block;
+      font-size: 0.72rem;
+      margin-top: 0.3rem;
+      min-height: 1em;
+      color: var(--danger-soft);
+    }
+    .auth-field-msg.ok { color: #4ade80; }
+    .auth-optional {
+      font-size: 0.6rem;
+      color: var(--ash);
+      text-transform: none;
+      letter-spacing: 0;
+      margin-left: 0.3em;
+      font-family: var(--font-body);
+    }
+    /* ── Barra de fortaleza ── */
+    .auth-pwd-strength {
+      height: 3px;
+      background: var(--slate);
+      border-radius: 2px;
+      margin-top: 0.4rem;
+      overflow: hidden;
+    }
+    .auth-pwd-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+    }
+    /* ── CAPTCHA ── */
+    .auth-captcha-box {
+      display: flex;
+      gap: 0.5rem;
+      align-items: stretch;
+    }
+    .auth-captcha-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--forest-dark);
+      border: 1px solid var(--slate);
+      border-radius: var(--radius);
+      padding: 0.5rem 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      white-space: nowrap;
+      user-select: none;
+      min-width: 5.5rem;
+    }
+    .auth-captcha-box .auth-input { flex: 1; }
+    .captcha-countdown {
+      font-size: 0.6rem;
+      color: var(--ash);
+      margin-left: 0.4em;
+      font-family: var(--font-mono);
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 700;
+    }
+    .captcha-countdown.urgent { color: var(--danger-soft); }
+    .captcha-refresh-btn {
+      background: var(--iron);
+      border: 1px solid var(--slate);
+      color: var(--mist);
+      border-radius: var(--radius);
+      padding: 0 0.6rem;
+      font-size: 1.1rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+      flex-shrink: 0;
+    }
+    .captcha-refresh-btn:hover { background: var(--slate); color: var(--white); }
     .auth-user-info {
       padding: 1.5rem;
       text-align: center;
@@ -2357,6 +2461,10 @@
       border-radius: 2px; border: 1px solid currentColor; white-space: nowrap;
     }
     .up-status-pending    { color: var(--ash); }
+    .up-status-warn       { color: #d4a017; }
+    .up-status-muted      { color: var(--ash); opacity: 0.85; }
+    .up-return-card--subsanable { border-left: 4px solid #d4a017; }
+    .up-return-card--definitive { border-left: 4px solid var(--iron, #555); opacity: 0.95; }
     .up-status-processing { color: var(--warn-amber); }
     .up-status-confirmed  { color: var(--olive-300); }
     .up-status-shipped    { color: var(--accent); }
@@ -2575,6 +2683,157 @@
     }
 
     /* ═══════════════════════════════════════
+       MODAL POLÍTICAS DE DEVOLUCIÓN (flujo obligatorio)
+    ═══════════════════════════════════════ */
+    .fp-rp-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2600;
+      background: rgba(0, 0, 0, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+    .fp-rp-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .fp-rp-modal {
+      width: min(92vw, 820px);
+      max-height: min(88vh, 720px);
+      background: var(--forest, #0f1410);
+      border: 1px solid var(--olive-700);
+      border-radius: 10px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(8px);
+      transition: transform 0.22s ease;
+    }
+    .fp-rp-overlay.open .fp-rp-modal { transform: translateY(0); }
+    .fp-rp-head {
+      flex-shrink: 0;
+      padding: 1.15rem 1.35rem 0.85rem;
+      border-bottom: 1px solid var(--olive-800);
+    }
+    .fp-rp-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+    .fp-rp-subtitle {
+      margin: 0.45rem 0 0;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      color: var(--ash);
+    }
+    .fp-rp-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      padding: 1.1rem 1.35rem;
+      -webkit-overflow-scrolling: touch;
+    }
+    .fp-rp-body .fp-rp-h3 {
+      margin: 1.25rem 0 0.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--olive-200);
+      line-height: 1.35;
+    }
+    .fp-rp-body .fp-rp-h3:first-child { margin-top: 0; }
+    .fp-rp-body .fp-rp-p {
+      margin: 0 0 0.65rem;
+      font-size: 0.94rem;
+      line-height: 1.6;
+      color: var(--stone, #c9c5bc);
+    }
+    .fp-rp-body .fp-rp-ol {
+      margin: 0 0 0.85rem 1.1rem;
+      padding: 0;
+      font-size: 0.94rem;
+      line-height: 1.55;
+      color: var(--stone, #c9c5bc);
+    }
+    .fp-rp-body .fp-rp-ol li { margin-bottom: 0.35rem; }
+    .fp-rp-note {
+      margin: 1rem 0 0;
+      padding: 0.75rem;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--ash);
+      border-left: 3px solid var(--olive-500);
+      background: rgba(61, 74, 30, 0.25);
+    }
+    .fp-rp-foot {
+      flex-shrink: 0;
+      padding: 1rem 1.35rem 1.2rem;
+      border-top: 1px solid var(--olive-800);
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .fp-rp-scroll-hint {
+      margin: 0 0 0.65rem;
+      font-size: 0.82rem;
+      color: var(--gold);
+    }
+    .fp-rp-scroll-hint.done { color: var(--success-soft, #7bc96f); }
+    .fp-rp-check-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      color: var(--stone, #c9c5bc);
+      cursor: pointer;
+      user-select: none;
+      opacity: 0.45;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .fp-rp-check-wrap.fp-rp-check-ready {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .fp-rp-check-wrap input {
+      margin-top: 0.2rem;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+    }
+    .fp-rp-err {
+      margin: 0 0 0.5rem;
+      font-size: 0.84rem;
+      color: var(--danger-soft);
+      display: none;
+    }
+    .fp-rp-err.show { display: block; }
+    .fp-rp-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      justify-content: flex-end;
+    }
+    .fp-rp-actions .btn { min-width: 140px; justify-content: center; }
+    @media (max-width: 600px) {
+      .fp-rp-modal { width: 100%; max-height: 92vh; }
+      .fp-rp-actions { flex-direction: column-reverse; }
+      .fp-rp-actions .btn { width: 100%; }
+    }
+
+    /* ═══════════════════════════════════════
        FOOTER
     ═══════════════════════════════════════ */
     .footer {
@@ -2748,15 +3007,32 @@
     .notify.show .notify-text {
       animation: notifyTextIn 0.3s ease 0.82s forwards;
     }
+    .notify--error .notify-svg { display: none; }
+    .notify--error .notify-err-glyph {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: var(--danger-soft, #e07a7a);
+      filter: drop-shadow(0 0 14px color-mix(in srgb, var(--danger-soft, #e07a7a) 45%, transparent));
+    }
+    .notify .notify-err-glyph { display: none; }
+    .notify--error .notify-text {
+      color: #ffd6d6;
+      max-width: min(92vw, 420px);
+    }
 
     /* ═══════════════════════════════════════
        MOBILE RESPONSIVE
     ═══════════════════════════════════════ */
     @media (max-width: 1024px) {
       .hero-inner { grid-template-columns: 1fr; }
-      .hero-visual { display: flex; padding: 0 2rem 3rem; justify-content: center; }
+      .hero-visual { display: flex; padding: 0 2rem 2rem; justify-content: center; }
       .hero-video-card { max-width: 100%; }
-      .hero-content { padding: 4rem 2.5rem 2rem 2.5rem; max-width: 100%; }
+      .hero-content { padding: 2.5rem 2.5rem 1.5rem 2.5rem; max-width: 100%; }
       .product-grid { grid-template-columns: repeat(3, 1fr); }
       .footer-grid { grid-template-columns: 1fr 1fr; }
       .promo-banner { grid-template-columns: 1fr; }
@@ -2940,7 +3216,7 @@
     }
     .pdp-img-col {
       flex-shrink: 0;
-      width: 160px;
+      width: 220px;
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
@@ -3046,18 +3322,34 @@
 
     /* ── PDP: imagen principal (contenedor para cambio dinámico) ── */
     .pdp-main-img-wrap {
-      width: 160px;
-      height: 160px;
+      width: 100%;
       flex-shrink: 0;
+      aspect-ratio: 1;
       overflow: hidden;
       border: 1px solid var(--iron);
       background: var(--iron);
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: zoom-in;
+      position: relative;
+      border-radius: 4px;
     }
-    .pdp-main-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .pdp-main-img-wrap .pdp-emoji-inner { font-size: 3.5rem; }
+    .pdp-main-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; pointer-events: none; }
+    .pdp-main-img-wrap:hover img { transform: scale(1.04); }
+    .pdp-main-img-wrap .pdp-emoji-inner { font-size: 4rem; }
+    .pdp-main-img-wrap::after {
+      content: '⤢';
+      position: absolute;
+      bottom: 6px;
+      right: 8px;
+      font-size: 1rem;
+      color: rgba(255,255,255,0.7);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .pdp-main-img-wrap:hover::after { opacity: 1; }
 
     /* ── PDP: swatches de color ── */
     .pdp-color-swatches { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.3rem; }
@@ -3113,12 +3405,371 @@
       margin-top: 0.05rem;
     }
 
-    @media (max-width: 540px) {
-      .pdp-body { flex-direction: column; }
-      .pdp-img-col { width: 100%; flex-direction: row; align-items: flex-start; }
-      .pdp-emoji-box { width: 90px; height: 90px; font-size: 2.5rem; flex-shrink: 0; }
-      .pdp-main-img-wrap { width: 90px; height: 90px; }
-      .pdp-main-img-wrap .pdp-emoji-inner { font-size: 2.5rem; }
+    /* ── PDP: sección de reseñas ── */
+    .pdp-reviews-section {
+      margin-top: 1.25rem;
+      border-top: 1px solid var(--iron);
+      padding-top: 1rem;
+    }
+    .pdp-reviews-section-title {
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 0.75rem;
+    }
+    .pdp-no-reviews {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--ash);
+      letter-spacing: 0.05em;
+    }
+    .pdp-review-snippet {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .pdp-review-item {
+      background: var(--iron);
+      border-radius: 4px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.8rem;
+    }
+    .pdp-review-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+    .pdp-review-stars { color: var(--gold); font-size: 0.8rem; }
+    .pdp-review-author { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ash); }
+    .pdp-review-comment { color: var(--mist); line-height: 1.45; }
+    .pdp-see-all-btn {
+      margin-top: 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--olive-300);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      letter-spacing: 0.05em;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .pdp-see-all-btn:hover { color: var(--olive-200); }
+
+    /* ── Modal: lista de reseñas ── */
+    .rv-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 1100;
+      display: none;
+    }
+    .rv-overlay.open { display: block; }
+    .rv-modal {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1101;
+      background: var(--gunmetal);
+      border: 1px solid var(--iron);
+      border-radius: 6px;
+      width: min(560px, 95vw);
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      display: none;
+    }
+    .rv-modal.open { display: flex; }
+    .rv-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--iron);
+      flex-shrink: 0;
+    }
+    .rv-modal-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+    }
+    .rv-modal-body {
+      overflow-y: auto;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .rv-card {
+      background: var(--iron);
+      border-radius: 4px;
+      padding: 0.85rem 1rem;
+    }
+    .rv-card-top {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .rv-stars { color: var(--gold); font-size: 0.85rem; }
+    .rv-verified {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      color: var(--olive-300);
+      background: color-mix(in srgb, var(--olive-300) 12%, transparent);
+      padding: 1px 6px;
+      border-radius: 2px;
+    }
+    .rv-author {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--ash);
+      margin-left: auto;
+    }
+    .rv-title { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.25rem; }
+    .rv-comment { font-size: 0.82rem; color: var(--mist); line-height: 1.5; }
+    .rv-evidence {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+    .rv-evidence img {
+      width: 64px; height: 52px;
+      object-fit: cover;
+      border-radius: 3px;
+      cursor: pointer;
+      border: 1px solid var(--slate);
+      transition: opacity 0.15s;
+    }
+    .rv-evidence img:hover { opacity: 0.8; }
+    .rv-date { font-family: var(--font-mono); font-size: 0.65rem; color: var(--ash); margin-top: 0.35rem; }
+    .rv-empty { text-align: center; color: var(--ash); font-family: var(--font-mono); font-size: 0.82rem; padding: 2rem 0; }
+
+    /* ── Modal: formulario de calificación ── */
+    .rform-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 1200;
+      display: none;
+    }
+    .rform-overlay.open { display: block; }
+    .rform-modal {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1201;
+      background: var(--gunmetal);
+      border: 1px solid var(--iron);
+      border-radius: 6px;
+      width: min(500px, 95vw);
+      max-height: 90vh;
+      overflow-y: auto;
+      display: none;
+      padding: 1.5rem;
+    }
+    .rform-modal.open { display: block; }
+    .rform-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+    }
+    .rform-product-name {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--ash);
+      margin-bottom: 1.25rem;
+    }
+    .rform-guide {
+      background: color-mix(in srgb, var(--olive-600) 20%, transparent);
+      border: 1px solid var(--olive-600);
+      border-radius: 4px;
+      padding: 0.65rem 0.85rem;
+      margin-bottom: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--mist);
+      line-height: 1.7;
+    }
+    .rform-guide strong { color: var(--gold); }
+    .rform-star-row {
+      display: flex;
+      gap: 0.35rem;
+      margin-bottom: 0.25rem;
+      font-size: 1.8rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .rform-star {
+      color: var(--ash);
+      transition: color 0.1s, transform 0.1s;
+      line-height: 1;
+    }
+    .rform-star.lit { color: var(--gold); }
+    .rform-star:hover ~ .rform-star { color: var(--ash) !important; }
+    .rform-star-hint {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--ash);
+      min-height: 1.1em;
+      margin-bottom: 0.75rem;
+    }
+    .rform-label {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 0.35rem;
+      display: block;
+    }
+    .rform-input, .rform-textarea {
+      width: 100%;
+      background: var(--iron);
+      border: 1px solid var(--slate);
+      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 3px;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 0.85rem;
+    }
+    .rform-input:focus, .rform-textarea:focus { border-color: var(--olive-400); }
+    .rform-textarea { resize: vertical; min-height: 100px; }
+    .rform-file-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      background: var(--iron);
+      border: 1px solid var(--slate);
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--mist);
+      margin-bottom: 0.5rem;
+      transition: border-color 0.2s;
+    }
+    .rform-file-label:hover { border-color: var(--olive-400); }
+    .rform-file-preview {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.85rem;
+    }
+    .rform-file-preview img {
+      width: 56px; height: 46px;
+      object-fit: cover;
+      border-radius: 3px;
+      border: 1px solid var(--slate);
+    }
+    .rform-actions { display: flex; gap: 0.75rem; margin-top: 0.25rem; }
+    .rform-actions .btn { flex: 1; justify-content: center; }
+    .rform-err { color: var(--danger); font-family: var(--font-mono); font-size: 0.78rem; margin-bottom: 0.5rem; display: none; }
+
+    @media (max-width: 600px) {
+      .pdp-body { flex-direction: column; gap: 1rem; }
+      .pdp-img-col { width: 100%; flex-direction: column; align-items: stretch; }
+      .pdp-emoji-box { width: 100%; height: 220px; font-size: 3rem; flex-shrink: 0; }
+      .pdp-main-img-wrap { width: 100%; aspect-ratio: 4/3; }
+      .pdp-main-img-wrap .pdp-emoji-inner { font-size: 3rem; }
+    }
+    /* ── LIGHTBOX GALERÍA ── */
+    #fp-lb-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(0,0,0,0.92);
+      align-items: center;
+      justify-content: center;
+    }
+    #fp-lb-overlay.open { display: flex; }
+    #fp-lb-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding: 48px 64px;
+      box-sizing: border-box;
+    }
+    #fp-lb-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+      border-radius: 4px;
+      user-select: none;
+    }
+    .fp-lb-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      z-index: 1;
+    }
+    .fp-lb-btn:hover { background: rgba(255,255,255,0.25); }
+    #fp-lb-prev { left: 12px; }
+    #fp-lb-next { right: 12px; }
+    #fp-lb-close {
+      position: fixed;
+      top: 14px;
+      right: 18px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      z-index: 10001;
+    }
+    #fp-lb-close:hover { background: rgba(255,255,255,0.3); }
+    #fp-lb-counter {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+      font-family: var(--font-mono);
+      pointer-events: none;
+    }
+    @media (max-width: 600px) {
+      #fp-lb-wrap { padding: 56px 48px; }
+      .fp-lb-btn { width: 36px; height: 36px; font-size: 1rem; }
     }
     .product-card-highlight {
       outline: 2px solid var(--gold) !important;
@@ -3126,11 +3777,32 @@
     }
     /* Utility: hidden-by-default elements (avoids CSP-blocked style="display:none" attributes) */
     .d-none { display: none; }
+    .visually-hidden-file {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      left: -9999px;
+      top: -9999px;
+    }
     .up-pts-msg { color: var(--ash); font-size: 0.85rem; padding: 1rem; }
     .up-avatar-msg { font-size: 0.78rem; color: var(--danger-soft); text-align: center; }
   </style>
 </head>
 <body>
+
+<!-- ── LIGHTBOX GALERÍA ── -->
+<div id="fp-lb-overlay">
+  <button id="fp-lb-close" title="Cerrar">✕</button>
+  <div id="fp-lb-wrap">
+    <button class="fp-lb-btn" id="fp-lb-prev" title="Anterior">‹</button>
+    <img id="fp-lb-img" src="" alt="">
+    <button class="fp-lb-btn" id="fp-lb-next" title="Siguiente">›</button>
+  </div>
+  <div id="fp-lb-counter"></div>
+</div>
 
 <!-- ═══════════════ TOP BAR ═══════════════ -->
 <div class="topbar">
@@ -3179,9 +3851,10 @@
       <!-- Actions -->
       <div class="nav-actions">
         <button class="nav-action-btn" title="Mi cuenta" id="account-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" id="account-btn-icon">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
           </svg>
+          <img id="account-btn-avatar" src="" alt="Avatar" class="account-avatar d-none">
         </button>
         <button class="nav-action-btn" title="Lista de deseos" id="wishlist-btn" data-i18n-title="nav.wishlist_title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
@@ -3225,7 +3898,7 @@
     <div class="hero-content">
       <div class="hero-label animate-fade-up">
         <div class="hero-label-line"></div>
-        <span class="label" id="hero-collection-label">Nueva Colección 2025</span>
+        <span class="label" id="hero-collection-label">Nueva Colección 2026</span>
       </div>
       
       <div class="hero-title">
@@ -3461,7 +4134,8 @@
         <div class="footer-links">
           <a href="#" class="footer-link" data-i18n="footer.links.about">Sobre nosotros</a>
           <a href="#" class="footer-link" data-i18n="footer.links.shipping">Política de envíos</a>
-          <a href="#" class="footer-link" data-i18n="footer.links.returns">Devoluciones</a>
+          <a href="#" class="footer-link" data-action="openReturnsPanel" data-i18n="footer.links.returns">Devoluciones</a>
+          <a href="#politica-devoluciones" class="footer-link" data-action="openReturnPolicyInfo">Políticas de devolución</a>
           <a href="#" class="footer-link" data-i18n="footer.links.warranty">Garantía</a>
           <a href="#" class="footer-link" data-i18n="footer.links.terms">Términos y condiciones</a>
           <a href="#" class="footer-link" data-i18n="footer.links.privacy">Política de privacidad</a>
@@ -3763,43 +4437,73 @@
         <div class="auth-error" id="register-error"></div>
         <div class="auth-row">
           <div class="auth-field">
-            <label class="auth-label" for="reg-first-name" data-i18n="auth_ui.label_first_name">Nombre</label>
+            <label class="auth-label" for="reg-first-name">Nombre</label>
             <input class="auth-input" type="text" id="reg-first-name" placeholder="Jhon" autocomplete="given-name">
+            <span class="auth-field-msg" id="reg-first-name-msg"></span>
           </div>
           <div class="auth-field">
-            <label class="auth-label" for="reg-last-name" data-i18n="auth_ui.label_last_name">Apellido</label>
+            <label class="auth-label" for="reg-last-name">Apellido</label>
             <input class="auth-input" type="text" id="reg-last-name" placeholder="Ramírez" autocomplete="family-name">
+            <span class="auth-field-msg" id="reg-last-name-msg"></span>
           </div>
         </div>
         <div class="auth-field">
-          <label class="auth-label" for="reg-email" data-i18n="auth_ui.label_email">Correo electrónico</label>
+          <label class="auth-label" for="reg-email">Correo electrónico</label>
           <input class="auth-input" type="email" id="reg-email" placeholder="correo@ejemplo.com" autocomplete="email">
+          <span class="auth-field-msg" id="reg-email-msg"></span>
         </div>
         <div class="auth-field">
-          <label class="auth-label" for="reg-password" data-i18n="auth_ui.label_password">Contraseña</label>
+          <label class="auth-label" for="reg-password">Contraseña</label>
           <input class="auth-input" type="password" id="reg-password" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+          <div class="auth-pwd-strength"><div class="auth-pwd-bar" id="reg-pwd-bar"></div></div>
+          <span class="auth-field-msg" id="reg-password-msg"></span>
         </div>
         <div class="auth-field">
-          <label class="auth-label" for="reg-password2" data-i18n="auth_ui.label_password2">Confirmar contraseña</label>
+          <label class="auth-label" for="reg-password2">Confirmar contraseña</label>
           <input class="auth-input" type="password" id="reg-password2" placeholder="Repite tu contraseña" autocomplete="new-password">
+          <span class="auth-field-msg" id="reg-password2-msg"></span>
         </div>
-        <button class="btn btn-primary auth-submit" data-action="authRegister" data-i18n="auth_ui.btn_register">Crear cuenta</button>
-        <div class="auth-switch"><span data-i18n="auth_ui.switch_has_account">¿Ya tienes cuenta?</span> <button type="button" data-action="switchAuthTab" data-tab="login" data-i18n="auth_ui.switch_login">Inicia sesión</button></div>
+        <div class="auth-row">
+          <div class="auth-field">
+            <label class="auth-label" for="reg-phone">Teléfono <span class="auth-optional">(opcional)</span></label>
+            <input class="auth-input" type="tel" id="reg-phone" placeholder="+57 300 000 0000" autocomplete="tel">
+          </div>
+          <div class="auth-field">
+            <label class="auth-label" for="reg-birth-date">Fecha de nacimiento <span class="auth-optional">(opcional)</span></label>
+            <input class="auth-input" type="date" id="reg-birth-date" autocomplete="bday">
+          </div>
+        </div>
+        <button class="btn btn-primary auth-submit" data-action="authRegister">Crear cuenta</button>
+        <div class="auth-switch">¿Ya tienes cuenta? <button type="button" data-action="switchAuthTab" data-tab="login">Inicia sesión</button></div>
       </div>
 
       <!-- LOGIN -->
       <div class="auth-panel" id="panel-login">
         <div class="auth-error" id="login-error"></div>
         <div class="auth-field">
-          <label class="auth-label" for="login-email" data-i18n="auth_ui.label_email">Correo electrónico</label>
+          <label class="auth-label" for="login-email">Correo electrónico</label>
           <input class="auth-input" type="email" id="login-email" placeholder="correo@ejemplo.com" autocomplete="email">
         </div>
         <div class="auth-field">
-          <label class="auth-label" for="login-password" data-i18n="auth_ui.label_password">Contraseña</label>
+          <label class="auth-label" for="login-password">Contraseña</label>
           <input class="auth-input" type="password" id="login-password" placeholder="Tu contraseña" autocomplete="current-password">
         </div>
-        <button class="btn btn-primary auth-submit" data-action="authLogin" data-i18n="auth_ui.btn_login">Iniciar sesión</button>
-        <div class="auth-switch"><span data-i18n="auth_ui.switch_no_account">¿No tienes cuenta?</span> <button type="button" data-action="switchAuthTab" data-tab="register" data-i18n="auth_ui.switch_register">Regístrate</button></div>
+        <div class="auth-field">
+          <label class="auth-label" for="login-captcha">
+            Código de verificación
+            <span class="captcha-countdown" id="captcha-countdown"></span>
+          </label>
+          <div class="auth-captcha-box">
+            <div class="auth-captcha-display" id="captcha-display">
+              <span id="captcha-code">···</span>
+            </div>
+            <button type="button" class="captcha-refresh-btn" id="captcha-refresh" title="Generar nuevo código">↺</button>
+            <input class="auth-input" type="text" id="login-captcha" placeholder="Copia el código" autocomplete="off" maxlength="6">
+          </div>
+          <span class="auth-field-msg" id="login-captcha-msg"></span>
+        </div>
+        <button class="btn btn-primary auth-submit" data-action="authLogin">Iniciar sesión</button>
+        <div class="auth-switch">¿No tienes cuenta? <button type="button" data-action="switchAuthTab" data-tab="register">Regístrate</button></div>
       </div>
 
     </div>
@@ -3839,6 +4543,12 @@
           <line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/>
         </svg>
         Mis Pedidos
+      </button>
+      <button class="up-nav-item" data-action="upNav" data-section="returns">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+        </svg>
+        Devoluciones
       </button>
       <button class="up-nav-item" data-action="upNav" data-section="points">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3958,6 +4668,23 @@
           </button>
           <div id="up-order-detail-content"></div>
         </div>
+      </div>
+
+      <!-- ── Devoluciones ── -->
+      <div class="up-section" id="up-section-returns">
+        <div class="up-section-title">Devoluciones</div>
+        <div class="up-section-subtitle">Gestiona solicitudes y seguimiento postventa</div>
+        <div class="up-card" style="margin-bottom:1rem;">
+          <div class="up-card-head">Políticas de devolución</div>
+          <div class="up-card-body">
+            <div id="up-returns-policy" class="up-empty-text">Cargando políticas...</div>
+            <button type="button" class="btn btn-ghost" data-action="openReturnPolicyInfo" style="margin-top:0.75rem;">
+              Leer políticas completas
+            </button>
+          </div>
+        </div>
+        <div id="up-return-create-box" class="up-card d-none" style="margin-bottom:1rem;"></div>
+        <div id="up-returns-container"></div>
       </div>
 
       <!-- ── Mis Puntos ── -->
@@ -4125,10 +4852,41 @@
 
 </div><!-- /up-panel -->
 
-<!-- Input de archivo para avatar (oculto, fuera del layout) -->
+<!-- Modal obligatorio: políticas de devolución antes del formulario -->
+<div class="fp-rp-overlay" id="fp-return-policy-overlay" aria-hidden="true">
+  <div class="fp-rp-modal" role="dialog" aria-modal="true" aria-labelledby="fp-rp-title">
+    <div class="fp-rp-head">
+      <h2 class="fp-rp-title" id="fp-rp-title">Políticas de devolución</h2>
+      <p class="fp-rp-subtitle" id="fp-rp-subtitle">Antes de continuar, debes leer y aceptar las condiciones</p>
+    </div>
+    <div class="fp-rp-scroll" id="fp-rp-scroll">
+      <div class="fp-rp-body" id="fp-rp-body">
+        <div class="up-loading">Cargando…</div>
+      </div>
+    </div>
+    <div class="fp-rp-foot" id="fp-rp-foot-accept">
+      <p class="fp-rp-scroll-hint" id="fp-rp-scroll-hint">Desplázate hasta el final del texto para poder marcar la casilla de aceptación.</p>
+      <label class="fp-rp-check-wrap" id="fp-rp-check-wrap">
+        <input type="checkbox" id="fp-rp-check" disabled autocomplete="off">
+        <span>He leído y acepto las políticas de devolución</span>
+      </label>
+      <p class="fp-rp-err" id="fp-rp-err" role="alert">Debes aceptar las políticas para continuar</p>
+      <div class="fp-rp-actions">
+        <button type="button" class="btn btn-ghost" data-action="closeReturnPolicyModal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="fp-rp-continue" data-action="fpReturnPolicyContinue" disabled>Continuar con devolución</button>
+      </div>
+    </div>
+    <div class="fp-rp-foot d-none" id="fp-rp-foot-info">
+      <div class="fp-rp-actions" style="justify-content:center;">
+        <button type="button" class="btn btn-primary" data-action="closeReturnPolicyModal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Input de archivo para avatar (oculto, activado solo por JS) -->
 <input type="file" id="up-avatar-input" accept="image/jpeg,image/png,image/webp"
-  aria-hidden="true" tabindex="-1"
-  style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;left:-9999px;">
+  class="visually-hidden-file" aria-hidden="true" tabindex="-1">
 
 <!-- ── Modal preview foto de perfil ── -->
 <div class="up-avatar-modal" id="up-avatar-modal">
@@ -4158,14 +4916,68 @@
   </div>
 </div>
 
+<!-- ═══════════════ MODAL: LISTA DE RESEÑAS ═══════════════ -->
+<div class="rv-overlay" id="rv-overlay" data-action="closeReviewsModal"></div>
+<div class="rv-modal" id="rv-modal" role="dialog" aria-modal="true" aria-labelledby="rv-modal-title">
+  <div class="rv-modal-header">
+    <div class="rv-modal-title" id="rv-modal-title">Reseñas del producto</div>
+    <button class="btn-icon" data-action="closeReviewsModal" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="rv-modal-body" id="rv-modal-body">
+    <div class="rv-empty">Cargando reseñas…</div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: FORMULARIO DE CALIFICACIÓN ═══════════════ -->
+<div class="rform-overlay" id="rform-overlay" data-action="closeReviewForm"></div>
+<div class="rform-modal" id="rform-modal" role="dialog" aria-modal="true">
+  <div class="rform-title">Calificar producto</div>
+  <div class="rform-product-name" id="rform-product-name"></div>
+  <div class="rform-guide">
+    <strong>1 ★</strong> Muy mala experiencia &nbsp;·&nbsp;
+    <strong>2 ★</strong> Mala &nbsp;·&nbsp;
+    <strong>3 ★</strong> Aceptable &nbsp;·&nbsp;
+    <strong>4 ★</strong> Buena &nbsp;·&nbsp;
+    <strong>5 ★</strong> Excelente
+  </div>
+
+  <label class="rform-label">Tu calificación</label>
+  <div class="rform-star-row" id="rform-stars">
+    <span class="rform-star" data-v="1">★</span>
+    <span class="rform-star" data-v="2">★</span>
+    <span class="rform-star" data-v="3">★</span>
+    <span class="rform-star" data-v="4">★</span>
+    <span class="rform-star" data-v="5">★</span>
+  </div>
+  <div class="rform-star-hint" id="rform-star-hint">Selecciona una calificación</div>
+
+  <label class="rform-label" for="rform-comment">Comentario <span style="color:var(--ash)">(mínimo 10 caracteres)</span></label>
+  <textarea class="rform-textarea" id="rform-comment" rows="4" placeholder="Cuéntanos tu experiencia con el producto…" maxlength="2000"></textarea>
+
+  <label class="rform-label" for="rform-title">Título (opcional)</label>
+  <input class="rform-input" id="rform-title" type="text" placeholder="Ej: Excelente calidad" maxlength="100">
+
+  <label class="rform-label">Imágenes (opcional, máx. 5)</label>
+  <label class="rform-file-label" for="rform-images">📷 Adjuntar fotos</label>
+  <input type="file" id="rform-images" accept="image/*" multiple style="display:none">
+  <div class="rform-file-preview" id="rform-file-preview"></div>
+
+  <div class="rform-err" id="rform-err"></div>
+  <div class="rform-actions">
+    <button class="btn btn-ghost" data-action="closeReviewForm">Cancelar</button>
+    <button class="btn btn-primary" id="rform-submit-btn" data-action="submitReview">Enviar calificación</button>
+  </div>
+</div>
+
 <!-- ═══════════════ TOAST ═══════════════ -->
 <div class="notify" id="notify">
-  <svg class="notify-svg" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+  <svg class="notify-svg" viewBox="0 0 52 52" fill="none" aria-hidden="true" id="notify-svg-ok">
     <circle class="notify-circle" cx="26" cy="26" r="24"
       stroke="currentColor" stroke-width="2" fill="none"/>
     <path class="notify-checkmark" d="M14 27 L22 35 L38 17"
       stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   </svg>
+  <div class="notify-err-glyph" id="notify-err-glyph" aria-hidden="true">✕</div>
   <div class="notify-text" id="notify-text"></div>
 </div>
 
@@ -4173,7 +4985,9 @@
 <script src="{% static 'js/i18n/es-co.js' %}"></script>
 <script nonce="{{ csp_nonce }}">
   // ── Token seguro: solo en memoria, nunca en localStorage ─────────────────
-  let _accessToken = null;
+  let _accessToken   = null;
+  let _captchaToken  = null;   // token firmado del captcha activo
+  let _captchaTimer  = null;   // interval del countdown
   const t = window.t || ((_, fallback = '') => fallback);
   const tf = window.tf || ((path, vars, fallback = '') => t(path, fallback));
 
@@ -4363,7 +5177,29 @@
 
   async function silentRefresh() {
     try {
-      await refreshAccessToken();
+      const ok = await refreshAccessToken();
+      if (ok) {
+        // Cargar datos del usuario para mostrar avatar en el header
+        try {
+          const res = await fetch('/api/v1/auth/me/', {
+            headers: { 'Authorization': 'Bearer ' + _accessToken },
+          });
+          if (res.ok) {
+            const u = await res.json();
+            sessionStorage.setItem('auth_user', JSON.stringify({
+              email:         u.email         || '',
+              first_name:    u.first_name    || '',
+              last_name:     u.last_name     || '',
+              phone:         u.phone         || '',
+              account_type:  u.account_type  || 'customer',
+              profile_image: u.profile_image || null,
+            }));
+            updateAccountBtn();
+            updateAdminBtn();
+          }
+        } catch { /* silencioso */ }
+        loadEligibleReviews();
+      }
     } catch {
       // Sin sesión previa — silencioso
     }
@@ -4396,8 +5232,8 @@
       compare: p.compare_at_price ? parseFloat(p.compare_at_price) : null,
       badge:   p.is_featured ? 'featured' : (p.is_new ? 'new' : null),
       new:     p.is_new,
-      rating:  parseFloat(p.average_rating) || 4.7,
-      reviews: p.review_count || 0,
+      rating:  (p.average_rating != null && p.review_count > 0) ? parseFloat(p.average_rating) : null,
+      reviews: parseInt(p.review_count) || 0,
       emoji:   emojiForCat(cat),
       image:   imgPrincipal ? imgPrincipal.image : null,
       all_images: imgs,                               // galería completa
@@ -4562,11 +5398,11 @@
 
   // ── PRODUCT IMAGE ─────────────────────────────────────
   function productImg(p, cls) {
-    const classAttr = cls ? ` class="${escHtml(cls)}"` : '';
+    const imgClass = cls ? escHtml(cls) : 'product-img';
     if (p.image) {
-      return `<img src="${escHtml(p.image)}"${classAttr} alt="${escHtml(p.name)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block">`;
+      return `<img src="${escHtml(p.image)}" class="${imgClass}" alt="${escHtml(p.name)}" loading="lazy">`;
     }
-    return `<div${classAttr} style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--iron)">${escHtml(p.emoji || '📦')}</div>`;
+    return `<div class="product-img-placeholder">${escHtml(p.emoji || '📦')}</div>`;
   }
 
   // ── RENDER PRODUCTS ───────────────────────────────────
@@ -4601,7 +5437,6 @@
     
     grid.innerHTML = shown.map(p => {
       const discount = p.compare ? Math.round((1 - p.price/p.compare)*100) : null;
-      const stars = '★'.repeat(Math.floor(p.rating)) + (p.rating % 1 >= 0.5 ? '½' : '');
       const inCart = cart.some(c => c.id === p.id);
       const inWish = isWished(p.id);
       return `
@@ -4627,10 +5462,11 @@
               <span class="product-price">${fmt(p.price)}</span>
               ${p.compare ? `<span class="product-compare-price">${fmt(p.compare)}</span>` : ''}
             </div>
-            <div class="product-rating">
-              <span class="stars">${'★'.repeat(Math.floor(p.rating))}</span>
-              <span class="rating-count">(${p.reviews})</span>
-            </div>
+            ${p.reviews > 0 && p.rating ? `
+            <div class="product-rating" style="cursor:pointer" data-action="openReviewsModal" data-product-id="${p.id}" title="Ver reseñas">
+              <span class="stars">${'★'.repeat(Math.floor(p.rating))}${p.rating % 1 >= 0.5 ? '½' : ''}</span>
+              <span class="rating-count">${p.rating.toFixed(1)} (${p.reviews})</span>
+            </div>` : ''}
             ${p.badge === 'featured' ? `<div style="margin-top:0.4rem"><span class="stock-alert"><span class="stock-alert-dot"></span>${escHtml(t('products.low_stock', '¡Pocas unidades!'))}</span></div>` : ''}
           </div>
         </div>
@@ -4640,6 +5476,57 @@
     document.getElementById('load-more-btn').style.display =
       (currentFilter !== 'new' && shown.length < filtered.length) ? 'inline-flex' : 'none';
   }
+
+  /* ── LIGHTBOX ─────────────────────────────────────────── */
+  (function () {
+    let _imgs = [];
+    let _idx  = 0;
+
+    const overlay = document.getElementById('fp-lb-overlay');
+    const img     = document.getElementById('fp-lb-img');
+    const counter = document.getElementById('fp-lb-counter');
+    const btnPrev = document.getElementById('fp-lb-prev');
+    const btnNext = document.getElementById('fp-lb-next');
+    const btnClose= document.getElementById('fp-lb-close');
+
+    if (!overlay) return;
+
+    function show(idx) {
+      _idx = (idx + _imgs.length) % _imgs.length;
+      img.src = _imgs[_idx].url;
+      img.alt = _imgs[_idx].alt || '';
+      counter.textContent = (_idx + 1) + ' / ' + _imgs.length;
+      btnPrev.style.display = _imgs.length > 1 ? '' : 'none';
+      btnNext.style.display = _imgs.length > 1 ? '' : 'none';
+    }
+
+    function open(images, startIdx) {
+      _imgs = images;
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      show(startIdx || 0);
+    }
+
+    function close() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+      img.src = '';
+    }
+
+    btnClose.addEventListener('click', close);
+    btnPrev.addEventListener('click', function () { show(_idx - 1); });
+    btnNext.addEventListener('click', function () { show(_idx + 1); });
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', function (e) {
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'Escape')    close();
+      if (e.key === 'ArrowLeft') show(_idx - 1);
+      if (e.key === 'ArrowRight')show(_idx + 1);
+    });
+
+    /* Exponer en window para que el handler de clicks lo use */
+    window._FPLightbox = { open };
+  })();
 
   function catLabel(cat) {
     if (cat === 'all') return 'Todos';
@@ -5969,7 +6856,7 @@
 
     document.getElementById('pdp-body').innerHTML = `
       <div class="pdp-img-col">
-        <div class="pdp-main-img-wrap" id="pdp-main-img-wrap">
+        <div class="pdp-main-img-wrap" id="pdp-main-img-wrap" data-action="openLightbox" data-id="${p.id}" data-idx="0">
           ${p.image
             ? `<img src="${escHtml(p.image)}" alt="${escHtml(p.name)}">`
             : `<span class="pdp-emoji-inner">${escHtml(p.emoji || '')}</span>`}
@@ -5996,10 +6883,11 @@
             </div>
           </div>
         ` : ''}
-        <div class="pdp-rating-row">
+        ${p.reviews > 0 && p.rating ? `
+        <div class="pdp-rating-row" style="cursor:pointer" data-action="openReviewsModal" data-product-id="${p.id}" title="Ver todas las reseñas">
           <span class="pdp-stars">${'★'.repeat(Math.floor(p.rating))}${p.rating % 1 >= 0.5 ? '½' : ''}</span>
           <span class="pdp-reviews">${p.rating.toFixed(1)} · ${p.reviews} ${escHtml(t('pdp.reviews_suffix', 'reseñas'))}</span>
-        </div>
+        </div>` : ''}
         <div class="pdp-price-row" id="pdp-price-display">
           <span class="pdp-price">${fmt(p.price)}</span>
           ${p.compare ? `<span class="pdp-compare">${fmt(p.compare)}</span>` : ''}
@@ -6041,6 +6929,19 @@
             ${inWish ? escHtml(t('wishlist.btn_in', '♥ En favoritos')) : escHtml(t('wishlist.btn_add', '♡ Favoritos'))}
           </button>
         </div>
+        <div class="pdp-reviews-section" id="pdp-reviews-section">
+          <div class="pdp-reviews-section-title">Reseñas verificadas</div>
+          <div id="pdp-reviews-content">
+            ${p.reviews > 0 && p.rating ? `
+              <div class="pdp-review-snippet" id="pdp-review-snippet-list">
+                <div style="color:var(--ash);font-family:var(--font-mono);font-size:0.78rem">Cargando reseñas…</div>
+              </div>
+              <button class="pdp-see-all-btn" data-action="openReviewsModal" data-product-id="${p.id}">
+                Ver todas las reseñas (${p.reviews})
+              </button>`
+            : `<div class="pdp-no-reviews">Sin reseñas aún — sé el primero en calificar este producto.</div>`}
+          </div>
+        </div>
       </div>
     `;
 
@@ -6050,6 +6951,9 @@
     document.getElementById('pdp-overlay').classList.add('open');
     document.getElementById('pdp-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
+
+    // Cargar snippet de reseñas en la PDP (sin bloquear apertura)
+    if (p.reviews > 0) pdpLoadReviewSnippet(p.id);
   }
 
   function closeProductDetail() {
@@ -6267,8 +7171,30 @@
   let notifyTimer;
   let notifyHideTimer;
 
-  function showNotify(msg) {
+  function formatDrfErrors(body) {
+    if (!body || typeof body !== 'object') return '';
+    if (typeof body.detail === 'string') return body.detail;
+    if (Array.isArray(body.detail)) {
+      return body.detail.map((d) => (typeof d === 'string' ? d : (d && String(d)))).filter(Boolean).join(' ');
+    }
+    const parts = [];
+    for (const k of Object.keys(body)) {
+      const v = body[k];
+      if (v == null) continue;
+      if (Array.isArray(v)) parts.push(v.map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' '));
+      else if (typeof v === 'string') parts.push(v);
+      else if (typeof v === 'object') {
+        const inner = formatDrfErrors(v);
+        if (inner) parts.push(inner);
+      }
+    }
+    return parts.filter(Boolean).join(' · ') || '';
+  }
+
+  function showNotify(msg, kind) {
     const el = document.getElementById('notify');
+    const isErr = kind === 'error';
+    el.classList.toggle('notify--error', isErr);
     document.getElementById('notify-text').textContent = msg;
     clearTimeout(notifyTimer);
     clearTimeout(notifyHideTimer);
@@ -6281,7 +7207,10 @@
     }, 2800);
   }
 
-  function showToast(msg) { showNotify(msg); }
+  function showToast(msg, kind) {
+    const notifyKind = (kind === 'error' || kind === '✕') ? 'error' : 'success';
+    showNotify(msg, notifyKind);
+  }
   function showCartConfirm() { showNotify(t('misc.cart_changes_ok', 'Cambios realizados con éxito')); }
 
   // ── PANEL DE USUARIO ─────────────────────────────────────────────────────
@@ -6293,12 +7222,24 @@
 
   const UP_ORDERS_API = '/api/v1/orders/orders/';
   const LOYALTY_API   = '/api/v1/loyalty/';
+  const RETURNS_API   = '/api/v1/returns/';
+  let _upSelectedOrderForReturn = null;
+  let _fpPendingReturnOrderId = null;
+  let _fpReturnPolicyMode = 'accept';
   const UserPanelApi = {
     dashboardOrders: () => apiFetch(`${UP_ORDERS_API}?page_size=3&ordering=-created_at`),
     ordersPage: (page) => apiFetch(`${UP_ORDERS_API}?page=${page}&page_size=10&ordering=-created_at`),
     orderDetail: (orderId) => apiFetch(`${UP_ORDERS_API}${orderId}/`),
     loyaltyBalance: () => apiFetch(`${LOYALTY_API}balance/`),
     loyaltyTransactions: (page) => apiFetch(`${LOYALTY_API}transactions/?page=${page}&page_size=15`),
+    returnsList: () => apiFetch(RETURNS_API),
+    returnsPolicy: () => apiFetch(`${RETURNS_API}policy/`, { cache: 'no-store' }),
+    returnEligibility: (orderId) => apiFetch(`${RETURNS_API}eligibility/${orderId}/`),
+    createReturn: (payload) => apiFetch(RETURNS_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }),
     profile: () => apiFetch(`${AUTH_API}/me/`),
     profileUpdate: (payload) => apiFetch(`${AUTH_API}/me/`, {
       method: 'PATCH',
@@ -6371,6 +7312,18 @@
     document.body.style.overflow = '';
   }
 
+  function openReturnsPanel() {
+    if (_accessToken) {
+      _upCurrentSection = 'returns';
+      openUserPanel();
+      upNav('returns');
+      return;
+    }
+    openAuthModal();
+    switchAuthTab('login');
+    showToast('Inicia sesión para gestionar devoluciones.');
+  }
+
   function upNav(section) {
     _upCurrentSection = section;
     document.querySelectorAll('.up-nav-item').forEach(btn => {
@@ -6382,6 +7335,7 @@
     upUpdateTopbar(section);
     if (section === 'dashboard') loadUpDashboard();
     else if (section === 'orders')  loadUpOrders(1);
+    else if (section === 'returns') loadUpReturns();
     else if (section === 'points')  loadUpPoints(1);
     else if (section === 'profile') loadUpProfile();
   }
@@ -6431,6 +7385,10 @@
     const sl  = upOrderStatusLabel(o.status || 'pending');
     const cnt = Array.isArray(o.items) ? o.items.length : (Number(o.items_count) || 0);
     const total = Number(o.total) || 0;
+    const canRequestReturn = String(o.status || '') === 'delivered';
+    const returnAccessBtn = canRequestReturn
+      ? `<button class="btn btn-ghost" data-action="upOpenReturnsFromOrder" data-order-id="${escHtml(orderId)}" style="font-size:0.72rem;padding:0.35rem 0.65rem;white-space:nowrap;">Solicitar devolución</button>`
+      : '';
     return `<div class="up-order-row" data-action="upOpenOrder" data-order-id="${escHtml(orderId)}">
       <div class="up-order-num">#${escHtml(orderNum)}</div>
       <div class="up-order-info">
@@ -6438,7 +7396,7 @@
         <div class="up-order-items">${cnt} producto${cnt !== 1 ? 's' : ''}</div>
       </div>
       <div class="up-order-status ${sc}">${escHtml(sl)}</div>
-      <div class="up-order-total">${fmtCOP(total)}</div>
+      <div class="up-order-total">${fmtCOP(total)}${returnAccessBtn ? `<div style="margin-top:0.35rem;">${returnAccessBtn}</div>` : ''}</div>
     </div>`;
   }
 
@@ -6498,14 +7456,26 @@
     const sc = upOrderStatusClass(o.status || 'pending');
     const sl = upOrderStatusLabel(o.status || 'pending');
     const items = o.items || [];
-    const itemsHtml = items.length ? items.map(item => `
+    const isDelivered = String(o.status || '') === 'delivered';
+
+    const itemsHtml = items.length ? items.map(item => {
+      const pid = String(item.product || '');
+      const canReview = isDelivered && pid && isProductReviewable(String(o.id || ''), pid);
+      return `
       <div class="up-item-row">
         <div style="flex:1;min-width:0">
           <div class="up-item-name">${escHtml(item.product_name || '—')}</div>
           <div class="up-item-meta">SKU: ${escHtml(item.product_sku || '—')}${item.talla ? ` · Talla: ${escHtml(item.talla)}` : ''}${item.bordado ? ` · Bordado: ${escHtml(item.bordado)}` : ''}${item.rh ? ` · RH: ${escHtml(item.rh)}` : ''} · Cant: ${Number(item.quantity) || 0}</div>
+          ${canReview ? `<button class="btn btn-ghost" style="margin-top:0.4rem;font-size:0.78rem;padding:0.3rem 0.8rem;"
+            data-action="openReviewForm"
+            data-order-id="${escHtml(String(o.id || ''))}"
+            data-product-id="${escHtml(pid)}"
+            data-product-name="${escHtml(item.product_name || '')}"
+          >⭐ Calificar producto</button>` : (isDelivered && pid ? `<span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--ash);margin-top:0.4rem;display:block;">✓ Reseña enviada</span>` : '')}
         </div>
         <div class="up-item-price">${fmtCOP(item.line_total || item.unit_price * item.quantity)}</div>
-      </div>`).join('')
+      </div>`;
+    }).join('')
       : `<div class="up-item-row" style="color:var(--ash)">Sin ítems registrados</div>`;
 
     const couponRow = o.coupon_code
@@ -6513,6 +7483,10 @@
     const loyaltyRow = (parseFloat(o.loyalty_discount_amount || 0) > 0)
       ? `<div class="up-total-row"><span>Descuento por puntos</span><span style="color:var(--gold)">−${fmtCOP(o.loyalty_discount_amount)}</span></div>` : '';
     const addr = [o.shipping_address_line1, o.shipping_city, o.shipping_department].filter(Boolean).join(', ') || '—';
+    const canRequestReturn = isDelivered;
+    const returnBtn = canRequestReturn
+      ? `<button class="btn btn-ghost" data-action="upStartReturn" data-order-id="${escHtml(String(o.id || ''))}" style="margin-top:0.75rem;">Solicitar devolución</button>`
+      : '';
 
     return `
       <div class="up-order-detail-header">
@@ -6539,7 +7513,378 @@
         <div class="up-total-row"><span>IVA (19%)</span><span>${fmtCOP(o.tax_amount || 0)}</span></div>
         ${couponRow}${loyaltyRow}
         <div class="up-total-row grand"><span>Total</span><span>${fmtCOP(o.total || 0)}</span></div>
+      </div>
+      ${returnBtn}`;
+  }
+
+  // ── Devoluciones ──
+  function upReturnStatusClass(st) {
+    return ({
+      requested:'up-status-pending',
+      reviewing:'up-status-processing',
+      approved:'up-status-confirmed',
+      rejected_subsanable:'up-status-warn',
+      rejected_definitive:'up-status-muted',
+      in_transit:'up-status-shipped',
+      received:'up-status-processing',
+      validated:'up-status-confirmed',
+      refunded:'up-status-delivered',
+      closed:'up-status-cancelled',
+    })[st] || 'up-status-pending';
+  }
+
+  let _upParentReturnForRetry = null;
+  let _upCreateReturnParentId = null;
+
+  function renderUpReturnRow(r) {
+    const st = r.status || 'requested';
+    const statusClass = upReturnStatusClass(st);
+    const statusLabel = r.status_label || st;
+    const tone = r.ui_rejection_tone || 'neutral';
+    let cardClass = 'up-return-card';
+    if (tone === 'subsanable') cardClass += ' up-return-card--subsanable';
+    if (tone === 'definitive') cardClass += ' up-return-card--definitive';
+    const retryBtn = r.can_retry
+      ? `<button type="button" class="btn btn-primary" style="margin-top:0.6rem" data-action="upRetryReturn" data-order-id="${escHtml(String(r.order_id || ''))}" data-parent-return-id="${escHtml(String(r.id || ''))}">Intentar nuevamente la devolución</button>`
+      : '';
+    const rejBlock = (st === 'rejected_subsanable' || st === 'rejected_definitive')
+      ? `<div class="up-return-rejection" style="margin-top:0.55rem;padding:0.65rem;border-radius:6px;font-size:0.88rem;line-height:1.45;background:rgba(0,0,0,0.18);">
+        <div><strong>Devolución rechazada</strong></div>
+        <div style="margin-top:0.3rem;color:var(--ash)">${escHtml(r.customer_rejection_hint || '')}</div>
+        ${r.rejection_reason ? `<div style="margin-top:0.45rem;"><strong>Motivo:</strong> ${escHtml(r.rejection_reason)}</div>` : ''}
+        ${st === 'rejected_definitive' ? `<div style="margin-top:0.5rem;color:var(--ash)">Este producto no cumple con las condiciones de devolución según nuestras políticas.</div>` : ''}
+        ${retryBtn}
+      </div>`
+      : '';
+    const attemptN = Number(r.attempt_number || 1);
+    return `<div class="${cardClass}" style="display:block;padding:0.85rem 1rem;border:1px solid var(--olive-800);border-radius:8px;margin-bottom:0.65rem;">
+      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;justify-content:space-between;">
+        <div><strong>${escHtml(r.return_code || '')}</strong> · Orden #${escHtml(r.order_number || '—')} · Intento ${attemptN}</div>
+        <div class="up-order-status ${statusClass}">${escHtml(statusLabel)}</div>
+      </div>
+      <div style="margin-top:0.35rem;font-size:0.86rem;color:var(--ash)">${Number(r.items_count || 0)} ítem(s) · ${escHtml(r.reason_label || r.reason || '')}${r.refund_amount ? ` · ${fmtCOP(r.refund_amount)}` : ''}</div>
+      ${rejBlock}
+    </div>`;
+  }
+
+  function renderReturnPolicyDocumentHTML(policy) {
+    const doc = policy.document;
+    let html = '';
+    if (doc && doc.introduction) {
+      html += `<p class="fp-rp-p">${escHtml(doc.introduction)}</p>`;
+    }
+    if (doc && Array.isArray(doc.sections)) {
+      doc.sections.forEach((s) => {
+        if (s.title) html += `<h3 class="fp-rp-h3">${escHtml(s.title)}</h3>`;
+        (s.paragraphs || []).forEach((p) => {
+          html += `<p class="fp-rp-p">${escHtml(p)}</p>`;
+        });
+      });
+    }
+    if (doc && doc.closing_note) {
+      html += `<p class="fp-rp-note">${escHtml(doc.closing_note)}</p>`;
+    }
+    const steps = policy.steps || [];
+    if (steps.length) {
+      html += `<h3 class="fp-rp-h3">Proceso de devolución</h3><ol class="fp-rp-ol">`;
+      steps.forEach((st) => { html += `<li>${escHtml(st)}</li>`; });
+      html += `</ol>`;
+    }
+    if (!html.trim()) return renderReturnPolicy(policy);
+    return html;
+  }
+
+  function renderReturnPolicy(p) {
+    return `<div>
+      <div><strong>Plazos:</strong> Nuevos ${Number(p.window_days_new || 30)} días · Usados ${Number(p.window_days_used || 14)} días</div>
+      <div><strong>Envío:</strong> ${Number(p.shipment_window_days || 5)} días para despachar el producto tras aprobación.</div>
+      <div><strong>Exclusiones:</strong> ${Array.isArray(p.excluded_category_slugs) && p.excluded_category_slugs.length ? escHtml(p.excluded_category_slugs.join(', ')) : 'Ninguna configurada'}.</div>
+      <div style="margin-top:0.4rem"><strong>Proceso:</strong><br>${(p.steps || []).map(s => `• ${escHtml(s)}`).join('<br>')}</div>
+    </div>`;
+  }
+
+  function fpReturnPolicyUpdateScrollGate() {
+    if (_fpReturnPolicyMode !== 'accept') return;
+    const scrollEl = document.getElementById('fp-rp-scroll');
+    if (!scrollEl) return;
+    const hint = document.getElementById('fp-rp-scroll-hint');
+    const chk = document.getElementById('fp-rp-check');
+    const wrap = document.getElementById('fp-rp-check-wrap');
+    const cont = document.getElementById('fp-rp-continue');
+    const err = document.getElementById('fp-rp-err');
+    const threshold = 12;
+    const atBottom = scrollEl.scrollHeight - scrollEl.scrollTop - scrollEl.clientHeight <= threshold;
+    if (atBottom) {
+      chk.disabled = false;
+      wrap.classList.add('fp-rp-check-ready');
+      hint.textContent = 'Puedes marcar la casilla y continuar.';
+      hint.classList.add('done');
+    } else {
+      chk.disabled = true;
+      chk.checked = false;
+      if (cont) cont.disabled = true;
+      wrap.classList.remove('fp-rp-check-ready');
+      hint.textContent = 'Desplázate hasta el final del texto para poder marcar la casilla de aceptación.';
+      hint.classList.remove('done');
+      if (err) err.classList.remove('show');
+    }
+  }
+
+  function fpReturnPolicyOnResize() {
+    fpReturnPolicyUpdateScrollGate();
+  }
+
+  function closeReturnPolicyModal() {
+    const overlay = document.getElementById('fp-return-policy-overlay');
+    const scrollEl = document.getElementById('fp-rp-scroll');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    if (scrollEl) scrollEl.onscroll = null;
+    window.removeEventListener('resize', fpReturnPolicyOnResize);
+    _fpPendingReturnOrderId = null;
+    _upParentReturnForRetry = null;
+    const panel = document.getElementById('up-panel');
+    if (panel && panel.classList.contains('open')) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+  }
+
+  async function fpOpenReturnPolicyModal(mode) {
+    _fpReturnPolicyMode = mode;
+    const overlay = document.getElementById('fp-return-policy-overlay');
+    const footA = document.getElementById('fp-rp-foot-accept');
+    const footI = document.getElementById('fp-rp-foot-info');
+    const sub = document.getElementById('fp-rp-subtitle');
+    const chk = document.getElementById('fp-rp-check');
+    const wrap = document.getElementById('fp-rp-check-wrap');
+    const hint = document.getElementById('fp-rp-scroll-hint');
+    const cont = document.getElementById('fp-rp-continue');
+    const err = document.getElementById('fp-rp-err');
+    const body = document.getElementById('fp-rp-body');
+    const scrollEl = document.getElementById('fp-rp-scroll');
+    if (!overlay || !body || !scrollEl || !footA || !footI || !chk || !wrap || !hint || !cont || !err || !sub) return;
+
+    err.classList.remove('show');
+    chk.checked = false;
+    chk.disabled = true;
+    cont.disabled = true;
+    wrap.classList.remove('fp-rp-check-ready');
+    hint.textContent = 'Desplázate hasta el final del texto para poder marcar la casilla de aceptación.';
+    hint.classList.remove('done');
+    scrollEl.scrollTop = 0;
+    scrollEl.onscroll = null;
+    window.removeEventListener('resize', fpReturnPolicyOnResize);
+
+    if (mode === 'info') {
+      footA.classList.add('d-none');
+      footI.classList.remove('d-none');
+      sub.textContent = 'Información sobre condiciones y plazos. Al iniciar una devolución deberás leer y aceptar de nuevo en el paso obligatorio.';
+    } else {
+      footA.classList.remove('d-none');
+      footI.classList.add('d-none');
+      sub.textContent = 'Antes de continuar, debes leer y aceptar las condiciones';
+    }
+
+    body.innerHTML = '<div class="up-loading">Cargando…</div>';
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    const pres = await UserPanelApi.returnsPolicy();
+    if (!pres.ok) {
+      body.innerHTML = '<p class="fp-rp-p">No se pudieron cargar las políticas. Intenta más tarde.</p>';
+      return;
+    }
+    const policy = await pres.json();
+    body.innerHTML = renderReturnPolicyDocumentHTML(policy);
+
+    scrollEl.onscroll = function () { fpReturnPolicyUpdateScrollGate(); };
+    window.addEventListener('resize', fpReturnPolicyOnResize);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { fpReturnPolicyUpdateScrollGate(); });
+    });
+  }
+
+  function fpOnReturnPolicyContinue() {
+    const err = document.getElementById('fp-rp-err');
+    const chk = document.getElementById('fp-rp-check');
+    if (err) err.classList.remove('show');
+    if (_fpReturnPolicyMode !== 'accept') return;
+    if (!chk.checked) {
+      if (err) err.classList.add('show');
+      showToast('Debes aceptar las políticas para continuar');
+      return;
+    }
+    try { sessionStorage.setItem('policiesAcceptedReturn', 'true'); } catch (e) { /* noop */ }
+    const oid = _fpPendingReturnOrderId;
+    const prid = _upParentReturnForRetry;
+    closeReturnPolicyModal();
+    if (oid) upMountReturnForm(oid, { parentReturnId: prid });
+  }
+
+  function upRetryReturn(orderId, parentReturnId) {
+    if (!orderId || !parentReturnId) return;
+    if (!_accessToken) {
+      openAuthModal();
+      switchAuthTab('login');
+      showToast('Inicia sesión para reintentar la devolución.');
+      return;
+    }
+    _fpPendingReturnOrderId = String(orderId);
+    _upParentReturnForRetry = String(parentReturnId);
+    fpOpenReturnPolicyModal('accept');
+  }
+
+  async function upStartReturnFlow(orderId) {
+    if (!orderId) return;
+    if (!_accessToken) {
+      openAuthModal();
+      switchAuthTab('login');
+      showToast('Inicia sesión para solicitar una devolución.');
+      return;
+    }
+    const res = await UserPanelApi.returnEligibility(orderId);
+    if (res.ok) {
+      const j = await res.json().catch(() => ({}));
+      if (j.eligible === false) {
+        showToast(j.reason || 'No puedes solicitar devolución para este pedido.');
+        return;
+      }
+    }
+    _fpPendingReturnOrderId = String(orderId);
+    await fpOpenReturnPolicyModal('accept');
+  }
+
+  async function upMountReturnForm(orderId, opt) {
+    opt = opt || {};
+    _upCreateReturnParentId = opt.parentReturnId || null;
+    const res = await UserPanelApi.orderDetail(orderId);
+    if (!res.ok) {
+      showToast('No se pudo cargar el pedido para devolución.');
+      return;
+    }
+    const order = await res.json();
+    _upSelectedOrderForReturn = order;
+    upNav('returns');
+    const box = document.getElementById('up-return-create-box');
+    box.classList.remove('d-none');
+    const headExtra = _upCreateReturnParentId ? ' · Reintento' : '';
+    box.innerHTML = renderUpReturnCreateForm(order, headExtra);
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function renderUpReturnCreateForm(order, headExtra) {
+    headExtra = headExtra || '';
+    const items = Array.isArray(order.items) ? order.items : [];
+    if (!items.length) {
+      return `<div class="up-card-head">Iniciar devolución</div><div class="up-card-body"><div class="up-empty-text">Este pedido no tiene ítems disponibles para devolver.</div></div>`;
+    }
+    return `<div class="up-card-head">Iniciar devolución${escHtml(headExtra)} · Pedido #${escHtml(order.order_number || '—')}</div>
+      <div class="up-card-body">
+        <div class="up-section-subtitle" style="margin-bottom:0.75rem">Selecciona productos y completa el motivo.</div>
+        <div style="display:grid;gap:0.45rem;margin-bottom:0.9rem;">
+          ${items.map((it, idx) => `
+            <label style="display:flex;gap:0.5rem;align-items:flex-start;">
+              <input type="checkbox" data-return-item="${escHtml(String(it.id))}" ${idx === 0 ? 'checked' : ''}>
+              <span style="font-size:0.86rem">${escHtml(it.product_name || 'Producto')} · Cantidad comprada: ${Number(it.quantity || 1)}</span>
+            </label>
+          `).join('')}
+        </div>
+        <div class="up-form-group">
+          <label class="up-form-label" for="up-return-reason">Motivo</label>
+          <select class="up-form-input" id="up-return-reason">
+            <option value="regret">Me arrepentí de la compra</option>
+            <option value="wrong_product">Producto diferente al solicitado</option>
+            <option value="defective">Producto defectuoso</option>
+            <option value="incomplete">Producto incompleto</option>
+            <option value="damaged">Producto dañado en transporte</option>
+            <option value="other">Otro (describir)</option>
+          </select>
+        </div>
+        <div class="up-form-group">
+          <label class="up-form-label" for="up-return-reason-detail">Descripción</label>
+          <textarea class="up-form-input" id="up-return-reason-detail" rows="3" placeholder="Describe el caso, estado del producto y cualquier detalle relevante."></textarea>
+        </div>
+        <button class="btn btn-primary" data-action="upSubmitReturn" style="margin-top:0.5rem;">Enviar solicitud</button>
       </div>`;
+  }
+
+  async function upSubmitReturn() {
+    if (!_upSelectedOrderForReturn || !_upSelectedOrderForReturn.id) {
+      showToast('Primero selecciona un pedido para devolver.');
+      return;
+    }
+    const selected = Array.from(document.querySelectorAll('[data-return-item]:checked')).map((el) => String(el.getAttribute('data-return-item')));
+    if (!selected.length) {
+      showToast('Selecciona al menos un producto.');
+      return;
+    }
+    const reason = (document.getElementById('up-return-reason') || {}).value || 'other';
+    const reasonDetail = (document.getElementById('up-return-reason-detail') || {}).value || '';
+    const items = selected.map((orderItemId) => ({
+      order_item_id: orderItemId,
+      quantity: 1,
+      condition: 'unused',
+      has_original_packaging: true,
+    }));
+    const payload = {
+      order_id: _upSelectedOrderForReturn.id,
+      reason,
+      reason_detail: reasonDetail,
+      customer_notes: reasonDetail,
+      refund_method: 'original',
+      items,
+    };
+    if (_upCreateReturnParentId) payload.parent_return_id = _upCreateReturnParentId;
+    const res = await UserPanelApi.createReturn(payload);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      const msg = formatDrfErrors(err) || 'No se pudo crear la devolución.';
+      showToast(msg, 'error');
+      return;
+    }
+    showToast('Solicitud de devolución registrada.');
+    const box = document.getElementById('up-return-create-box');
+    box.classList.add('d-none');
+    box.innerHTML = '';
+    _upSelectedOrderForReturn = null;
+    _upCreateReturnParentId = null;
+    loadUpReturns();
+  }
+
+  async function loadUpReturns() {
+    const listEl = document.getElementById('up-returns-container');
+    const policyEl = document.getElementById('up-returns-policy');
+    listEl.innerHTML = `<div class="up-loading">Cargando devoluciones...</div>`;
+    try {
+      const [returnsRes, policyRes] = await Promise.all([
+        UserPanelApi.returnsList(),
+        UserPanelApi.returnsPolicy(),
+      ]);
+      if (policyRes.ok) {
+        const policy = await policyRes.json();
+        policyEl.innerHTML = renderReturnPolicy(policy);
+      } else {
+        policyEl.textContent = 'No se pudo cargar la política de devoluciones.';
+      }
+      if (!returnsRes.ok) {
+        listEl.innerHTML = `<div class="up-empty"><div class="up-empty-text">No se pudieron cargar tus devoluciones</div></div>`;
+        return;
+      }
+      const rows = await returnsRes.json();
+      if (!Array.isArray(rows) || !rows.length) {
+        listEl.innerHTML = `<div class="up-empty">
+          <div class="up-empty-icon">↩️</div>
+          <div class="up-empty-text">Aún no tienes devoluciones</div>
+          <div class="up-empty-hint">Puedes iniciar una desde el detalle de un pedido entregado.</div>
+        </div>`;
+        return;
+      }
+      listEl.innerHTML = `<div class="up-orders-list">${rows.map(renderUpReturnRow).join('')}</div>`;
+    } catch {
+      listEl.innerHTML = `<div class="up-empty"><div class="up-empty-text">Error de conexión</div></div>`;
+      policyEl.textContent = 'No se pudo cargar la política de devoluciones.';
+    }
   }
 
   // ── Puntos ──
@@ -6782,6 +8127,7 @@
   const _upSectionLabels = {
     dashboard: 'Resumen',
     orders:    'Mis Pedidos',
+    returns:   'Devoluciones',
     points:    'Mis Puntos',
     profile:   'Mi Perfil',
     settings:  'Configuración',
@@ -6821,6 +8167,7 @@
   function closeAuthModal() {
     document.getElementById('auth-overlay').classList.remove('open');
     document.getElementById('auth-modal').classList.remove('open');
+    if (_captchaTimer) { clearInterval(_captchaTimer); _captchaTimer = null; }
   }
 
   function switchAuthTab(tab) {
@@ -6830,6 +8177,7 @@
     document.getElementById('panel-login').classList.toggle('active', tab === 'login');
     document.getElementById('register-error').style.display = 'none';
     document.getElementById('login-error').style.display = 'none';
+    if (tab === 'login') fetchCaptcha();
   }
 
   function showAuthLoggedIn() {
@@ -6854,38 +8202,171 @@
     el.style.display = 'block';
   }
 
+  // ── CAPTCHA dinámico ─────────────────────────────────────────────────────
+  async function fetchCaptcha() {
+    const codeEl      = document.getElementById('captcha-code');
+    const countdownEl = document.getElementById('captcha-countdown');
+    const inputEl     = document.getElementById('login-captcha');
+
+    // Limpiar estado anterior
+    if (_captchaTimer) { clearInterval(_captchaTimer); _captchaTimer = null; }
+    _captchaToken = null;
+    if (codeEl)      codeEl.textContent = '···';
+    if (countdownEl) { countdownEl.textContent = ''; countdownEl.className = 'captcha-countdown'; }
+    if (inputEl)     inputEl.value = '';
+    authClearFields('login-captcha');
+
+    try {
+      const res = await fetch(`${AUTH_API}/captcha/`);
+      if (!res.ok) { if (codeEl) codeEl.textContent = 'error'; return; }
+      const data = await res.json();
+      _captchaToken = data.captcha_token;
+      if (codeEl) codeEl.textContent = data.code;
+
+      let remaining = data.expires_in || 7;
+      function tick() {
+        if (!document.getElementById('captcha-countdown')) {
+          clearInterval(_captchaTimer); _captchaTimer = null; return;
+        }
+        if (remaining > 0) {
+          countdownEl.textContent = `${remaining}s`;
+          countdownEl.className = 'captcha-countdown' + (remaining <= 3 ? ' urgent' : '');
+          remaining--;
+        } else {
+          clearInterval(_captchaTimer); _captchaTimer = null;
+          _captchaToken = null;
+          if (codeEl) codeEl.textContent = '···';
+          countdownEl.textContent = 'expirado';
+          countdownEl.className = 'captcha-countdown urgent';
+          fetchCaptcha();  // auto-renovar
+        }
+      }
+      tick();
+      _captchaTimer = setInterval(tick, 1000);
+    } catch {
+      if (codeEl) codeEl.textContent = 'error';
+    }
+  }
+
+  // ── Helpers de validación inline ───────────────────────────────────────────
+  function authFieldError(inputId, msg) {
+    const el = document.getElementById(inputId);
+    if (el) { el.classList.remove('is-valid'); el.classList.add('is-invalid'); }
+    const msgEl = document.getElementById(inputId + '-msg');
+    if (msgEl) { msgEl.textContent = msg; msgEl.className = 'auth-field-msg'; }
+  }
+  function authFieldOk(inputId) {
+    const el = document.getElementById(inputId);
+    if (el) { el.classList.remove('is-invalid'); el.classList.add('is-valid'); }
+    const msgEl = document.getElementById(inputId + '-msg');
+    if (msgEl) { msgEl.textContent = ''; msgEl.className = 'auth-field-msg ok'; }
+  }
+  function authClearFields(...ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('is-valid', 'is-invalid');
+      const msgEl = document.getElementById(id + '-msg');
+      if (msgEl) { msgEl.textContent = ''; msgEl.className = 'auth-field-msg'; }
+    });
+  }
+  function _pwdScore(pwd) {
+    let s = 0;
+    if (pwd.length >= 8)  s++;
+    if (pwd.length >= 12) s++;
+    if (/[A-Z]/.test(pwd)) s++;
+    if (/[0-9]/.test(pwd)) s++;
+    if (/[^A-Za-z0-9]/.test(pwd)) s++;
+    return s;
+  }
+  function updatePwdStrength(pwd) {
+    const bar = document.getElementById('reg-pwd-bar');
+    if (!bar) return;
+    const score = _pwdScore(pwd);
+    const pct   = Math.round((score / 5) * 100);
+    const colors = ['#e53e3e', '#e53e3e', '#ed8936', '#ecc94b', '#48bb78', '#48bb78'];
+    bar.style.width = pct + '%';
+    bar.style.background = colors[score] || '#e53e3e';
+  }
+
+  // ── Listeners en tiempo real ─────────────────────────────────────────────
+  document.getElementById('reg-password').addEventListener('input', function() {
+    updatePwdStrength(this.value);
+    if (this.value.length >= 8) authFieldOk('reg-password');
+    else if (this.value.length > 0) authFieldError('reg-password', 'Mínimo 8 caracteres.');
+    // Re-validar confirmación si ya tiene algo
+    const p2 = document.getElementById('reg-password2').value;
+    if (p2) {
+      if (p2 === this.value) authFieldOk('reg-password2');
+      else authFieldError('reg-password2', 'Las contraseñas no coinciden.');
+    }
+  });
+  document.getElementById('reg-password2').addEventListener('input', function() {
+    const p1 = document.getElementById('reg-password').value;
+    if (this.value === p1) authFieldOk('reg-password2');
+    else if (this.value.length > 0) authFieldError('reg-password2', 'Las contraseñas no coinciden.');
+  });
+  document.getElementById('reg-email').addEventListener('blur', function() {
+    if (!this.value) return;
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value.trim());
+    if (ok) authFieldOk('reg-email');
+    else authFieldError('reg-email', 'Correo electrónico inválido.');
+  });
+
   async function authRegister() {
     const firstName = document.getElementById('reg-first-name').value.trim();
     const lastName  = document.getElementById('reg-last-name').value.trim();
     const email     = document.getElementById('reg-email').value.trim();
     const password  = document.getElementById('reg-password').value;
     const password2 = document.getElementById('reg-password2').value;
+    const phone     = document.getElementById('reg-phone').value.trim();
+    const birthDate = document.getElementById('reg-birth-date').value;
 
-    if (!email || !password) return authShowError('register-error', t('auth.errors.email_password_required', 'Correo y contraseña son obligatorios.'));
-    if (password !== password2) return authShowError('register-error', t('auth.errors.passwords_mismatch', 'Las contraseñas no coinciden.'));
-    if (password.length < 8)   return authShowError('register-error', t('auth.errors.password_short', 'La contraseña debe tener al menos 8 caracteres.'));
-
+    authClearFields('reg-first-name', 'reg-last-name', 'reg-email', 'reg-password', 'reg-password2');
     document.getElementById('register-error').style.display = 'none';
+    let hasError = false;
+
+    if (!firstName) { authFieldError('reg-first-name', 'El nombre es obligatorio.'); hasError = true; }
+    if (!lastName)  { authFieldError('reg-last-name',  'El apellido es obligatorio.'); hasError = true; }
+    if (!email)     { authFieldError('reg-email', 'El correo es obligatorio.'); hasError = true; }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { authFieldError('reg-email', 'Correo inválido.'); hasError = true; }
+    if (password.length < 8) { authFieldError('reg-password', 'Mínimo 8 caracteres.'); hasError = true; }
+    if (password !== password2) { authFieldError('reg-password2', 'Las contraseñas no coinciden.'); hasError = true; }
+    if (hasError) return;
+
+    const body = { first_name: firstName, last_name: lastName, email, password, password2 };
+    if (phone)     body.phone      = phone;
+    if (birthDate) body.birth_date = birthDate;
+
     try {
       const res = await fetch(`${AUTH_API}/register/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password })
+        body: JSON.stringify(body)
       });
       const data = await res.json();
       if (!res.ok) {
-        const msg = Object.values(data).flat().join(' ');
-        return authShowError('register-error', msg || t('auth.errors.register_failed', 'Error al registrarse.'));
+        const fieldMap = {
+          first_name: 'reg-first-name', last_name: 'reg-last-name',
+          email: 'reg-email', password: 'reg-password', password2: 'reg-password2'
+        };
+        let shown = false;
+        for (const [key, elId] of Object.entries(fieldMap)) {
+          if (data[key]) { authFieldError(elId, [].concat(data[key]).join(' ')); shown = true; }
+        }
+        if (!shown) {
+          const msg = Object.values(data).flat().join(' ');
+          authShowError('register-error', msg || t('auth.errors.register_failed', 'Error al registrarse.'));
+        }
+        return;
       }
       if (data.access) {
         _accessToken = data.access;
-        // refresh viaja en HttpOnly cookie (establecida por el servidor)
         const u = data.user || {};
         sessionStorage.setItem('auth_user', JSON.stringify({
           email: u.email || email,
           first_name: u.first_name || firstName,
           last_name: u.last_name || lastName,
-          phone: u.phone || '',
+          phone: u.phone || phone,
           account_type: u.account_type || 'customer',
           profile_image: u.profile_image || null,
         }));
@@ -6901,21 +8382,34 @@
   async function authLogin() {
     const email    = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
+    const captcha  = document.getElementById('login-captcha').value.trim().toUpperCase();
+
+    authClearFields('login-captcha');
+    document.getElementById('login-error').style.display = 'none';
 
     if (!email || !password) return authShowError('login-error', t('auth.errors.login_credentials', 'Ingresa tu correo y contraseña.'));
-    document.getElementById('login-error').style.display = 'none';
+    if (!_captchaToken) {
+      authFieldError('login-captcha', 'Espera a que se genere el código.');
+      return;
+    }
+
     try {
       const res = await fetch(`${AUTH_API}/login/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password, captcha, captcha_token: _captchaToken })
       });
       const data = await res.json();
       if (!res.ok) {
+        if (data.captcha) {
+          authFieldError('login-captcha', data.captcha);
+          fetchCaptcha();   // nuevo código tras cualquier error de captcha
+          return;
+        }
+        fetchCaptcha();     // nuevo código también tras credenciales incorrectas
         return authShowError('login-error', data.detail || t('auth.errors.login_invalid', 'Credenciales incorrectas.'));
       }
       _accessToken = data.access;
-      // refresh viaja en HttpOnly cookie (establecida por el servidor)
       const u = data.user || {};
       sessionStorage.setItem('auth_user', JSON.stringify({
         email: u.email || email,
@@ -6928,6 +8422,7 @@
       closeAuthModal();
       showToast(t('auth.login_ok', 'Sesión iniciada correctamente.'), '✅');
       updateAccountBtn(); updateAdminBtn();
+      loadEligibleReviews();
     } catch {
       authShowError('login-error', t('auth.errors.server_unreachable', 'No se pudo conectar con el servidor.'));
     }
@@ -6954,12 +8449,52 @@
   }
 
   function updateAccountBtn() {
-    const btn = document.getElementById('account-btn');
+    const btn    = document.getElementById('account-btn');
+    const icon   = document.getElementById('account-btn-icon');
+    const avatar = document.getElementById('account-btn-avatar');
+    if (!btn || !icon || !avatar) return;
+
     const logged = !!_accessToken;
-    btn.style.color = logged ? 'var(--accent)' : '';
     btn.title = logged
       ? t('nav.account_logged_in', 'Mi cuenta')
       : t('nav.account_logged_out', 'Iniciar sesión / Registrarse');
+
+    if (!logged) {
+      // Estado 1: sin sesión → icono genérico, botón normal
+      icon.style.display = '';
+      avatar.src = '';
+      avatar.classList.add('d-none');
+      btn.classList.remove('has-avatar');
+      btn.style.color = '';
+      return;
+    }
+
+    const user   = JSON.parse(sessionStorage.getItem('auth_user') || '{}');
+    const imgUrl = user.profile_image || null;
+
+    if (imgUrl) {
+      // Estado 3: con sesión y avatar → solo imagen circular, botón invisible
+      const sep = imgUrl.includes('?') ? '&' : '?';
+      avatar.src = imgUrl + sep + 'v=' + Date.now();
+      avatar.classList.remove('d-none');
+      icon.style.display = 'none';
+      btn.classList.add('has-avatar');
+      btn.style.color = '';
+      avatar.onerror = () => {
+        // Fallback: imagen rota → volver al icono normal
+        avatar.classList.add('d-none');
+        icon.style.display = '';
+        btn.classList.remove('has-avatar');
+        btn.style.color = 'var(--accent)';
+      };
+    } else {
+      // Estado 2: con sesión sin avatar → icono en color accent
+      icon.style.display = '';
+      avatar.src = '';
+      avatar.classList.add('d-none');
+      btn.classList.remove('has-avatar');
+      btn.style.color = 'var(--accent)';
+    }
   }
 
   function updateAdminBtn() {
@@ -7058,6 +8593,7 @@
         const initialsEl = document.getElementById('up-avatar-initials');
         const currentInitials = initialsEl ? initialsEl.textContent : '?';
         upSetAvatarDisplay(currentInitials, data.profile_image);
+        updateAccountBtn();   // actualizar avatar en el header
         closeAvatarModal();
       } catch {
         msgEl.textContent = 'No se pudo conectar con el servidor.';
@@ -7069,6 +8605,7 @@
   })();
 
   // ── INIT ────────────────────────────────────────────
+  document.getElementById('captcha-refresh').addEventListener('click', fetchCaptcha);
   document.getElementById('cart-btn').addEventListener('click', openCart);
   document.getElementById('wishlist-btn').addEventListener('click', openWishlist);
   document.getElementById('account-btn').addEventListener('click', openAuthModal);
@@ -7080,8 +8617,22 @@
   applyUiTranslations();
   // Restaurar sesión desde la HttpOnly cookie si existe
   silentRefresh();
+  window.addEventListener('load', function () {
+    try { sessionStorage.removeItem('policiesAcceptedReturn'); } catch (e) { /* noop */ }
+  });
+  function fpMaybeOpenReturnPolicyFromHash() {
+    if (window.location.hash === '#politica-devoluciones') {
+      fpOpenReturnPolicyModal('info');
+    }
+  }
+  window.addEventListener('hashchange', fpMaybeOpenReturnPolicyFromHash);
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
+      const rpOv = document.getElementById('fp-return-policy-overlay');
+      if (rpOv && rpOv.classList.contains('open')) {
+        closeReturnPolicyModal();
+        return;
+      }
       closeCart();
       closeWishlist();
       closeSizeModal();
@@ -7117,6 +8668,274 @@
   };
   renderProducts();
   updateCartUI();
+  fpMaybeOpenReturnPolicyFromHash();
+  (function _initReturnPolicyModalUi() {
+    const ov = document.getElementById('fp-return-policy-overlay');
+    const chk = document.getElementById('fp-rp-check');
+    if (ov) {
+      ov.addEventListener('click', function (e) {
+        if (e.target === ov) closeReturnPolicyModal();
+      });
+    }
+    if (chk) {
+      chk.addEventListener('change', function () {
+        const err = document.getElementById('fp-rp-err');
+        if (err) err.classList.remove('show');
+        const c = document.getElementById('fp-rp-continue');
+        if (c) c.disabled = !chk.checked;
+      });
+    }
+  })();
+
+  // ── SISTEMA DE RESEÑAS ───────────────────────────────────────────────────
+
+  let _reviewedProductIds = new Set();   // IDs de productos ya reseñados por el usuario
+  let _rformState = { orderId: null, productId: null, productName: null, rating: 0, files: [] };
+
+  const ReviewsApi = {
+    list:     slug => apiFetch(`/api/v1/products/${encodeURIComponent(slug)}/reviews/`),
+    create:   (slug, fd) => apiFetch(`/api/v1/products/${encodeURIComponent(slug)}/reviews/create/`, {
+      method: 'POST', body: fd,
+    }),
+    eligible: () => apiFetch('/api/v1/products/eligible-reviews/'),
+  };
+
+  async function loadEligibleReviews() {
+    if (!_accessToken) return;
+    try {
+      const res = await ReviewsApi.eligible();
+      if (!res.ok) return;
+      const list = await res.json();
+      _reviewedProductIds = new Set();
+      // Todos los product IDs de pedidos entregados, excluyendo los elegibles = ya reseñados
+      // Los IDs que NO aparecen en eligible but are in delivered orders = already reviewed
+      // Strategy: fetch eligible gives us what's NOT yet reviewed.
+      // Store the product IDs seen in eligible for comparison in renderUpOrderDetail.
+      // We'll use a different approach: store "reviewable" pairs.
+      window._eligibleReviews = list || [];
+    } catch (e) { /* silencioso */ }
+  }
+
+  function isProductReviewable(orderId, productId) {
+    const list = window._eligibleReviews || [];
+    return list.some(r => r.order_id === orderId && r.product_id === productId);
+  }
+
+  // Abre el modal con la lista de reseñas de un producto
+  async function openReviewsModal(productId) {
+    const p = PRODUCTS.find(p => p.id === productId);
+    if (!p) return;
+
+    const overlay = document.getElementById('rv-overlay');
+    const modal   = document.getElementById('rv-modal');
+    const body    = document.getElementById('rv-modal-body');
+    const title   = document.getElementById('rv-modal-title');
+
+    title.textContent = `Reseñas — ${p.name}`;
+    body.innerHTML = '<div class="rv-empty">Cargando reseñas…</div>';
+    overlay.classList.add('open');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    try {
+      const res = await ReviewsApi.list(p.slug);
+      const reviews = res.ok ? await res.json() : [];
+      if (!reviews.length) {
+        body.innerHTML = '<div class="rv-empty">Aún no hay reseñas aprobadas para este producto.</div>';
+        return;
+      }
+      body.innerHTML = reviews.map(r => {
+        const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+        const evidenceHtml = (r.evidence || []).map(e =>
+          `<img src="${escHtml(e.image || '')}" alt="Evidencia" data-action="rvOpenImg" data-src="${escHtml(e.image || '')}">`
+        ).join('');
+        const date = r.created_at ? new Date(r.created_at).toLocaleDateString('es-CO', { year:'numeric', month:'short', day:'numeric' }) : '';
+        return `
+          <div class="rv-card">
+            <div class="rv-card-top">
+              <span class="rv-stars">${stars}</span>
+              ${r.is_verified_purchase ? '<span class="rv-verified">✓ Compra verificada</span>' : ''}
+              <span class="rv-author">${escHtml(r.user_name || 'Cliente')}</span>
+            </div>
+            ${r.title ? `<div class="rv-title">${escHtml(r.title)}</div>` : ''}
+            <div class="rv-comment">${escHtml(r.comment || '')}</div>
+            ${evidenceHtml ? `<div class="rv-evidence">${evidenceHtml}</div>` : ''}
+            <div class="rv-date">${escHtml(date)}</div>
+          </div>`;
+      }).join('');
+
+      // Cargar snippets en la sección de la PDP si está abierta
+      const snippetWrap = document.getElementById('pdp-review-snippet-list');
+      if (snippetWrap && p.id === pdpCurrentId) {
+        snippetWrap.innerHTML = reviews.slice(0, 3).map(r => `
+          <div class="pdp-review-item">
+            <div class="pdp-review-meta">
+              <span class="pdp-review-stars">${'★'.repeat(r.rating)}</span>
+              <span class="pdp-review-author">${escHtml(r.user_name || 'Cliente')}</span>
+            </div>
+            <div class="pdp-review-comment">${escHtml((r.comment || '').slice(0, 140))}${r.comment && r.comment.length > 140 ? '…' : ''}</div>
+          </div>`).join('');
+      }
+    } catch (err) {
+      body.innerHTML = '<div class="rv-empty">No se pudieron cargar las reseñas.</div>';
+    }
+  }
+
+  function closeReviewsModal() {
+    document.getElementById('rv-overlay').classList.remove('open');
+    document.getElementById('rv-modal').classList.remove('open');
+    if (!document.querySelector('.rform-modal.open') &&
+        !document.getElementById('pdp-modal').classList.contains('open')) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Abre el formulario de calificación
+  function openReviewForm(orderId, productId, productName) {
+    _rformState = { orderId, productId, productName, rating: 0, files: [] };
+
+    document.getElementById('rform-product-name').textContent = productName || '';
+    document.getElementById('rform-comment').value = '';
+    document.getElementById('rform-title').value = '';
+    document.getElementById('rform-file-preview').innerHTML = '';
+    document.getElementById('rform-err').style.display = 'none';
+    document.getElementById('rform-err').textContent = '';
+    document.getElementById('rform-star-hint').textContent = 'Selecciona una calificación';
+
+    // Reset stars
+    document.querySelectorAll('.rform-star').forEach(s => s.classList.remove('lit'));
+
+    const overlay = document.getElementById('rform-overlay');
+    const modal   = document.getElementById('rform-modal');
+    overlay.classList.add('open');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeReviewForm() {
+    document.getElementById('rform-overlay').classList.remove('open');
+    document.getElementById('rform-modal').classList.remove('open');
+    if (!document.querySelector('.rv-modal.open') &&
+        !document.getElementById('pdp-modal').classList.contains('open')) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Manejo de estrellas del formulario
+  (function initRformStars() {
+    const starEls = document.querySelectorAll('.rform-star');
+    const hints = ['', 'Muy mala experiencia', 'Mala experiencia', 'Aceptable', 'Buena experiencia', 'Excelente'];
+    starEls.forEach(star => {
+      star.addEventListener('mouseover', () => {
+        const v = parseInt(star.dataset.v);
+        starEls.forEach(s => s.classList.toggle('lit', parseInt(s.dataset.v) <= v));
+      });
+      star.addEventListener('mouseout', () => {
+        const cur = _rformState.rating;
+        starEls.forEach(s => s.classList.toggle('lit', parseInt(s.dataset.v) <= cur));
+      });
+      star.addEventListener('click', () => {
+        const v = parseInt(star.dataset.v);
+        _rformState.rating = v;
+        starEls.forEach(s => s.classList.toggle('lit', parseInt(s.dataset.v) <= v));
+        document.getElementById('rform-star-hint').textContent = hints[v] || '';
+      });
+    });
+
+    // Preview de imágenes
+    document.getElementById('rform-images').addEventListener('change', function() {
+      _rformState.files = Array.from(this.files).slice(0, 5);
+      const preview = document.getElementById('rform-file-preview');
+      preview.innerHTML = '';
+      _rformState.files.forEach(f => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.alt = f.name;
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(f);
+      });
+    });
+  })();
+
+  async function submitReview() {
+    const { orderId, productId, rating, files } = _rformState;
+    const comment = (document.getElementById('rform-comment').value || '').trim();
+    const title   = (document.getElementById('rform-title').value || '').trim();
+    const errEl   = document.getElementById('rform-err');
+
+    errEl.style.display = 'none';
+
+    if (!rating) { errEl.textContent = 'Selecciona una calificación de 1 a 5 estrellas.'; errEl.style.display = 'block'; return; }
+    if (comment.length < 10) { errEl.textContent = 'El comentario debe tener al menos 10 caracteres.'; errEl.style.display = 'block'; return; }
+
+    // Encontrar el slug del producto
+    const prod = PRODUCTS.find(p => p.id === productId);
+    if (!prod) { errEl.textContent = 'Producto no encontrado.'; errEl.style.display = 'block'; return; }
+
+    const btn = document.getElementById('rform-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Enviando…';
+
+    try {
+      const fd = new FormData();
+      fd.append('order_id', orderId);
+      fd.append('rating', String(rating));
+      fd.append('comment', comment);
+      if (title) fd.append('title', title);
+      files.forEach(f => fd.append('images', f));
+
+      const res = await ReviewsApi.create(prod.slug, fd);
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const msg = data.detail || data.non_field_errors?.[0] || data.order_id?.[0] || 'Error al enviar la reseña.';
+        errEl.textContent = msg;
+        errEl.style.display = 'block';
+        return;
+      }
+
+      closeReviewForm();
+      showNotify('¡Reseña enviada! Será publicada tras revisión. Gracias por tu opinión.');
+
+      // Marcar producto como reseñado en la sesión
+      _reviewedProductIds.add(productId);
+      if (window._eligibleReviews) {
+        window._eligibleReviews = window._eligibleReviews.filter(
+          r => !(r.order_id === orderId && r.product_id === productId)
+        );
+      }
+    } catch (err) {
+      errEl.textContent = 'Error de conexión. Intenta de nuevo.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enviar calificación';
+    }
+  }
+
+  // Cargar reseñas snippet en PDP cuando se abre
+  async function pdpLoadReviewSnippet(productId) {
+    const p = PRODUCTS.find(p => p.id === productId);
+    if (!p || !p.reviews) return;
+    const snippetWrap = document.getElementById('pdp-review-snippet-list');
+    if (!snippetWrap) return;
+    try {
+      const res = await ReviewsApi.list(p.slug);
+      if (!res.ok) return;
+      const reviews = await res.json();
+      snippetWrap.innerHTML = reviews.slice(0, 3).map(r => `
+        <div class="pdp-review-item">
+          <div class="pdp-review-meta">
+            <span class="pdp-review-stars">${'★'.repeat(r.rating)}</span>
+            <span class="pdp-review-author">${escHtml(r.user_name || 'Cliente')}</span>
+          </div>
+          <div class="pdp-review-comment">${escHtml((r.comment || '').slice(0, 140))}${r.comment && r.comment.length > 140 ? '…' : ''}</div>
+        </div>`).join('');
+    } catch { /* silencioso */ }
+  }
 
   // ── EVENT DELEGATION ─────────────────────────────────────────────────────
   // Reemplaza todos los atributos onclick/oninput/etc. bloqueados por CSP.
@@ -7129,6 +8948,7 @@
     if (!el) return;
     const action = el.dataset.action;
     const id     = el.dataset.id;
+    if (el.tagName === 'A') e.preventDefault();
 
     switch (action) {
       // ── Navegación / Hero ───────────────────────────────
@@ -7173,6 +8993,18 @@
       case 'pdpSelectSize':       pdpSelectSize(el.dataset.talla, el); break;
       case 'pdpSelectColor':      pdpSelectColor(el.dataset.color, el); break;
       case 'pdpSwitchImage':      pdpSwitchImage(el.dataset.src, el.dataset.alt || ''); break;
+      case 'openLightbox': {
+        const prodId = el.dataset.id;
+        const prod = PRODUCTS.find(p => p.id == prodId);
+        if (!prod || !window._FPLightbox) break;
+        const images = prod.all_images && prod.all_images.length
+          ? prod.all_images.map(i => ({ url: i.image, alt: i.alt_text || prod.name }))
+          : prod.image ? [{ url: prod.image, alt: prod.name }] : [];
+        if (!images.length) break;
+        const startIdx = parseInt(el.dataset.idx || '0', 10);
+        window._FPLightbox.open(images, startIdx);
+        break;
+      }
       case 'pdpSelectRH':         pdpSelectRH(el.dataset.rh, el); break;
       case 'pdpAddToCart':        pdpAddToCart(id); break;
       case 'pdpToggleWish':       pdpToggleWish(id); break;
@@ -7193,6 +9025,10 @@
       case 'authRegister':        authRegister(); break;
       case 'authLogin':           authLogin(); break;
       case 'authLogout':          authLogout(); break;
+      case 'openReturnsPanel':    openReturnsPanel(); break;
+      case 'openReturnPolicyInfo': fpOpenReturnPolicyModal('info'); break;
+      case 'closeReturnPolicyModal': closeReturnPolicyModal(); break;
+      case 'fpReturnPolicyContinue': fpOnReturnPolicyContinue(); break;
 
       case 'closeCheckoutModal':  closeCheckoutModal(); break;
 
@@ -7200,6 +9036,15 @@
       case 'closeUserPanel':      closeUserPanel(); break;
       case 'upNav':               upNav(el.dataset.section); break;
       case 'upOpenOrder':         openUpOrderDetail(el.dataset.orderId); break;
+      case 'upOpenReturnsFromOrder':
+        e.stopPropagation();
+        upStartReturnFlow(el.dataset.orderId);
+        break;
+      case 'upStartReturn':       upStartReturnFlow(el.dataset.orderId); break;
+      case 'upSubmitReturn':      upSubmitReturn(); break;
+      case 'upRetryReturn':
+        upRetryReturn(el.dataset.orderId, el.dataset.parentReturnId);
+        break;
       case 'upOrderBack':         loadUpOrders(_upOrdersPage); break;
       case 'upOrdersPage':        loadUpOrders(+el.dataset.page); break;
       case 'upTxPage':            loadUpPoints(+el.dataset.page); break;
@@ -7208,6 +9053,14 @@
       case 'upLogoutConfirm':     upLogoutConfirm(); break;
       case 'upConfirmCancel':     upConfirmClose(); break;
       case 'upConfirmOk':         upConfirmOk(); break;
+
+      // ── Reseñas ─────────────────────────────────────────
+      case 'openReviewsModal':    openReviewsModal(el.dataset.productId); break;
+      case 'closeReviewsModal':   closeReviewsModal(); break;
+      case 'openReviewForm':      openReviewForm(el.dataset.orderId, el.dataset.productId, el.dataset.productName); break;
+      case 'closeReviewForm':     closeReviewForm(); break;
+      case 'submitReview':        submitReview(); break;
+      case 'rvOpenImg':           window._FPLightbox && window._FPLightbox.open([{url: el.dataset.src, alt: 'Evidencia'}], 0); break;
     }
   });
 
