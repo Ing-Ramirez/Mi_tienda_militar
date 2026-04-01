@@ -21,12 +21,14 @@ RUN pip install -r requirements.txt
 # Copiar código fuente
 COPY . .
 
-# Crear directorios necesarios y dar permisos al entrypoint
-RUN mkdir -p logs media staticfiles && chmod +x entrypoint.sh
-
-# Permisos
+# Crear usuario antes de crear directorios para que sean suyos desde el inicio
 RUN addgroup --system django && adduser --system --ingroup django django
-RUN chown -R django:django /app
+
+# Crear directorios y dar permisos al entrypoint ya como root, luego ceder todo
+RUN mkdir -p logs media staticfiles \
+    && chmod +x entrypoint.sh \
+    && chown -R django:django /app
+
 USER django
 
 EXPOSE 8000

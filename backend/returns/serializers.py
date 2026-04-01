@@ -74,26 +74,28 @@ class ReturnRequestListSerializer(serializers.ModelSerializer):
     order_number        = serializers.CharField(source='order.order_number',        read_only=True)
     items_count         = serializers.SerializerMethodField()
     return_code         = serializers.CharField(read_only=True)
-    order_id            = serializers.UUIDField(source='order_id', read_only=True)
+    order_id            = serializers.UUIDField(read_only=True)
     attempt_number      = serializers.IntegerField(read_only=True)
-    parent_return_id    = serializers.UUIDField(source='parent_return_id', read_only=True, allow_null=True)
+    parent_return_id    = serializers.UUIDField(read_only=True, allow_null=True)
     rejection_reason    = serializers.CharField(read_only=True)
     rejected_at         = serializers.DateTimeField(read_only=True)
     can_retry           = serializers.SerializerMethodField()
     customer_rejection_hint = serializers.SerializerMethodField()
     ui_rejection_tone   = serializers.SerializerMethodField()
+    status_message      = serializers.SerializerMethodField()
 
     class Meta:
         model  = ReturnRequest
         fields = [
             'id', 'return_code', 'order_id', 'order_number', 'attempt_number',
             'parent_return_id',
-            'reason', 'reason_label',
-            'status', 'status_label', 'refund_status', 'refund_status_label',
+            'reason', 'reason_label', 'reason_detail', 'customer_notes',
+            'status', 'status_label', 'status_message',
+            'refund_status', 'refund_status_label',
             'refund_amount', 'items_count',
             'rejection_reason', 'rejected_at',
             'can_retry', 'customer_rejection_hint', 'ui_rejection_tone',
-            'requested_at', 'resolved_at',
+            'requested_at', 'resolved_at', 'updated_at',
         ]
 
     def get_items_count(self, obj):
@@ -124,6 +126,28 @@ class ReturnRequestListSerializer(serializers.ModelSerializer):
         if obj.status == 'rejected_definitive':
             return 'definitive'
         return 'neutral'
+
+    def get_status_message(self, obj):
+        st = obj.status
+        if st == 'requested':
+            return 'Tu solicitud fue registrada; nuestro equipo la revisará pronto.'
+        if st == 'reviewing':
+            return 'Estamos evaluando tu solicitud.'
+        if st == 'approved':
+            return 'Tu devolución fue aprobada.'
+        if st == 'rejected_subsanable':
+            return 'La solicitud fue rechazada; puedes corregir y volver a intentar.'
+        if st == 'rejected_definitive':
+            return 'La solicitud fue rechazada de forma definitiva.'
+        if st == 'in_transit':
+            return 'Envía el producto dentro del plazo acordado.'
+        if st in ('received', 'validated'):
+            return 'Estamos validando el producto recibido.'
+        if st == 'refunded':
+            return 'El reembolso fue procesado.'
+        if st == 'closed':
+            return 'Este caso de devolución fue cerrado.'
+        return ''
 
 
 class ReturnRequestDetailSerializer(serializers.ModelSerializer):

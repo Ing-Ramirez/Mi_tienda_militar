@@ -9,9 +9,12 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core import signing
+from django.core.cache import cache
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 import mimetypes
+import random
+import uuid
 
 from products.validators import validate_image_file
 from .serializers import (
@@ -75,18 +78,67 @@ class RegisterView(generics.CreateAPIView):
         return response
 
 
+class CaptchaView(APIView):
+    """
+    GET  /api/v1/auth/captcha/
+    Genera un código aleatorio, lo almacena en caché con TTL corto
+    y devuelve un token firmado + el código en texto plano para mostrar al usuario.
+    """
+    permission_classes = [AllowAny]
+    TTL = 20  # segundos
+    _CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'  # sin O/0/I/1
+
+    @classmethod
+    def _generate_code(cls, length: int = 6) -> str:
+        return ''.join(random.choices(cls._CHARS, k=length))
+
+    def get(self, request):
+        code  = self._generate_code()
+        nonce = uuid.uuid4().hex
+        cache.set(f'captcha:{nonce}', code, timeout=self.TTL)
+        token = signing.dumps({'n': nonce}, salt='fp_captcha')
+        return Response({
+            'captcha_token': token,
+            'code':          code,
+            'expires_in':    self.TTL,
+        })
+
+
 class LoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     throttle_classes = [LoginRateThrottle]
 
     def post(self, request, *args, **kwargs):
+        token  = request.data.get('captcha_token', '')
+        code   = (request.data.get('captcha', '') or '').strip().upper()
+        error  = self._validate_captcha(token, code)
+        if error:
+            return Response({'captcha': error}, status=status.HTTP_400_BAD_REQUEST)
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
-            # Extraer refresh del body y moverlo a cookie HttpOnly
             refresh_token = response.data.pop('refresh', None)
             if refresh_token:
                 _set_refresh_cookie(response, refresh_token)
         return response
+
+    @staticmethod
+    def _validate_captcha(token: str, code: str):
+        if not token:
+            return 'Código de verificación requerido.'
+        try:
+            data = signing.loads(token, salt='fp_captcha', max_age=CaptchaView.TTL + 2)
+        except signing.SignatureExpired:
+            return 'El código expiró. Genera uno nuevo.'
+        except signing.BadSignature:
+            return 'Token inválido.'
+        nonce  = data.get('n', '')
+        stored = cache.get(f'captcha:{nonce}')
+        if stored is None:
+            return 'El código expiró. Genera uno nuevo.'
+        cache.delete(f'captcha:{nonce}')   # uso único
+        if stored != code:
+            return 'Código incorrecto.'
+        return None
 
 
 class CookieTokenRefreshView(APIView):

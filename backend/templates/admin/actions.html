@@ -1,0 +1,72 @@
+{% load i18n fp_admin_ui %}
+{# Barra en servidor; select name=action fuera de .actions (Jazzmin no aplica Select2 al dropdown de acción). #}
+{% if action_index == 0 %}
+<div class="actions change-list-actions fp-changelist-actions">
+    <div id="fp-action-bar-{{ action_index }}" class="fp-action-bar" data-fp-ui="changelist-actions" data-action-index="{{ action_index }}">
+        <div class="fp-action-btns">
+            {% for field in action_form %}
+                {% if field.name == 'action' %}
+                    {% for val, label in field.field.choices %}
+                        {% if val %}
+                            <button type="button" class="fp-action-btn{% if val|fp_action_is_danger %} fp-action-btn--danger{% endif %}" data-action="{{ val }}" title="{{ label }}" disabled>
+                                {{ val|fp_action_button_label:label }}
+                            </button>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="fp-action-meta">
+            {% if actions_selection_counter %}
+                <span class="action-counter" data-actions-icnt="{{ cl.result_list|length }}">{{ selection_note }}</span>
+                {% if cl.result_count != cl.result_list|length %}
+                    <span class="all hidden">{{ selection_note_all }}</span>
+                    <span class="question hidden">
+                        <a role="button" href="#" title="{% translate 'Click here to select the objects across all pages' %}">
+                            {% blocktranslate with total_count=cl.result_count %}Select all {{ total_count }} {{ module_name }}{% endblocktranslate %}
+                        </a>
+                    </span>
+                    <span class="clear hidden"><a role="button" href="#">{% translate 'Clear selection' %}</a></span>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    {% for field in action_form %}
+        {% if field.name == 'select_across' %}
+            {{ field }}
+        {% endif %}
+    {% endfor %}
+</div>
+<div hidden class="fp-bulk-action-machine" aria-hidden="true">
+    {% for field in action_form %}
+        {% if field.name == 'action' %}
+            <select name="{{ field.html_name }}" id="{{ field.id_for_label }}">
+                {% for val, lbl in field.field.choices %}
+                    <option value="{{ val }}">{{ lbl }}</option>
+                {% endfor %}
+            </select>
+        {% elif field.name != 'select_across' %}
+            {{ field }}
+        {% endif %}
+    {% endfor %}
+    <button type="submit" class="fp-hidden-action-submit" name="index" value="{{ action_index|default:0 }}" hidden title="{% translate 'Run the selected action' %}">{% translate "Run" %}</button>
+</div>
+{% else %}
+<div class="actions change-list-actions fp-changelist-actions fp-changelist-actions--mirror">
+    <div id="fp-action-bar-{{ action_index }}" class="fp-action-bar fp-action-bar--mirror" data-fp-ui="changelist-actions" data-action-index="{{ action_index }}">
+        <div class="fp-action-btns">
+            {% for field in action_form %}
+                {% if field.name == 'action' %}
+                    {% for val, label in field.field.choices %}
+                        {% if val %}
+                            <button type="button" class="fp-action-btn{% if val|fp_action_is_danger %} fp-action-btn--danger{% endif %}" data-action="{{ val }}" title="{{ label }}" disabled>
+                                {{ val|fp_action_button_label:label }}
+                            </button>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}

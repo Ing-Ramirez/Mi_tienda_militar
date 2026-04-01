@@ -439,6 +439,342 @@
         });
     }
 
+    /* ══════════════════════════════════════════════════════════════════════
+       CONVERSOR USD → COP  (inyectado en la sección de precios)
+       ══════════════════════════════════════════════════════════════════════ */
+    var RATE_KEY     = 'fp_usd_cop_rate';
+    var RATE_TS_KEY  = 'fp_usd_cop_ts';
+    var RATE_CACHE_H = 4;   // horas antes de refrescar automáticamente
+    var RATE_API     = 'https://open.er-api.com/v6/latest/USD';
+
+    function savedRate() {
+        var r  = parseFloat(localStorage.getItem(RATE_KEY) || '0');
+        var ts = parseInt(localStorage.getItem(RATE_TS_KEY) || '0', 10);
+        return r > 0 ? { rate: r, ts: ts } : null;
+    }
+
+    function storeRate(rate) {
+        localStorage.setItem(RATE_KEY,    String(rate));
+        localStorage.setItem(RATE_TS_KEY, String(Date.now()));
+    }
+
+    function fmtRate(r) { return r.toLocaleString('es-CO', { maximumFractionDigits: 2 }); }
+    function fmtCOP(v)  { return Math.round(v).toLocaleString('es-CO'); }
+    function fmtAge(ts) {
+        var m = Math.round((Date.now() - ts) / 60000);
+        return m < 2 ? 'hace un momento' : m < 60 ? 'hace ' + m + ' min' : 'hace ' + Math.round(m/60) + 'h';
+    }
+
+    function initPriceConverter() {
+        var priceInput = document.getElementById('id_price');
+        if (!priceInput) return;
+
+        /* Encontrar el fieldset que contiene id_price */
+        var priceFieldset = priceInput.closest('fieldset') ||
+                            priceInput.closest('.fp-section-content') ||
+                            priceInput.parentElement;
+        if (!priceFieldset) return;
+
+        /* ── Construir la tarjeta ── */
+        var card = document.createElement('div');
+        card.id = 'fp-converter-card';
+        card.className = 'fp-converter-card';
+        card.innerHTML =
+            '<div class="fp-conv-header">' +
+                '<span class="fp-conv-title">// CONVERSOR USD → COP</span>' +
+                '<button type="button" id="fp-conv-fetch" class="fp-conv-fetch-btn" title="Obtener tasa online">' +
+                    '↻ Obtener tasa online' +
+                '</button>' +
+            '</div>' +
+            '<div class="fp-conv-rate-info" id="fp-conv-rate-info">Cargando tasa...</div>' +
+            '<div class="fp-conv-body">' +
+                '<label class="fp-conv-label">Convertir monto en USD</label>' +
+                '<input type="number" id="fp-conv-amount" class="fp-conv-input" min="0" step="0.01" placeholder="Ej: 25.00">' +
+                '<button type="button" id="fp-conv-go" class="fp-conv-go-btn">Convertir</button>' +
+                '<div class="fp-conv-result" id="fp-conv-result"></div>' +
+                '<div class="fp-conv-apply" id="fp-conv-apply-btns">' +
+                    '<span class="fp-conv-apply-label">Aplicar al campo:</span>' +
+                    '<button type="button" class="fp-conv-apply-btn" data-field="id_price">Precio venta</button>' +
+                    '<button type="button" class="fp-conv-apply-btn" data-field="id_compare_at_price">Precio anterior</button>' +
+                    '<button type="button" class="fp-conv-apply-btn" data-field="id_cost_price">Costo</button>' +
+                '</div>' +
+            '</div>';
+
+        priceFieldset.appendChild(card);
+
+        /* ── Estado interno ── */
+        var currentRate = 0;
+        var currentCOP  = 0;
+
+        function showRateInfo(rate, ts, fromCache) {
+            currentRate = rate;
+            var info = document.getElementById('fp-conv-rate-info');
+            if (!info) return;
+            var tag = fromCache ? '⊙ Tasa guardada' : '✓ Tasa obtenida';
+            info.innerHTML =
+                '<span class="fp-conv-rate-tag">' + tag + ':</span> ' +
+                '<strong>1 USD = ' + fmtRate(rate) + ' COP</strong>' +
+                (ts ? ' <em>(' + fmtAge(ts) + ')</em>' : '');
+            info.className = 'fp-conv-rate-info fp-conv-rate-ok';
+        }
+
+        function showRateError(msg) {
+            var info = document.getElementById('fp-conv-rate-info');
+            if (info) {
+                info.textContent = '⚠ ' + msg;
+                info.className = 'fp-conv-rate-info fp-conv-rate-err';
+            }
+        }
+
+        function fetchRate() {
+            var btn = document.getElementById('fp-conv-fetch');
+            if (btn) btn.disabled = true;
+            var info = document.getElementById('fp-conv-rate-info');
+            if (info) { info.textContent = 'Consultando tasa...'; info.className = 'fp-conv-rate-info'; }
+
+            fetch(RATE_API)
+                .then(function (r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function (d) {
+                    var rate = d && d.rates && d.rates.COP;
+                    if (!rate || rate <= 0) throw new Error('Tasa no disponible');
+                    storeRate(rate);
+                    showRateInfo(rate, Date.now(), false);
+                    recalc();
+                })
+                .catch(function (e) {
+                    var cached = savedRate();
+                    if (cached) {
+                        showRateInfo(cached.rate, cached.ts, true);
+                        recalc();
+                    } else {
+                        showRateError('Sin conexión y sin tasa guardada.');
+                    }
+                })
+                .finally(function () {
+                    var btn = document.getElementById('fp-conv-fetch');
+                    if (btn) btn.disabled = false;
+                });
+        }
+
+        function recalc() {
+            var amount = parseFloat(document.getElementById('fp-conv-amount').value || '0');
+            var result = document.getElementById('fp-conv-result');
+            var applyDiv = document.getElementById('fp-conv-apply-btns');
+            if (!result) return;
+            if (!currentRate || !amount || amount <= 0) {
+                result.textContent = '';
+                currentCOP = 0;
+                if (applyDiv) applyDiv.style.display = 'none';
+                return;
+            }
+            currentCOP = amount * currentRate;
+            result.innerHTML =
+                '<span class="fp-conv-eq">' +
+                    fmtRate(amount) + ' USD × ' + fmtRate(currentRate) + ' = ' +
+                    '<strong>' + fmtCOP(currentCOP) + ' COP</strong>' +
+                '</span>';
+            if (applyDiv) applyDiv.style.display = '';
+        }
+
+        /* ── Eventos ── */
+        document.getElementById('fp-conv-fetch').addEventListener('click', fetchRate);
+
+        document.getElementById('fp-conv-go').addEventListener('click', recalc);
+
+        document.getElementById('fp-conv-amount').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); recalc(); }
+        });
+
+        card.addEventListener('click', function (e) {
+            var btn = e.target.closest('.fp-conv-apply-btn');
+            if (!btn || !currentCOP) return;
+            var fieldId = btn.dataset.field;
+            var field   = document.getElementById(fieldId);
+            if (!field) { return; }
+            field.value = Math.round(currentCOP).toFixed(2);
+            field.dispatchEvent(new Event('input', { bubbles: true }));
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+            /* Feedback visual breve */
+            btn.textContent = '✓ Aplicado';
+            setTimeout(function () { btn.textContent = btn.dataset.originalLabel || btn.textContent; }, 1200);
+        });
+        /* Guardar etiquetas originales */
+        card.querySelectorAll('.fp-conv-apply-btn').forEach(function (b) {
+            b.dataset.originalLabel = b.textContent;
+        });
+
+        /* ── Ocultar sección "aplicar" hasta que haya resultado ── */
+        var applyDiv = document.getElementById('fp-conv-apply-btns');
+        if (applyDiv) applyDiv.style.display = 'none';
+
+        /* ── Carga inicial: usar caché si es reciente, si no, fetch ── */
+        var cached = savedRate();
+        if (cached) {
+            var ageH = (Date.now() - cached.ts) / 3600000;
+            showRateInfo(cached.rate, cached.ts, true);
+            if (ageH > RATE_CACHE_H) fetchRate();   // refrescar en background si es vieja
+        } else {
+            fetchRate();
+        }
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       MODAL DE DETALLE DE PRODUCTO (solo lectura)
+       ══════════════════════════════════════════════════════════════════════ */
+    function initDetailModal() {
+        if (document.getElementById('fp-dm-overlay')) return;
+
+        var overlay = document.createElement('div');
+        overlay.id = 'fp-dm-overlay';
+        overlay.innerHTML =
+            '<div id="fp-dm-modal" role="dialog" aria-modal="true" aria-labelledby="fp-dm-name">' +
+                '<div class="fp-dm-header">' +
+                    '<button type="button" id="fp-dm-close" class="fp-dm-close-x" title="Cerrar">✕</button>' +
+                    '<h2 id="fp-dm-name"></h2>' +
+                    '<div class="fp-dm-meta-row">' +
+                        '<span id="fp-dm-sku" class="fp-dm-sku-badge"></span>' +
+                        '<span id="fp-dm-status" class="fp-dm-status-badge"></span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="fp-dm-body" id="fp-dm-body"></div>' +
+                '<div class="fp-dm-footer">' +
+                    '<button type="button" id="fp-dm-close-footer" class="fp-dm-footer-close">Cerrar</button>' +
+                    '<a id="fp-dm-edit-link" href="#" class="fp-dm-edit-btn">Editar producto</a>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(overlay);
+
+        function closeModal() { overlay.classList.remove('fp-dm-open'); }
+
+        document.getElementById('fp-dm-close').addEventListener('click', closeModal);
+        document.getElementById('fp-dm-close-footer').addEventListener('click', closeModal);
+        overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && overlay.classList.contains('fp-dm-open')) closeModal();
+        });
+
+        /* Event delegation — sobrevive a PJAX */
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('.fp-detail-btn');
+            if (!btn) return;
+            var raw = btn.dataset.product;
+            if (!raw) return;
+            var p;
+            try { p = JSON.parse(raw); } catch (ex) { return; }
+            openModal(p);
+        });
+
+        /* ── Render del modal ── */
+        function openModal(p) {
+            document.getElementById('fp-dm-name').textContent = p.name || '—';
+
+            var skuEl = document.getElementById('fp-dm-sku');
+            skuEl.textContent = p.sku ? 'SKU: ' + p.sku : '';
+            skuEl.style.display = p.sku ? '' : 'none';
+
+            var statusMap = {
+                active:       { label: 'Activo',        cls: 'fp-dm-s--active'   },
+                inactive:     { label: 'Inactivo',       cls: 'fp-dm-s--inactive' },
+                out_of_stock: { label: 'Agotado',        cls: 'fp-dm-s--out'      },
+                coming_soon:  { label: 'Próximamente',   cls: 'fp-dm-s--soon'     },
+            };
+            var st = statusMap[p.status] || { label: p.status, cls: '' };
+            var statusEl = document.getElementById('fp-dm-status');
+            statusEl.textContent = st.label;
+            statusEl.className = 'fp-dm-status-badge ' + st.cls;
+
+            document.getElementById('fp-dm-edit-link').href = p.edit_url || '#';
+
+            var body = document.getElementById('fp-dm-body');
+            body.innerHTML = buildBody(p);
+            body.scrollTop = 0;
+
+            overlay.classList.add('fp-dm-open');
+        }
+
+        function buildBody(p) {
+            var html = '';
+
+            /* 1. Información General */
+            html += mkSection('Información General', mkGrid([
+                ['Categoría',        esc(p.category || '—')],
+                ['Personalización',  esc(p.personalization || '—')],
+                ['Destacado',        p.is_featured ? '<span class="fp-dm-tag fp-dm-tag--yes">Sí</span>' : '<span class="fp-dm-tag fp-dm-tag--no">No</span>'],
+                ['Nuevo',            p.is_new      ? '<span class="fp-dm-tag fp-dm-tag--yes">Sí</span>' : '<span class="fp-dm-tag fp-dm-tag--no">No</span>'],
+                ['Actualizado',      esc(p.updated_at || '—')],
+            ]));
+
+            /* 2. Información Comercial */
+            var priceRows = [['Precio de venta', '<strong class="fp-dm-price">' + fmtModalCOP(p.price) + '</strong>']];
+            if (p.compare_at_price) priceRows.push(['Precio anterior', '<s class="fp-dm-price-old">' + fmtModalCOP(p.compare_at_price) + '</s>']);
+            if (p.cost_price)       priceRows.push(['Costo interno',   fmtModalCOP(p.cost_price)]);
+            html += mkSection('Información Comercial', mkGrid(priceRows));
+
+            /* 3. Inventario */
+            var stockBadge = p.stock === 0
+                ? '<span class="fp-dm-stock fp-dm-stock--empty">Sin stock</span>'
+                : '<span class="fp-dm-stock fp-dm-stock--ok">' + p.stock + ' unidades</span>';
+            html += mkSection('Inventario', mkGrid([
+                ['Stock actual',    stockBadge],
+                ['Disponibilidad',  p.stock > 0
+                    ? '<span class="fp-dm-tag fp-dm-tag--yes">Disponible</span>'
+                    : '<span class="fp-dm-tag fp-dm-tag--no">No disponible</span>'],
+            ]));
+
+            /* 4. Descripción */
+            if (p.description) {
+                html += mkSection('Descripción',
+                    '<div class="fp-dm-desc">' +
+                        esc(p.description).replace(/\n/g, '<br>') +
+                    '</div>'
+                );
+            }
+
+            /* 5. Imágenes */
+            if (p.images && p.images.length) {
+                var imgs = p.images.map(function (img) {
+                    return '<figure class="fp-dm-img-item">' +
+                        '<img src="' + esc(img.url) + '" alt="' + esc(img.alt || '') + '" loading="lazy">' +
+                        '</figure>';
+                }).join('');
+                html += mkSection('Imágenes (' + p.images.length + ')',
+                    '<div class="fp-dm-imgs">' + imgs + '</div>'
+                );
+            } else {
+                html += mkSection('Imágenes', '<p class="fp-dm-empty">Sin imágenes registradas.</p>');
+            }
+
+            return html;
+        }
+
+        function mkSection(title, content) {
+            return '<section class="fp-dm-section">' +
+                '<h3 class="fp-dm-section-title">' + esc(title) + '</h3>' +
+                content +
+                '</section>';
+        }
+
+        function mkGrid(rows) {
+            return '<dl class="fp-dm-grid">' +
+                rows.map(function (r) {
+                    return '<dt>' + esc(r[0]) + '</dt><dd>' + r[1] + '</dd>';
+                }).join('') +
+                '</dl>';
+        }
+
+        function fmtModalCOP(val) {
+            if (!val) return '—';
+            var n = parseFloat(val);
+            if (isNaN(n)) return String(val);
+            return '$' + n.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        function esc(s) { return escText(s); }
+    }
+
     /* Barra de acciones del changelist: franja_admin_global.js (única fuente). */
 
     /* ── Utilidades ──────────────────────────────────────────────────────── */
@@ -455,6 +791,8 @@
         var hasProductForm = document.getElementById('id_sku') !== null &&
                              document.getElementById('id_price') !== null;
         if (hasProductForm) initFlatLayout();
+        if (hasProductForm) initPriceConverter();
+        initDetailModal();
         if (window.FPAdminChangelist && typeof window.FPAdminChangelist.schedule === 'function') {
             window.FPAdminChangelist.schedule();
         }

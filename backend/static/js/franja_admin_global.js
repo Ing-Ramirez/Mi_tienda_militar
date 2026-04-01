@@ -1,272 +1,346 @@
 /**
  * Franja Pixelada — Admin Global JS
  *
- * Capa única de normalización del changelist:
- *  - Una función idempotente (`normalizeChangelistUI`) siempre reconstruye la barra.
- *  - Se ejecuta en carga inicial, pjax, popstate, pageshow y tras mutaciones relevantes.
- *  - Elimina cualquier #fp-action-bar previo (evita duplicados con módulos legacy).
- *
- * Acciones masivas:
- *  - El <select name="action"> permanece en el DOM (oculto) para Jazzmin/Select2.
- *  - body.fp-bar-active + CSS oculta .actions de forma persistente.
+ * Responsabilidades:
+ * 1. Checkbox "seleccionar todos" — event delegation (sobrevive a PJAX)
+ * 2. Contador dinámico de selección + botón deseleccionar todo
+ * 3. Botones de acciones masivas — habilitar/deshabilitar + loading state
+ * 4. Modal de confirmación para acciones destructivas
+ * 5. Sistema de toasts globales
  */
 (function () {
   'use strict';
 
-  var SEL_ALL = '#result_list tbody input[name="_selected_action"]';
-  var SEL_CHKD = '#result_list tbody input[name="_selected_action"]:checked';
-  var DEBOUNCE_MS = 120;
+  /* ── Selectores ──────────────────────────────────────────────────────────── */
+  var SEL_CHILDREN = '#result_list tbody input[name="_selected_action"]';
+  var SEL_CHECKED  = '#result_list tbody input[name="_selected_action"]:checked';
+  var DEBOUNCE_MS  = 120;
   var _scheduleTimer = null;
-  var _running = false;
 
-  var LABEL_MAP = {
-    'action_importar_variantes': 'Importar variantes',
-    'action_importar_a_tienda': 'Importar a mi tienda',
-    'action_sincronizar_catalogo': 'Sincronizar catálogo',
-    'recalcular_stock_seleccionados': 'Recalcular stock',
-  };
+  /* ── Helpers base ────────────────────────────────────────────────────────── */
+  function getToggle()   { return document.getElementById('action-toggle'); }
+  function getChildren() { return document.querySelectorAll(SEL_CHILDREN); }
+  function getChecked()  { return document.querySelectorAll(SEL_CHECKED).length; }
+  function getTotal()    { return getChildren().length; }
 
-  function shortLabel(value, text) {
-    if (LABEL_MAP[value]) return LABEL_MAP[value];
-    return text
-      .replace(/\s+\([^)]*\)/g, '')
-      .replace(/\s*[—–]\s*.*/g, '')
-      .replace(/\s+ahora\b/gi, '')
-      .replace(/\s+seleccionado[s/]?[as]*/gi, '')
-      .replace(/\s+selected.*/i, '')
-      .trim();
-  }
-
-  function getChecked() {
-    return document.querySelectorAll(SEL_CHKD).length;
-  }
-  function getTotal() {
-    return document.querySelectorAll(SEL_ALL).length;
-  }
-
-  function syncToggle() {
-    var toggle = document.getElementById('action-toggle');
+  /* ════════════════════════════════════════════════════════════════════════════
+     1. CHECKBOX MASTER — sincronización completa
+     ════════════════════════════════════════════════════════════════════════════ */
+  function syncToggleState() {
+    var toggle  = getToggle();
     if (!toggle) return;
-    var total = getTotal();
+    var total   = getTotal();
     var checked = getChecked();
-    if (total === 0) {
-      toggle.checked = false;
-      toggle.indeterminate = false;
-    } else if (checked === total) {
-      toggle.checked = true;
-      toggle.indeterminate = false;
-    } else if (checked === 0) {
-      toggle.checked = false;
-      toggle.indeterminate = false;
-    } else {
-      toggle.checked = false;
-      toggle.indeterminate = true;
+    toggle.checked       = total > 0 && checked === total;
+    toggle.indeterminate = checked > 0 && checked < total;
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════════
+     2. CONTADOR + BOTÓN DESELECCIONAR
+     ════════════════════════════════════════════════════════════════════════════ */
+  function getOrCreateCounter() {
+    var bar = document.querySelector('.fp-action-bar:not(.fp-action-bar--mirror)');
+    if (!bar) return null;
+    var el = bar.querySelector('.fp-sel-counter');
+    if (!el) {
+      el = document.createElement('span');
+      el.className = 'fp-sel-counter';
+      var meta = bar.querySelector('.fp-action-meta');
+      if (meta) meta.appendChild(el);
+      else bar.appendChild(el);
     }
+    return el;
   }
 
-  function refreshBar() {
+  function getOrCreateDeselectBtn() {
+    var bar = document.querySelector('.fp-action-bar:not(.fp-action-bar--mirror)');
+    if (!bar) return null;
+    var btn = bar.querySelector('.fp-deselect-btn');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fp-deselect-btn';
+      btn.title = 'Limpiar selección';
+      btn.innerHTML = '✕ Deseleccionar';
+      btn.addEventListener('click', function () {
+        getChildren().forEach(function (cb) { cb.checked = false; });
+        var toggle = getToggle();
+        if (toggle) { toggle.checked = false; toggle.indeterminate = false; }
+        syncAll();
+      });
+      var meta = bar.querySelector('.fp-action-meta');
+      if (meta) meta.insertBefore(btn, meta.firstChild);
+      else bar.appendChild(btn);
+    }
+    return btn;
+  }
+
+  function updateCounter() {
     var checked = getChecked();
-    var total = getTotal();
-    var counter = document.getElementById('fp-action-counter');
-    if (counter) counter.textContent = checked + ' de ' + total + ' seleccionados';
-    document.querySelectorAll('.fp-action-btn').forEach(function (btn) {
-      btn.disabled = checked === 0;
-    });
-  }
+    var total   = getTotal();
+    var counter = getOrCreateCounter();
+    var deselBtn = getOrCreateDeselectBtn();
 
-  function onSelectionChange() {
-    syncToggle();
-    refreshBar();
-  }
-
-  function teardownChangelistChrome() {
-    document.body.classList.remove('fp-bar-active');
-    document.querySelectorAll('#fp-action-bar').forEach(function (node) {
-      if (node.parentNode) node.parentNode.removeChild(node);
-    });
-  }
-
-  /**
-   * Reconstruye siempre la barra desde el <select> actual (fuente única de verdad).
-   */
-  function normalizeChangelistUI() {
-    if (_running) return;
-    _running = true;
-    try {
-      teardownChangelistChrome();
-
-      var form = document.getElementById('changelist-form');
-      if (!form) return;
-
-      var actionsDiv = form.querySelector('.actions');
-      if (!actionsDiv) return;
-
-      var select = actionsDiv.querySelector('select[name="action"]');
-      if (!select) return;
-
-      var actions = Array.from(select.options).filter(function (o) {
-        return o.value !== '';
-      });
-      if (actions.length === 0) {
-        document.body.classList.remove('fp-bar-active');
-        actionsDiv.style.display = '';
-        actionsDiv.removeAttribute('aria-hidden');
-        return;
-      }
-
-      actionsDiv.style.display = 'none';
-      actionsDiv.setAttribute('aria-hidden', 'true');
-      document.body.classList.add('fp-bar-active');
-
-      form.querySelectorAll('.actions button, .actions input[type="submit"]').forEach(function (el) {
-        el.style.cssText =
-          'position:absolute!important;width:1px!important;height:1px!important;' +
-          'opacity:0!important;pointer-events:none!important;overflow:hidden!important;';
-        el.setAttribute('tabindex', '-1');
-        el.setAttribute('aria-hidden', 'true');
-      });
-
-      var bar = document.createElement('div');
-      bar.id = 'fp-action-bar';
-      bar.className = 'fp-action-bar';
-      bar.setAttribute('data-fp-ui', 'changelist-actions');
-
-      var btnsWrap = document.createElement('div');
-      btnsWrap.className = 'fp-action-btns';
-
-      actions.forEach(function (opt) {
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'fp-action-btn';
-        btn.textContent = shortLabel(opt.value, opt.text);
-        btn.title = opt.text;
-        btn.dataset.action = opt.value;
-        btn.disabled = true;
-        var lc = opt.value.toLowerCase() + opt.text.toLowerCase();
-        if (lc.includes('delete') || lc.includes('elimin')) {
-          btn.classList.add('fp-action-btn--danger');
-        }
-        btnsWrap.appendChild(btn);
-      });
-
-      bar.appendChild(btnsWrap);
-
-      var counter = document.createElement('span');
-      counter.id = 'fp-action-counter';
-      counter.className = 'fp-action-counter';
-      bar.appendChild(counter);
-
-      /* Siempre arriba del formulario: primer render estable en todos los módulos */
-      if (form.firstChild) {
-        form.insertBefore(bar, form.firstChild);
+    if (counter) {
+      if (checked === 0) {
+        counter.textContent = total > 0 ? total + ' elemento' + (total !== 1 ? 's' : '') : '';
+        counter.classList.remove('has-selection');
       } else {
-        form.appendChild(bar);
+        counter.textContent = checked + ' de ' + total + ' seleccionado' + (checked !== 1 ? 's' : '');
+        counter.classList.add('has-selection');
       }
-
-      onSelectionChange();
-    } finally {
-      _running = false;
+    }
+    if (deselBtn) {
+      deselBtn.classList.toggle('visible', checked > 0);
     }
   }
 
-  function scheduleNormalizeChangelist() {
+  /* ════════════════════════════════════════════════════════════════════════════
+     3. BOTONES DE ACCIONES MASIVAS
+     ════════════════════════════════════════════════════════════════════════════ */
+  function refreshBulkActionButtons() {
+    var checked = getChecked();
+    var form    = document.getElementById('changelist-form');
+    if (!form) return;
+    form.querySelectorAll('.fp-action-btn').forEach(function (btn) {
+      if (!btn.classList.contains('fp-loading')) {
+        btn.disabled = checked === 0;
+      }
+    });
+  }
+
+  function setButtonLoading(btn, loading) {
+    if (loading) {
+      btn.classList.add('fp-loading');
+      btn.dataset.originalText = btn.textContent;
+    } else {
+      btn.classList.remove('fp-loading');
+      if (btn.dataset.originalText) btn.textContent = btn.dataset.originalText;
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════════
+     4. MODAL DE CONFIRMACIÓN
+     ════════════════════════════════════════════════════════════════════════════ */
+  function getOrCreateConfirmModal() {
+    var overlay = document.getElementById('fp-confirm-overlay');
+    if (overlay) return overlay;
+
+    overlay = document.createElement('div');
+    overlay.id = 'fp-confirm-overlay';
+    overlay.innerHTML =
+      '<div id="fp-confirm-dialog">' +
+        '<p id="fp-confirm-title"></p>' +
+        '<p id="fp-confirm-body"></p>' +
+        '<div class="fp-confirm-actions">' +
+          '<button id="fp-confirm-cancel" type="button">Cancelar</button>' +
+          '<button id="fp-confirm-ok" type="button">Confirmar</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+
+    document.getElementById('fp-confirm-cancel').addEventListener('click', closeConfirm);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeConfirm();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) closeConfirm();
+    });
+    return overlay;
+  }
+
+  var _confirmCallback = null;
+
+  function openConfirm(title, body, onOk) {
+    var overlay = getOrCreateConfirmModal();
+    document.getElementById('fp-confirm-title').textContent = title;
+    document.getElementById('fp-confirm-body').textContent  = body;
+    _confirmCallback = onOk;
+    overlay.classList.add('open');
+    document.getElementById('fp-confirm-ok').focus();
+  }
+
+  function closeConfirm() {
+    var overlay = document.getElementById('fp-confirm-overlay');
+    if (overlay) overlay.classList.remove('open');
+    _confirmCallback = null;
+  }
+
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'fp-confirm-ok' && _confirmCallback) {
+      var cb = _confirmCallback;
+      closeConfirm();
+      cb();
+    }
+  });
+
+  /* ════════════════════════════════════════════════════════════════════════════
+     5. TOASTS GLOBALES
+     ════════════════════════════════════════════════════════════════════════════ */
+  function getOrCreateToastContainer() {
+    var el = document.getElementById('fp-toast-container');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'fp-toast-container';
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+
+  function showToast(message, type, duration) {
+    type     = type     || 'info';
+    duration = duration || 4000;
+    var icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    var container = getOrCreateToastContainer();
+    var toast = document.createElement('div');
+    toast.className = 'fp-toast fp-toast--' + type;
+    toast.innerHTML =
+      '<span class="fp-toast-icon">' + (icons[type] || 'ℹ️') + '</span>' +
+      '<span>' + message + '</span>';
+    container.appendChild(toast);
+    setTimeout(function () {
+      toast.classList.add('fp-toast--out');
+      setTimeout(function () { toast.remove(); }, 350);
+    }, duration);
+  }
+
+  /* ── Leer mensajes de Django (success / error) y convertirlos a toasts ── */
+  function absorbDjangoMessages() {
+    var alerts = document.querySelectorAll('.alert, .messages li, li.success, li.error, li.warning, li.info');
+    alerts.forEach(function (el) {
+      var text = el.textContent.trim();
+      if (!text) return;
+      var type = 'info';
+      if (el.classList.contains('success')) type = 'success';
+      else if (el.classList.contains('error')) type = 'error';
+      else if (el.classList.contains('warning')) type = 'warning';
+      else if (el.classList.contains('alert-success')) type = 'success';
+      else if (el.classList.contains('alert-danger'))  type = 'error';
+      else if (el.classList.contains('alert-warning')) type = 'warning';
+      showToast(text, type, 5000);
+      el.style.display = 'none';
+    });
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════════
+     SINCRONIZACIÓN COMPLETA
+     ════════════════════════════════════════════════════════════════════════════ */
+  function syncAll() {
+    syncToggleState();
+    updateCounter();
+    refreshBulkActionButtons();
+  }
+
+  /* ── Event delegation (document-level, sobrevive a PJAX) ───────────────── */
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t) return;
+    if (t.id === 'action-toggle') {
+      var checked = t.checked;
+      getChildren().forEach(function (cb) { cb.checked = checked; });
+      syncAll();
+    } else if (t.name === '_selected_action') {
+      syncAll();
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t) return;
+    if (t.id === 'action-toggle' || t.name === '_selected_action') {
+      setTimeout(syncAll, 0);
+    }
+  });
+
+  /* ── Botones de acciones masivas — con confirmación para danger ─────────── */
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.fp-action-btn');
+    if (!btn || btn.disabled || btn.classList.contains('fp-loading')) return;
+    var form = document.getElementById('changelist-form');
+    if (!form) return;
+    var select = form.querySelector('select[name="action"]');
+    if (!select) return;
+
+    function executeAction() {
+      setButtonLoading(btn, true);
+      select.value = btn.dataset.action;
+      var submitBtn = form.querySelector('button[type="submit"][name="index"]');
+      if (submitBtn) submitBtn.click();
+      else form.submit();
+    }
+
+    if (btn.classList.contains('fp-action-btn--danger')) {
+      var count  = getChecked();
+      var label  = btn.textContent.trim();
+      openConfirm(
+        '¿Confirmar acción?',
+        'Vas a ejecutar "' + label + '" sobre ' + count + ' elemento' + (count !== 1 ? 's' : '') + '. Esta acción no se puede deshacer.',
+        executeAction
+      );
+    } else {
+      executeAction();
+    }
+  });
+
+  /* ── Re-sincronizar tras PJAX / popstate ────────────────────────────────── */
+  function scheduleSync() {
     clearTimeout(_scheduleTimer);
     _scheduleTimer = setTimeout(function () {
       _scheduleTimer = null;
-      normalizeChangelistUI();
+      syncAll();
+      absorbDjangoMessages();
       try {
         document.dispatchEvent(new CustomEvent('fp-admin:changelist-normalized'));
       } catch (e) { /* IE11 */ }
     }, DEBOUNCE_MS);
   }
 
-  document.addEventListener('click', function (e) {
-    if (!e.target || e.target.id !== 'action-toggle') return;
-    var checked = e.target.checked;
-    document.querySelectorAll(SEL_ALL).forEach(function (cb) {
-      cb.checked = checked;
-    });
-    onSelectionChange();
-  });
-
-  document.addEventListener('change', function (e) {
-    if (!e.target || e.target.name !== '_selected_action') return;
-    onSelectionChange();
-  });
-
-  document.addEventListener('click', function (e) {
-    var btn = e.target.closest('.fp-action-btn');
-    if (!btn || btn.disabled) return;
-    var form = document.getElementById('changelist-form');
-    if (!form) return;
-    var select = form.querySelector('select[name="action"]');
-    if (!select) return;
-    select.value = btn.dataset.action;
-    form.submit();
-  });
-
-  /* ── Ciclo de vida SPA / PJAX (AdminLTE + Jazzmin) ───────────────────────── */
-  document.addEventListener('pjax:send', function () {
-    teardownChangelistChrome();
-  });
-
   ['pjax:complete', 'pjax:success', 'pjax:end'].forEach(function (ev) {
-    document.addEventListener(ev, scheduleNormalizeChangelist);
+    document.addEventListener(ev, scheduleSync);
   });
-
-  window.addEventListener('popstate', scheduleNormalizeChangelist);
-
+  window.addEventListener('popstate', scheduleSync);
   window.addEventListener('pageshow', function (event) {
-    if (event.persisted) scheduleNormalizeChangelist();
+    if (event.persisted) scheduleSync();
   });
 
-  /* Boot inicial */
-  function boot() {
-    scheduleNormalizeChangelist();
+  /* ── Popup mode: limpiar margin-left inline que AdminLTE inyecta por JS ── */
+  function fixPopupLayout() {
+    if (!document.body.classList.contains('popup')) return;
+    var targets = document.querySelectorAll('.content-wrapper, .wrapper, #wrapper');
+    targets.forEach(function (el) {
+      el.style.removeProperty('margin-left');
+      el.style.removeProperty('margin-right');
+      el.style.setProperty('margin-left',  '0', 'important');
+      el.style.setProperty('margin-right', '0', 'important');
+      el.style.setProperty('width',       '100%', 'important');
+    });
   }
 
+  /* ── Boot ───────────────────────────────────────────────────────────────── */
+  function boot() {
+    fixPopupLayout();
+    // AdminLTE puede re-inyectar el margin después del DOMContentLoaded
+    if (document.body.classList.contains('popup')) {
+      setTimeout(fixPopupLayout, 50);
+      setTimeout(fixPopupLayout, 200);
+      setTimeout(fixPopupLayout, 500);
+    }
+    scheduleSync();
+  }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
   } else {
     boot();
   }
 
-  /* Fall back: contenido reemplazado sin evento pjax (filtros, algunos POST) */
-  var obsTimer = null;
-  var observer = new MutationObserver(function (mutations) {
-    var interesting = false;
-    for (var i = 0; i < mutations.length; i++) {
-      var m = mutations[i];
-      for (var j = 0; j < m.addedNodes.length; j++) {
-        var n = m.addedNodes[j];
-        if (n.nodeType !== 1) continue;
-        if (n.id === 'changelist-form' || (n.querySelector && n.querySelector('#changelist-form'))) {
-          interesting = true;
-          break;
-        }
-        if (n.classList && n.classList.contains('actions')) interesting = true;
-      }
-      if (interesting) break;
-    }
-    if (interesting) {
-      clearTimeout(obsTimer);
-      obsTimer = setTimeout(scheduleNormalizeChangelist, DEBOUNCE_MS);
-    }
-  });
-
-  function attachObserver() {
-    var target = document.querySelector('.content-wrapper') || document.body;
-    observer.observe(target, { childList: true, subtree: true });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', attachObserver);
-  } else {
-    attachObserver();
-  }
-
-  window.FPAdminChangelist = {
-    normalize: normalizeChangelistUI,
-    schedule: scheduleNormalizeChangelist,
+  /* ── API pública ────────────────────────────────────────────────────────── */
+  window.FPAdmin = {
+    toast:    showToast,
+    confirm:  openConfirm,
+    syncAll:  syncAll,
+    schedule: scheduleSync,
+    // retrocompatibilidad
+    FPAdminChangelist: { schedule: scheduleSync, refresh: refreshBulkActionButtons, syncAll: syncAll, normalize: scheduleSync },
   };
+  window.FPAdminChangelist = window.FPAdmin.FPAdminChangelist;
 })();

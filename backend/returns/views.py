@@ -42,10 +42,12 @@ class ReturnListCreateView(APIView):
         qs = (
             ReturnRequest.objects
             .filter(user=request.user)
+            .select_related('order')
             .prefetch_related('items', 'evidence', 'audit_log')
             .order_by('-requested_at')
         )
-        return Response(ReturnRequestListSerializer(qs, many=True).data)
+        ser = ReturnRequestListSerializer(qs, many=True, context={'request': request})
+        return Response(ser.data)
 
     def post(self, request):
         ser = ReturnCreateSerializer(data=request.data, context={'request': request})

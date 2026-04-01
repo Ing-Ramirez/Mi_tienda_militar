@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 E-commerce platform for military/tactical equipment targeting the Colombian market.
-- **Brand names:** TactiStore / Franja Pixelada
+- **Brand name:** Franja Pixelada
 - **Currency:** COP | **Locale:** es-co | **Timezone:** America/Bogota
 - **Tax:** 19% IVA | **Free shipping:** above COP 200,000 | **Base shipping:** COP 15,000
 
@@ -48,7 +48,7 @@ docker-compose exec backend python manage.py test proveedores          # supplie
 
 # Shell / DB access
 docker-compose exec backend python manage.py shell
-docker-compose exec db psql -U tactistore_user franja_pixelada_store
+docker-compose exec db psql -U franja_pixelada_user franja_pixelada_store
 
 # Celery (started automatically by docker-compose)
 docker-compose logs celery         # view Celery worker output

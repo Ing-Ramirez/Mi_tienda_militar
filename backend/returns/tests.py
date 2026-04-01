@@ -235,3 +235,27 @@ class ReturnsFlowTests(TestCase):
         self.assertIn('document', data)
         self.assertIn('sections', data['document'])
         self.assertTrue(isinstance(data['document']['sections'], list))
+
+    def test_list_returns_authenticated(self):
+        rr = ReturnRequest.objects.create(
+            user=self.user,
+            order=self.order,
+            reason='incomplete',
+            reason_detail='Falta un accesorio',
+        )
+        self.client.force_authenticate(user=self.user)
+        res = self.client.get('/api/v1/returns/')
+        self.assertEqual(res.status_code, 200, res.content)
+        body = res.json()
+        self.assertIsInstance(body, list)
+        self.assertEqual(len(body), 1)
+        row = body[0]
+        self.assertEqual(row['id'], str(rr.id))
+        self.assertEqual(row['order_number'], self.order.order_number)
+        self.assertIn('status_label', row)
+        self.assertIn('status_message', row)
+        self.assertIn('reason_detail', row)
+
+    def test_list_returns_anonymous_401(self):
+        res = self.client.get('/api/v1/returns/')
+        self.assertEqual(res.status_code, 401)

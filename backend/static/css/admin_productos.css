@@ -25,6 +25,10 @@
 /* Ocultar submit row nativo */
 .submit-row { display: none !important; }
 
+/* ── 1. SCROLL HORIZONTAL EN INLINES ────────────────────────────────────── */
+.inline-related .tabular { overflow-x: auto; display: block; }
+.inline-related .tabular table { min-width: 600px; }
+
 /* ── 2. THUMBNAILS EN LISTA ──────────────────────────────────────────────── */
 #result_list td img {
     width: 50px !important; height: 50px !important;

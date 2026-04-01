@@ -56,6 +56,210 @@ html.fp-transitioning #fp-loader-bar,
 html.fp-transitioning .fp-content-fade { transition: none !important; }
 
 /* ══════════════════════════════════════════════════════════════
+   POPUP MODE — body.popup (Django admin ?_popup=1)
+   Neutraliza TODAS las reglas de layout del admin principal.
+   El formulario se presenta centrado, sin scroll horizontal.
+   ══════════════════════════════════════════════════════════════ */
+
+/* 1. Reinicio total del documento en modo popup */
+body.popup,
+body.popup html {
+  overflow-x: hidden !important;   /* cancela el scroll horizontal global */
+  overflow-y: auto !important;
+  background: var(--fp-c-bg) !important;
+  color: var(--fp-c-text) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 2. Ocultar sidebar, navbar, footer y widgets propios */
+body.popup .main-sidebar,
+body.popup aside.main-sidebar,
+body.popup .main-header,
+body.popup #jazzy-navbar,
+body.popup nav.main-header,
+body.popup .main-footer,
+body.popup footer.main-footer,
+body.popup .fp-action-bar,
+body.popup #fp-loader,
+body.popup #fp-toast-container,
+body.popup #fp-confirm-overlay { display: none !important; }
+
+/* 3. Wrapper y content-wrapper — cancelar margin-left del sidebar */
+body.popup .wrapper,
+body.popup #wrapper {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: unset !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  display: block !important;
+}
+body.popup .content-wrapper,
+body.popup .content-wrapper.os-host {
+  /* AdminLTE inyecta margin-left:250px via JS — doble override */
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: unset !important;
+  overflow-x: hidden !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* 4. Área de contenido — centrada con max-width razonable */
+body.popup .content-wrapper > .content,
+body.popup .content-wrapper section.content {
+  width: 100% !important;
+  max-width: 680px !important;
+  margin: 0 auto !important;          /* centrado horizontal */
+  padding: 24px 24px 36px !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+/* 5. Contenedores Bootstrap internos */
+body.popup .content-wrapper .container-fluid,
+body.popup .content-wrapper .container {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+body.popup .content-wrapper .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+}
+body.popup [class*="col-"] {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
+}
+
+/* 6. #content y #content-main — sin float ni padding extra */
+body.popup #content,
+body.popup #content-main {
+  width: 100% !important;
+  max-width: 100% !important;
+  float: none !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+/* 7. Título del popup */
+body.popup h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--fp-c-text);
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--fp-teal);
+}
+
+/* 8. Tabs Jazzmin */
+body.popup .nav-tabs { margin-bottom: 18px; flex-wrap: wrap; }
+body.popup .nav-tabs .nav-link { font-size: 0.82rem; }
+
+/* 9. Campos de formulario — bloque vertical, ancho completo */
+body.popup .form-row,
+body.popup .form-group {
+  margin-bottom: 16px !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+body.popup .form-row > *,
+body.popup .form-group > * {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
+}
+body.popup label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--fp-c-muted);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+body.popup input[type="text"],
+body.popup input[type="email"],
+body.popup input[type="url"],
+body.popup input[type="number"],
+body.popup input[type="date"],
+body.popup input[type="password"],
+body.popup textarea,
+body.popup select {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 8px 10px !important;
+  background: var(--fp-c-input-bg) !important;
+  border: 1px solid var(--fp-c-input-bdr) !important;
+  border-radius: 4px !important;
+  color: var(--fp-c-text) !important;
+  font-size: 0.9rem !important;
+}
+body.popup input:focus,
+body.popup textarea:focus,
+body.popup select:focus {
+  border-color: var(--fp-teal) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(0,168,120,.2) !important;
+}
+body.popup p.help    { font-size: 0.78rem; color: var(--fp-c-muted); margin-top: 4px; }
+body.popup ul.errorlist { color: #b83232; font-size: 0.82rem; padding-left: 1.2em; margin: 4px 0 0; }
+
+/* 10. Botones de submit */
+body.popup .submit-row {
+  padding: 16px 0 0 !important;
+  border-top: 1px solid var(--fp-c-border) !important;
+  margin-top: 24px !important;
+  display: flex !important;
+  gap: 10px !important;
+  justify-content: flex-end !important;
+  background: transparent !important;
+  float: none !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+body.popup .submit-row input[type="submit"],
+body.popup .submit-row button[type="submit"] {
+  height: 36px !important;
+  padding: 0 22px !important;
+  background: var(--fp-teal) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  color: #fff !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+body.popup .submit-row input[type="submit"]:hover,
+body.popup .submit-row button[type="submit"]:hover {
+  background: var(--fp-teal-dk) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
    LAYOUT GLOBAL — full-width, sin scroll horizontal
    ══════════════════════════════════════════════════════════════ */
 body, .wrapper { overflow-x: hidden !important; }
@@ -432,25 +636,34 @@ body.sidebar-collapse .main-footer     { margin-left: 250px !important; }
 }
 #result_list thead th a      { color: rgba(255,255,255,.85) !important; }
 #result_list thead th.sorted { background: var(--fp-navy-lt) !important; }
+/* Filas: fondo uniforme, sin zebra, sin hover ni resalte al marcar checkbox (.selected) */
 #result_list tbody tr td,
 #result_list tbody tr th {
-  color: var(--fp-c-text) !important; background: var(--fp-c-card) !important;
-  border-bottom: 1px solid var(--fp-c-border) !important; padding: 8px 12px !important;
+  color: var(--fp-c-text) !important;
+  background: var(--fp-c-card) !important;
+  border-bottom: 1px solid var(--fp-c-border) !important;
+  padding: 8px 12px !important;
 }
 #result_list tbody tr:nth-child(even) td,
-#result_list tbody tr:nth-child(even) th { background: var(--fp-c-card-alt) !important; }
-/* Hover: sin cambio de fondo — mantener colores naturales de la fila */
-#result_list tbody tr:hover,
+#result_list tbody tr:nth-child(even) th,
+#result_list.table-striped tbody tr:nth-child(odd) td,
+#result_list.table-striped tbody tr:nth-child(odd) th,
+#result_list.table-striped tbody tr:nth-child(even) td,
+#result_list.table-striped tbody tr:nth-child(even) th {
+  background: var(--fp-c-card) !important;
+}
 #result_list tbody tr:hover td,
-#result_list tbody tr:hover th          { background: var(--fp-c-card) !important; }
-#result_list tbody tr:nth-child(even):hover,
-#result_list tbody tr:nth-child(even):hover td,
-#result_list tbody tr:nth-child(even):hover th { background: var(--fp-c-card-alt) !important; }
-/* Hover sutil: solo subrayado en el enlace del nombre/identificador */
-#result_list tbody tr:hover td a,
-#result_list tbody tr:hover th a {
-  text-decoration: underline !important;
-  color: var(--fp-teal-dk) !important;
+#result_list tbody tr:hover th,
+#result_list.table-hover tbody tr:hover td,
+#result_list.table-hover tbody tr:hover th {
+  background: var(--fp-c-card) !important;
+}
+#result_list tbody tr.selected td,
+#result_list tbody tr.selected th,
+#result_list tbody tr.active td,
+#result_list tbody tr.active th {
+  background: var(--fp-c-card) !important;
+  color: var(--fp-c-text) !important;
 }
 
 /* AdminLTE Cards */
@@ -762,8 +975,9 @@ html.fp-dark dt, html.fp-dark dd,
 html.fp-dark #content-main                { color: var(--fp-c-text) !important; }
 /* Fila total y pie de tabla */
 html.fp-dark #result_list tfoot td        { background: var(--fp-c-card-alt) !important; color: var(--fp-c-muted) !important; border-top: 2px solid var(--fp-c-border) !important; }
-/* Fila seleccionada */
-html.fp-dark #result_list tr.selected td  { background: rgba(0,168,120,.18) !important; }
+/* Filas: mismo fondo con o sin .selected (checkbox no altera la fila) */
+html.fp-dark #result_list tr.selected td,
+html.fp-dark #result_list tr.selected th { background: var(--fp-c-card) !important; color: var(--fp-c-text) !important; }
 /* Fila "Añadir otro" en inlines */
 html.fp-dark .add-row td                  { background: var(--fp-c-card-alt) !important; }
 /* Select2 */
@@ -1148,7 +1362,7 @@ html.fp-dark .fp-sd-chip--sel:hover {
   0%   { transform: translateX(-150%); }
   100% { transform: translateX(350%); }
 }
-.fp-content-fade { animation: fp-fade .16s ease; will-change: opacity; }
+.fp-content-fade { animation: fp-fade .16s ease; will-change: opacity, transform; }
 @keyframes fp-fade {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -1209,39 +1423,32 @@ body.sidebar-mini:not(.sidebar-open) .main-sidebar .nav-icon { margin-right: .5r
 body.sidebar-mini .sidebar-toggle-btn { display: none !important; }
 
 /* ══════════════════════════════════════════════════════════════
-   BARRA DE ACCIONES DIRECTAS (reemplaza dropdown + "Ir")
+   BARRA DE ACCIONES DIRECTAS (plantilla admin/actions.html; sin dropdown / "Ir")
    ══════════════════════════════════════════════════════════════ */
 
-/*
- * Segunda línea de defensa: si removeChild falla por timing,
- * esta regla oculta el .actions original cuando nuestra barra existe.
- * body.fp-bar-active se añade por JS justo después de insertar #fp-action-bar.
- */
-body.fp-bar-active #changelist-form .actions {
-  display: none !important;
-  visibility: hidden !important;
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  pointer-events: none !important;
+#changelist-form .change-list-actions {
+  width: 100% !important;
+}
+.fp-changelist-actions--mirror {
+  margin-top: 10px !important;
 }
 
-/* Contenedor de acciones nativas: ancho completo para que la barra FP alinee igual en todos los módulos */
-body.fp-bar-active #changelist-form .change-list-actions {
-  width: 100% !important;
+/* Django actions.js puede añadir .selected al contenedor; sin efecto visual */
+#changelist-form div.actions.selected {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .fp-action-bar {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 10px;
+  flex-wrap: wrap !important;
+  gap: 8px 12px;
   width: 100% !important;
   box-sizing: border-box !important;
   min-height: 48px;
-  padding: 8px 12px;
+  padding: 10px 14px;
   margin-bottom: 10px;
   background: var(--fp-c-card);
   border: 1px solid var(--fp-c-border);
@@ -1253,7 +1460,7 @@ body.fp-bar-active #changelist-form .change-list-actions {
   display: flex !important;
   flex-wrap: wrap;
   align-items: center !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
   gap: 8px;
   flex: 1 1 auto !important;
   min-width: 0 !important;
@@ -1297,6 +1504,28 @@ body.fp-bar-active #changelist-form .change-list-actions {
   border-color: #6e1c1c;
 }
 
+.fp-action-meta {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+  padding-left: 12px !important;
+  border-left: 1px solid var(--fp-c-border) !important;
+  min-width: max-content !important;
+}
+/* Ocultar el contador nativo de Django — usamos fp-sel-counter */
+.fp-action-meta .action-counter,
+.fp-action-meta .all,
+.fp-action-meta .question,
+.fp-action-meta .clear {
+  display: none !important;
+}
+/* Cuando no hay selección, el borde separador tampoco hace falta */
+.fp-action-meta:empty {
+  display: none !important;
+}
+
 .fp-action-counter {
   margin-left: 12px;
   font-size: 0.82rem;
@@ -1326,25 +1555,596 @@ html.fp-dark .fp-action-btn--danger:hover:not(:disabled) {
   border-color: #6e1c1c;
 }
 
-@media (max-width: 600px) {
-  .fp-action-bar   { flex-wrap: wrap; }
+@media (max-width: 700px) {
+  .fp-action-meta {
+    border-left: none !important;
+    padding-left: 0 !important;
+    width: 100%;
+    justify-content: flex-end;
+  }
   .fp-action-counter { margin-left: 0; width: 100%; text-align: right; }
 }
 
-/* ── Filas seleccionadas: sin cambio de fondo (preserva colores naturales) ── */
-#result_list tbody tr.selected td,
-#result_list tbody tr.selected th {
-  background: var(--fp-c-card) !important;
+/* (Reglas de filas .selected unificadas arriba con #result_list tbody) */
+
+/* ── Contador dinámico de selección ──────────────────────────── */
+.fp-sel-counter {
+  font-size: 0.8rem;
+  color: var(--fp-c-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s;
+  padding: 0 4px;
 }
-#result_list tbody tr.selected:nth-child(even) td,
-#result_list tbody tr.selected:nth-child(even) th {
-  background: var(--fp-c-card-alt) !important;
+.fp-sel-counter.has-selection {
+  color: var(--fp-teal);
+  font-weight: 600;
 }
-html.fp-dark #result_list tr.selected td,
-html.fp-dark #result_list tr.selected th {
-  background: var(--fp-c-card) !important;
+
+/* ── Botón deseleccionar todo ─────────────────────────────────── */
+.fp-deselect-btn {
+  display: none;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--fp-c-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--fp-c-muted);
+  font-size: 0.76rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+  gap: 4px;
 }
-html.fp-dark #result_list tr.selected:nth-child(even) td,
-html.fp-dark #result_list tr.selected:nth-child(even) th {
-  background: var(--fp-c-card-alt) !important;
+.fp-deselect-btn.visible { display: inline-flex; }
+.fp-deselect-btn:hover { background: var(--fp-c-border); color: var(--fp-c-text); }
+
+/* ── Estado loading en botones ───────────────────────────────── */
+.fp-action-btn.fp-loading {
+  cursor: wait;
+  opacity: 0.7;
+  pointer-events: none;
 }
+.fp-action-btn.fp-loading::after {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: fp-spin 0.6s linear infinite;
+  vertical-align: middle;
+  will-change: transform;
+}
+@keyframes fp-spin { to { transform: rotate(360deg); } }
+
+/* ── Modal de confirmación ───────────────────────────────────── */
+#fp-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+#fp-confirm-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+#fp-confirm-dialog {
+  background: var(--fp-c-card);
+  border: 1px solid var(--fp-c-border);
+  border-radius: 8px;
+  box-shadow: var(--fp-c-shadow-lg);
+  padding: 28px 28px 20px;
+  max-width: 400px;
+  width: 90%;
+  transform: translateY(-8px) scale(0.98);
+  transition: transform 0.18s ease;
+}
+#fp-confirm-overlay.open #fp-confirm-dialog {
+  transform: translateY(0) scale(1);
+}
+#fp-confirm-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--fp-c-text);
+  margin: 0 0 8px;
+}
+#fp-confirm-body {
+  font-size: 0.875rem;
+  color: var(--fp-c-muted);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+.fp-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+#fp-confirm-cancel {
+  height: 34px;
+  padding: 0 16px;
+  border: 1px solid var(--fp-c-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--fp-c-muted);
+  font-size: 0.83rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#fp-confirm-cancel:hover { background: var(--fp-c-border); }
+#fp-confirm-ok {
+  height: 34px;
+  padding: 0 20px;
+  border: 1px solid #8b2525;
+  border-radius: 4px;
+  background: #b83232;
+  color: #fff;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#fp-confirm-ok:hover { background: #8b2525; }
+
+/* ── Toast del admin ──────────────────────────────────────────── */
+#fp-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.fp-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+  max-width: 380px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: var(--fp-c-card);
+  border: 1px solid var(--fp-c-border);
+  box-shadow: var(--fp-c-shadow-lg);
+  font-size: 0.85rem;
+  color: var(--fp-c-text);
+  pointer-events: all;
+  animation: fp-toast-in 0.22s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  will-change: transform, opacity;
+}
+.fp-toast.fp-toast--out {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.fp-toast-icon { font-size: 1.1rem; flex-shrink: 0; }
+.fp-toast--success { border-left: 4px solid #4a7c3f; }
+.fp-toast--error   { border-left: 4px solid #b83232; }
+.fp-toast--warning { border-left: 4px solid #c97a10; }
+.fp-toast--info    { border-left: 4px solid var(--fp-teal); }
+@keyframes fp-toast-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   CONVERSOR USD → COP (formulario de productos)
+   ════════════════════════════════════════════════════════════════ */
+.fp-converter-card {
+  margin-top: 16px;
+  border: 1px solid var(--fp-c-border);
+  border-radius: 8px;
+  background: var(--fp-c-card);
+  overflow: hidden;
+  font-size: 0.85rem;
+  color: var(--fp-c-text);
+}
+.fp-conv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.06);
+  border-bottom: 1px solid var(--fp-c-border);
+}
+.fp-conv-title {
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--fp-teal);
+}
+.fp-conv-fetch-btn {
+  background: none;
+  border: 1px solid var(--fp-c-border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: var(--fp-c-text);
+  transition: background 0.15s;
+}
+.fp-conv-fetch-btn:hover { background: rgba(0,0,0,0.08); }
+.fp-conv-rate-info {
+  padding: 4px 14px 8px;
+  font-size: 0.78rem;
+  color: var(--fp-c-text-muted, #888);
+  border-bottom: 1px solid var(--fp-c-border);
+}
+.fp-conv-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fp-conv-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.fp-conv-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.fp-conv-input {
+  flex: 1;
+  padding: 5px 8px;
+  border: 1px solid var(--fp-c-border);
+  border-radius: 4px;
+  background: var(--fp-c-bg, #fff);
+  color: var(--fp-c-text);
+  font-size: 0.85rem;
+}
+.fp-conv-input:focus {
+  outline: none;
+  border-color: var(--fp-teal);
+  box-shadow: 0 0 0 2px rgba(32,178,170,0.2);
+}
+.fp-conv-go-btn {
+  padding: 5px 14px;
+  background: var(--fp-teal);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.fp-conv-go-btn:hover { opacity: 0.85; }
+.fp-conv-result {
+  padding: 6px 10px;
+  background: rgba(32,178,170,0.08);
+  border: 1px solid rgba(32,178,170,0.25);
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--fp-teal);
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+.fp-conv-apply {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fp-conv-apply-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--fp-c-border);
+  border-radius: 4px;
+  background: var(--fp-c-card);
+  color: var(--fp-c-text);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.fp-conv-apply-btn:hover {
+  background: var(--fp-teal);
+  border-color: var(--fp-teal);
+  color: #fff;
+}
+.fp-conv-eq {
+  font-size: 0.78rem;
+  color: var(--fp-c-text-muted, #888);
+  text-align: right;
+  padding: 0 4px 4px;
+}
+.fp-conv-rate-ok { color: var(--fp-c-text); }
+.fp-conv-rate-err { color: #b83232; }
+.fp-conv-rate-tag { color: var(--fp-c-text-muted, #888); }
+.fp-conv-apply-label {
+  font-size: 0.78rem;
+  color: var(--fp-c-text-muted, #888);
+  align-self: center;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BOTÓN DETALLES en el listado
+   ════════════════════════════════════════════════════════════════ */
+.fp-detail-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  height: 28px;
+  border: 1px solid var(--fp-teal);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--fp-teal);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.fp-detail-btn:hover {
+  background: var(--fp-teal);
+  color: #fff;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MODAL DE DETALLE DE PRODUCTO
+   ════════════════════════════════════════════════════════════════ */
+#fp-dm-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.65);
+  overflow-y: auto;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+#fp-dm-overlay.fp-dm-open { display: flex; align-items: flex-start; justify-content: center; }
+
+#fp-dm-modal {
+  width: 100%;
+  max-width: 720px;
+  background: var(--fp-c-card);
+  border: 1px solid var(--fp-c-border);
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: calc(100vh - 48px);
+}
+
+/* ── Header ── */
+.fp-dm-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--fp-c-border);
+  position: relative;
+  flex-shrink: 0;
+}
+.fp-dm-close-x {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--fp-c-text-muted, #888);
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+.fp-dm-close-x:hover { color: var(--fp-c-text); background: var(--fp-c-border); }
+
+#fp-dm-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 40px 10px 0;
+  line-height: 1.3;
+  color: var(--fp-c-text);
+}
+.fp-dm-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.fp-dm-sku-badge {
+  font-size: 0.75rem;
+  font-family: monospace;
+  padding: 2px 8px;
+  border: 1px solid var(--fp-c-border);
+  border-radius: 4px;
+  color: var(--fp-c-text-muted, #888);
+  background: rgba(0,0,0,0.08);
+}
+.fp-dm-status-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 10px;
+  background: #555;
+  color: #fff;
+}
+.fp-dm-s--active   { background: #4a7c3f; }
+.fp-dm-s--inactive { background: #777;    }
+.fp-dm-s--out      { background: #b83232; }
+.fp-dm-s--soon     { background: #c97a10; }
+
+/* ── Body (scrollable) ── */
+.fp-dm-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 auto;
+  padding: 0;
+}
+
+/* ── Section ── */
+.fp-dm-section {
+  border-bottom: 1px solid var(--fp-c-border);
+  padding: 18px 24px;
+}
+.fp-dm-section:last-child { border-bottom: none; }
+.fp-dm-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--fp-teal);
+  margin-bottom: 12px;
+}
+
+/* ── Grid clave-valor ── */
+.fp-dm-grid {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 8px 16px;
+  margin: 0;
+}
+.fp-dm-grid dt {
+  font-size: 0.8rem;
+  color: var(--fp-c-text-muted, #888);
+  font-weight: 500;
+  padding-top: 1px;
+  line-height: 1.4;
+}
+.fp-dm-grid dd {
+  font-size: 0.85rem;
+  margin: 0;
+  color: var(--fp-c-text);
+  line-height: 1.4;
+}
+
+/* ── Tags sí/no ── */
+.fp-dm-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 8px;
+}
+.fp-dm-tag--yes { background: rgba(74,124,63,0.18); color: #4a7c3f; }
+.fp-dm-tag--no  { background: rgba(0,0,0,0.08);     color: var(--fp-c-text-muted, #888); }
+
+/* ── Precio ── */
+.fp-dm-price     { font-size: 1rem; color: var(--fp-teal); }
+.fp-dm-price-old { color: var(--fp-c-text-muted, #888); font-size: 0.9rem; }
+
+/* ── Stock ── */
+.fp-dm-stock {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 4px;
+}
+.fp-dm-stock--ok    { background: rgba(74,124,63,0.18); color: #4a7c3f; }
+.fp-dm-stock--empty { background: rgba(184,50,50,0.15); color: #b83232; }
+
+/* ── Descripción ── */
+.fp-dm-desc {
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--fp-c-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── Imágenes ── */
+.fp-dm-imgs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+.fp-dm-img-item {
+  margin: 0;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 6px;
+  border: 1px solid var(--fp-c-border);
+  background: rgba(0,0,0,0.06);
+}
+.fp-dm-img-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Empty state ── */
+.fp-dm-empty {
+  font-size: 0.82rem;
+  color: var(--fp-c-text-muted, #888);
+  margin: 0;
+}
+
+/* ── Footer ── */
+.fp-dm-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--fp-c-border);
+  flex-shrink: 0;
+  background: var(--fp-c-card);
+}
+.fp-dm-footer-close {
+  height: 38px;
+  min-width: 100px;
+  padding: 0 20px;
+  border: 1px solid var(--fp-c-border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--fp-c-text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.fp-dm-footer-close:hover {
+  background: var(--fp-c-border);
+  border-color: var(--fp-c-text-muted, #888);
+}
+.fp-dm-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  min-width: 140px;
+  padding: 0 20px;
+  border: 2px solid var(--fp-teal);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--fp-teal);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.fp-dm-edit-btn:hover {
+  background: var(--fp-teal);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(32,178,170,0.35);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  #fp-dm-modal   { max-height: none; border-radius: 8px; }
+  .fp-dm-grid    { grid-template-columns: 120px 1fr; }
+  .fp-dm-section { padding: 14px 16px; }
+  .fp-dm-footer  { padding: 12px 16px; }
+  .fp-dm-header  { padding: 16px 16px 12px; }
+  #fp-dm-name    { font-size: 1rem; }
+}
+

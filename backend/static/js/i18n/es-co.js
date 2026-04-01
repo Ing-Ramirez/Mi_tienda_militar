@@ -32,7 +32,7 @@
       tagline: "Equipamiento Táctico Profesional",
     },
     hero: {
-      collection_label: "Nueva colección 2025",
+      collection_label: "Nueva colección 2026",
       line1: "EQUIPA",
       line2: "TU",
       desc:

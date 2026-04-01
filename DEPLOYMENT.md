@@ -32,8 +32,8 @@ docker --version && docker compose version
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tuusuario/tactistore.git
-cd tactistore
+git clone https://github.com/tuusuario/mi_tienda_militar.git
+cd mi_tienda_militar
 
 # Crear archivo de variables de entorno
 cp .env.example .env

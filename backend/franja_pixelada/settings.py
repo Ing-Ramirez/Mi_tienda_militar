@@ -116,6 +116,7 @@ INSTALLED_APPS = [
     'payments',
     'proveedores',
     'loyalty',
+    'returns',
 ]
 
 MIDDLEWARE = [
@@ -392,6 +393,20 @@ LOYALTY_POINT_VALUE_COP = int(os.environ.get('LOYALTY_POINT_VALUE_COP', '10'))
 LOYALTY_MAX_REDEMPTION_PCT = float(os.environ.get('LOYALTY_MAX_REDEMPTION_PCT', '0.20'))
 LOYALTY_EXPIRATION_DAYS = None   # None = sin expiración; int = días hasta expirar
 
+# ── Devoluciones ───────────────────────────────────────────────────────────────
+# Slugs de categoría excluidos: ej "ropa-interior,municion"
+_return_excluded_raw = os.environ.get('RETURN_EXCLUDED_CATEGORY_SLUGS', '').strip()
+RETURN_EXCLUDED_CATEGORY_SLUGS = [
+    s.strip() for s in _return_excluded_raw.split(',') if s.strip()
+]
+RETURN_EXCLUDE_DIGITAL_PRODUCTS = os.environ.get('RETURN_EXCLUDE_DIGITAL_PRODUCTS', 'True') == 'True'
+# Máximo de solicitudes de devolución por pedido (incluye reintentos tras rechazo subsanable).
+RETURN_MAX_ATTEMPTS_PER_ORDER = int(os.environ.get('RETURN_MAX_ATTEMPTS_PER_ORDER', '3'))
+_return_special_sku_raw = os.environ.get('RETURN_SPECIAL_SKU_PREFIXES', 'DIGI-,SPC-').strip()
+RETURN_SPECIAL_SKU_PREFIXES = [
+    s.strip().upper() for s in _return_special_sku_raw.split(',') if s.strip()
+]
+
 # ── IVA y Envío ────────────────────────────────────────────────────────────
 TAX_RATE = float(os.environ.get('TAX_RATE', '0.19'))
 FREE_SHIPPING_THRESHOLD = float(os.environ.get('FREE_SHIPPING_THRESHOLD', '200000'))
@@ -430,7 +445,7 @@ JAZZMIN_SETTINGS = {
 
     # Estilos propios (paridad de marca con la tienda — ver static/css/franja_admin.css)
     "custom_css": "css/franja_admin.css",
-    # JS global: reinicializa select-all tras navegación pjax de Jazzmin
+    # JS global: botones de acción masiva (plantilla) + sync tras PJAX
     "custom_js": "js/franja_admin_global.js",
 
     # Íconos por modelo (Font Awesome 5)

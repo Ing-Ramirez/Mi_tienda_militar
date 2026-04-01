@@ -1,4 +1,4 @@
-# Convenciones de Nombres — TactiStore / Franja Pixelada
+# Convenciones de Nombres — Franja Pixelada
 
 ## Reglas generales
 
@@ -13,7 +13,7 @@
 
 ```
 backend/
-  tactistore/       # configuración del proyecto Django
+  franja_pixelada/  # paquete de configuración del proyecto Django
   core/             # app de seguridad y auditoría
   users/            # app de usuarios
   products/         # app de productos

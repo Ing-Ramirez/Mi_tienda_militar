@@ -43,53 +43,80 @@ class SecurityHeadersMiddleware:
 
         response = self.get_response(request)
 
-        self._add_security_headers(response, request.csp_nonce)
+        admin_url = getattr(settings, 'ADMIN_URL', 'admin/')
+        is_admin = request.path.startswith(f'/{admin_url}')
+        self._add_security_headers(response, request.csp_nonce, is_admin=is_admin)
         return response
 
-    def _build_csp(self, nonce: str) -> str:
-        """Construye la política CSP con el nonce del request."""
-        directives = [
-            "default-src 'self'",
+    def _build_csp(self, nonce: str, is_admin: bool = False) -> str:
+        """
+        Construye la política CSP.
 
-            # Scripts: solo mismo origen con nonce válido.
-            # Stripe JS se agrega aquí cuando se integre: https://js.stripe.com
-            f"script-src 'self' 'nonce-{nonce}'",
+        Admin: usa 'unsafe-inline' para scripts y estilos porque los templates
+        de Django admin contienen inline <script>/<style> que no pueden recibir
+        nonce (son plantillas de Django, no de Jinja2 con contexto inyectado).
+        'frame-ancestors self' permite que el popup de FK (window.open) comunique
+        con la ventana padre mediante window.opener.
 
-            # Estilos: mismo origen + nonce para el bloque <style> inline + Google Fonts CSS
-            f"style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com",
+        Frontend público: nonce estricto, frame-ancestors 'none'.
+        """
+        if is_admin:
+            directives = [
+                "default-src 'self'",
+                "script-src 'self' 'unsafe-inline'",
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+                "font-src 'self' https://fonts.gstatic.com data:",
+                "img-src 'self' data: blob:",
+                "connect-src 'self' https://open.er-api.com",
+                "frame-src 'self'",
+                "object-src 'none'",
+                "base-uri 'self'",
+                "form-action 'self'",
+                # 'self' permite que el popup se abra y comunique con la ventana padre
+                "frame-ancestors 'self'",
+            ]
+        else:
+            directives = [
+                "default-src 'self'",
 
-            # Fuentes tipográficas (self cubre Font Awesome en archivos estáticos)
-            "font-src 'self' https://fonts.gstatic.com",
+                # Scripts: solo mismo origen con nonce válido.
+                f"script-src 'self' 'nonce-{nonce}'",
 
-            # Imágenes: mismo origen + data URIs + blobs + thumbnails de YouTube/Vimeo
-            "img-src 'self' data: blob: https://i.ytimg.com https://i.vimeocdn.com",
+                # Estilos: mismo origen + nonce para el bloque <style> inline + Google Fonts CSS
+                f"style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com",
 
-            # Conexiones fetch/XHR: API propia + tasa de cambio (llamada desde backend, no frontend)
-            "connect-src 'self'",
+                # Fuentes tipográficas
+                "font-src 'self' https://fonts.gstatic.com",
 
-            # Frames: YouTube/Vimeo para video hero + 3DS de Stripe
-            "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com",
+                # Imágenes: mismo origen + data URIs + blobs + thumbnails de YouTube/Vimeo
+                "img-src 'self' data: blob: https://i.ytimg.com https://i.vimeocdn.com",
 
-            # Sin plugins Flash ni objetos embebidos
-            "object-src 'none'",
+                # Conexiones fetch/XHR
+                "connect-src 'self'",
 
-            # Protege contra inyección de etiqueta <base>
-            "base-uri 'self'",
+                # Frames: YouTube/Vimeo para video hero + 3DS de Stripe
+                "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com",
 
-            # Los formularios solo pueden hacer POST al mismo origen
-            "form-action 'self'",
+                # Sin plugins Flash ni objetos embebidos
+                "object-src 'none'",
 
-            # No permitir ser embebido en iframes externos
-            "frame-ancestors 'none'",
-        ]
+                # Protege contra inyección de etiqueta <base>
+                "base-uri 'self'",
+
+                # Los formularios solo pueden hacer POST al mismo origen
+                "form-action 'self'",
+
+                # No permitir ser embebido en iframes externos
+                "frame-ancestors 'none'",
+            ]
 
         if not settings.DEBUG:
             directives.append("upgrade-insecure-requests")
 
         return "; ".join(directives)
 
-    def _add_security_headers(self, response, nonce: str) -> None:
-        response['Content-Security-Policy'] = self._build_csp(nonce)
+    def _add_security_headers(self, response, nonce: str, is_admin: bool = False) -> None:
+        response['Content-Security-Policy'] = self._build_csp(nonce, is_admin=is_admin)
 
         # Evitar que el navegador infiera tipo MIME (ya configurado en Django settings
         # pero lo duplicamos aquí para que aplique en todas las respuestas)

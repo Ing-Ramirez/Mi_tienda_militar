@@ -99,8 +99,7 @@ def create_order_neki_from_cart(
     with db_transaction.atomic():
         cart = Cart.objects.select_for_update().get(pk=cart.pk)
         cart_items = list(
-            cart.items.select_related('product', 'variant')
-            .select_for_update()
+            cart.items.select_for_update()
         )
         if not cart_items:
             raise ValidationError('El carrito está vacío.')

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.conf import settings
 from rest_framework import serializers
 
@@ -63,4 +65,6 @@ class PointTransactionSerializer(serializers.ModelSerializer):
 
 class PointsPreviewSerializer(serializers.Serializer):
     points_to_use = serializers.IntegerField(min_value=1)
-    order_total = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=0)
+    order_total = serializers.DecimalField(
+        max_digits=12, decimal_places=2, min_value=Decimal('0'),
+    )

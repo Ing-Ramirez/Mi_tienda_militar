@@ -13,15 +13,8 @@ python manage.py migrate --noinput
 echo "==> Verificando tablas..."
 python manage.py check_db
 
-_skip_collectstatic=false
 if [ "${SKIP_COLLECTSTATIC_ON_START}" = "true" ] || [ "${SKIP_COLLECTSTATIC_ON_START}" = "True" ]; then
-  _skip_collectstatic=true
-elif [ "${DEBUG}" = "True" ]; then
-  _skip_collectstatic=true
-fi
-
-if [ "$_skip_collectstatic" = "true" ]; then
-  echo "==> Omitiendo collectstatic (DEBUG=True y/o SKIP_COLLECTSTATIC_ON_START=true). En prod DEBUG=False ejecuta collectstatic en cada arranque."
+  echo "==> Omitiendo collectstatic (SKIP_COLLECTSTATIC_ON_START=true)."
 else
   echo "==> Recopilando archivos estáticos..."
   python manage.py collectstatic --noinput

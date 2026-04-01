@@ -271,8 +271,7 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
             # Bloquear fila de carrito + ítems para snapshot consistente
             cart = Cart.objects.select_for_update().get(pk=cart.pk)
             cart_items = list(
-                cart.items.select_related('product', 'variant')
-                .select_for_update()
+                cart.items.select_for_update()
             )
 
             # Lock de productos y variantes para validación concurrente consistente
