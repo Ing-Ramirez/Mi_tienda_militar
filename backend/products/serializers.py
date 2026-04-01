@@ -2,7 +2,7 @@
 Franja Pixelada — Serializers de Productos
 """
 from rest_framework import serializers
-from .models import Category, Product, ProductImage, ProductVariant, ProductReview
+from .models import Category, Product, ProductImage, ProductVariant, ProductReview, ReviewEvidence
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -172,6 +172,104 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         return mapa
 
 
+class ReviewEvidenceSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReviewEvidence
+        fields = ('id', 'image', 'uploaded_at')
+
+    def get_image(self, obj):
+        request = self.context.get('request')
+        try:
+            return request.build_absolute_uri(obj.image.url) if request else obj.image.url
+        except Exception:
+            return None
+
+
+class ReviewReadSerializer(serializers.ModelSerializer):
+    """Serializer público para mostrar reseñas aprobadas."""
+    user_name = serializers.SerializerMethodField()
+    evidence = ReviewEvidenceSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ProductReview
+        fields = (
+            'id', 'user_name', 'rating', 'title', 'comment',
+            'is_verified_purchase', 'evidence', 'created_at',
+        )
+
+    def get_user_name(self, obj):
+        if obj.user:
+            name = obj.user.get_full_name() or obj.user.email
+            # Mostrar solo nombre o primera parte del email por privacidad
+            if '@' in name:
+                parts = name.split('@')
+                visible = parts[0]
+                if len(visible) > 3:
+                    visible = visible[:3] + '***'
+                return visible + '@' + parts[1].split('.')[0]
+            return name
+        return 'Cliente'
+
+
+class ReviewCreateSerializer(serializers.Serializer):
+    """Serializer para crear una reseña con validación de compra verificada."""
+    order_id = serializers.UUIDField(
+        help_text='ID de la orden que contiene el producto comprado.'
+    )
+    rating = serializers.IntegerField(min_value=1, max_value=5)
+    title = serializers.CharField(max_length=100, required=False, allow_blank=True, default='')
+    comment = serializers.CharField(min_length=10, max_length=2000)
+
+    def validate(self, data):
+        request = self.context['request']
+        product = self.context['product']
+
+        from orders.models import Order
+        try:
+            order = Order.objects.get(pk=data['order_id'], user=request.user)
+        except Order.DoesNotExist:
+            raise serializers.ValidationError(
+                {'order_id': 'Orden no encontrada o no pertenece a tu cuenta.'}
+            )
+
+        if order.status != 'delivered':
+            raise serializers.ValidationError(
+                {'order_id': 'Solo puedes calificar productos de pedidos entregados.'}
+            )
+
+        # Verificar que el producto esté en esa orden
+        has_product = order.items.filter(product=product).exists()
+        if not has_product:
+            raise serializers.ValidationError(
+                {'order_id': 'Este producto no está en la orden indicada.'}
+            )
+
+        # Verificar que no exista ya una reseña de este usuario para este producto
+        if ProductReview.objects.filter(product=product, user=request.user).exists():
+            raise serializers.ValidationError(
+                'Ya has dejado una reseña para este producto.'
+            )
+
+        data['order'] = order
+        return data
+
+    def save(self, product, user):
+        review = ProductReview.objects.create(
+            product=product,
+            user=user,
+            order=self.validated_data['order'],
+            rating=self.validated_data['rating'],
+            title=self.validated_data.get('title', ''),
+            comment=self.validated_data['comment'],
+            is_verified_purchase=True,
+            status='pending',
+        )
+        return review
+
+
+# Alias para compatibilidad con código existente
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductReview

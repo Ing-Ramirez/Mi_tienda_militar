@@ -32,7 +32,7 @@ class OrderItemReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = (
-            'id', 'product_name', 'product_sku', 'variant_name',
+            'id', 'product', 'product_name', 'product_sku', 'variant_name',
             'talla', 'bordado', 'rh', 'quantity', 'unit_price', 'line_total',
         )
 

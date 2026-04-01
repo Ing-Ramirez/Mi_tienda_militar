@@ -296,17 +296,34 @@ class ProductVariant(models.Model):
 
 
 class ProductReview(models.Model):
-    """Reseñas de productos"""
+    """Reseñas de productos — solo para compradores verificados"""
+    STATUS_CHOICES = [
+        ('pending',  'Pendiente de moderación'),
+        ('approved', 'Aprobada'),
+        ('hidden',   'Oculta'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='reviews')
+    order = models.ForeignKey(
+        'orders.Order', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='reviews',
+        verbose_name='Orden de compra',
+        help_text='Orden que valida la compra del producto.'
+    )
     rating = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)],
         verbose_name='Calificación'
     )
-    title = models.CharField(max_length=100, verbose_name='Título')
+    title = models.CharField(max_length=100, blank=True, verbose_name='Título')
     comment = models.TextField(verbose_name='Comentario')
-    is_verified_purchase = models.BooleanField(default=False, verbose_name='Compra verificada')
+    is_verified_purchase = models.BooleanField(default=True, verbose_name='Compra verificada')
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default='pending',
+        verbose_name='Estado de moderación'
+    )
+    # Campo de compatibilidad retroactiva — sincronizado con status=='approved'
     is_approved = models.BooleanField(default=False, verbose_name='Aprobada')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Actualizada')
@@ -319,6 +336,31 @@ class ProductReview(models.Model):
 
     def __str__(self):
         return f'{self.product.name} - {self.rating}★ por {self.user.email}'
+
+    def save(self, *args, **kwargs):
+        self.is_approved = (self.status == 'approved')
+        super().save(*args, **kwargs)
+
+
+class ReviewEvidence(models.Model):
+    """Imágenes de evidencia adjuntadas a una reseña por el cliente"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    review = models.ForeignKey(
+        ProductReview, on_delete=models.CASCADE, related_name='evidence'
+    )
+    image = models.ImageField(
+        upload_to='reviews/', validators=[validate_image_file],
+        verbose_name='Imagen'
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name='Subida el')
+
+    class Meta:
+        verbose_name = 'Evidencia de reseña'
+        verbose_name_plural = 'Evidencias de reseñas'
+        ordering = ['uploaded_at']
+
+    def __str__(self):
+        return f'Evidencia de {self.review}'
 
 
 class InventoryLog(models.Model):

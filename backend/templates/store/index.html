@@ -2465,6 +2465,25 @@
     .up-status-muted      { color: var(--ash); opacity: 0.85; }
     .up-return-card--subsanable { border-left: 4px solid #d4a017; }
     .up-return-card--definitive { border-left: 4px solid var(--iron, #555); opacity: 0.95; }
+    .up-returns-intro { font-size: 0.88rem; color: var(--ash); line-height: 1.55; margin: 0 0 0.85rem; }
+    .up-returns-policy-blurb { font-size: 0.86rem; color: var(--ash); line-height: 1.5; text-align: left; }
+    .up-returns-history-title { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: var(--white); margin: 1.25rem 0 0.35rem; }
+    .up-returns-history-sub { font-size: 0.8rem; color: var(--ash); margin-bottom: 0.85rem; }
+    .up-return-pill {
+      display: inline-flex; align-items: center; padding: 0.28rem 0.65rem;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; border-radius: 4px;
+      border: 1px solid transparent; text-transform: none; font-family: var(--font-display);
+      max-width: min(100%, 220px); text-align: right; line-height: 1.25; justify-content: flex-end;
+    }
+    .up-return-pill--pending { color: #e6c94c; border-color: rgba(230,201,76,0.42); background: rgba(230,201,76,0.1); }
+    .up-return-pill--review { color: #e6c94c; border-color: rgba(230,201,76,0.45); background: rgba(230,201,76,0.12); }
+    .up-return-pill--ok { color: var(--success-ui); border-color: rgba(120,200,140,0.4); background: rgba(120,200,140,0.1); }
+    .up-return-pill--warn { color: #d4a017; border-color: rgba(212,160,23,0.5); background: rgba(212,160,23,0.12); }
+    .up-return-pill--bad { color: var(--danger-soft); border-color: rgba(224,122,122,0.45); background: rgba(224,122,122,0.1); }
+    .up-return-pill--muted { color: var(--ash); border-color: var(--iron); background: rgba(0,0,0,0.15); }
+    .up-return-pill--ship { color: var(--accent); border-color: rgba(100,180,200,0.4); background: rgba(100,180,200,0.08); }
+    .up-return-status-msg { margin-top: 0.5rem; font-size: 0.84rem; color: var(--olive-100); line-height: 1.45; }
+    .up-return-card-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.65rem; align-items: center; }
     .up-status-processing { color: var(--warn-amber); }
     .up-status-confirmed  { color: var(--olive-300); }
     .up-status-shipped    { color: var(--accent); }
@@ -2601,6 +2620,7 @@
     .up-empty-icon { font-size: 2.5rem; opacity: 0.3; margin-bottom: 0.75rem; }
     .up-empty-text { font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ash); }
     .up-empty-hint { font-size: 0.82rem; color: var(--slate); margin-top: 0.4rem; }
+    .up-empty .btn { position: relative; z-index: 2; pointer-events: auto; text-transform: none; letter-spacing: normal; }
     .up-pagination { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; }
     .up-page-btn {
       padding: 0.45rem 0.85rem; background: var(--steel); border: 1px solid var(--iron);
@@ -4677,13 +4697,16 @@
         <div class="up-card" style="margin-bottom:1rem;">
           <div class="up-card-head">Políticas de devolución</div>
           <div class="up-card-body">
-            <div id="up-returns-policy" class="up-empty-text">Cargando políticas...</div>
+            <p class="up-returns-intro">Consulta nuestras condiciones antes de solicitar o gestionar una devolución.</p>
+            <div id="up-returns-policy" class="up-returns-policy-blurb">Cargando políticas...</div>
             <button type="button" class="btn btn-ghost" data-action="openReturnPolicyInfo" style="margin-top:0.75rem;">
               Leer políticas completas
             </button>
           </div>
         </div>
         <div id="up-return-create-box" class="up-card d-none" style="margin-bottom:1rem;"></div>
+        <h3 class="up-returns-history-title">Mis devoluciones</h3>
+        <p class="up-returns-history-sub">Historial de solicitudes, más recientes primero.</p>
         <div id="up-returns-container"></div>
       </div>
 
@@ -4879,6 +4902,26 @@
     <div class="fp-rp-foot d-none" id="fp-rp-foot-info">
       <div class="fp-rp-actions" style="justify-content:center;">
         <button type="button" class="btn btn-primary" data-action="closeReturnPolicyModal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: detalle de devolución (solo lectura) -->
+<div class="fp-rp-overlay" id="up-return-detail-overlay" aria-hidden="true">
+  <div class="fp-rp-modal" role="dialog" aria-modal="true" aria-labelledby="up-return-detail-title" style="max-width:540px;">
+    <div class="fp-rp-head">
+      <h2 class="fp-rp-title" id="up-return-detail-title">Detalle de devolución</h2>
+      <p class="fp-rp-subtitle" id="up-return-detail-sub">—</p>
+    </div>
+    <div class="fp-rp-scroll" id="up-return-detail-scroll">
+      <div class="fp-rp-body" id="up-return-detail-body">
+        <div class="up-loading">Cargando…</div>
+      </div>
+    </div>
+    <div class="fp-rp-foot" id="up-return-detail-foot">
+      <div class="fp-rp-actions" style="justify-content:center;">
+        <button type="button" class="btn btn-primary" data-action="closeReturnDetailModal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -7232,7 +7275,8 @@
     orderDetail: (orderId) => apiFetch(`${UP_ORDERS_API}${orderId}/`),
     loyaltyBalance: () => apiFetch(`${LOYALTY_API}balance/`),
     loyaltyTransactions: (page) => apiFetch(`${LOYALTY_API}transactions/?page=${page}&page_size=15`),
-    returnsList: () => apiFetch(RETURNS_API),
+    returnsList: () => apiFetch(RETURNS_API, { cache: 'no-store' }),
+    returnDetail: (id) => apiFetch(`${RETURNS_API}${id}/`, { cache: 'no-store' }),
     returnsPolicy: () => apiFetch(`${RETURNS_API}policy/`, { cache: 'no-store' }),
     returnEligibility: (orderId) => apiFetch(`${RETURNS_API}eligibility/${orderId}/`),
     createReturn: (payload) => apiFetch(RETURNS_API, {
@@ -7518,19 +7562,19 @@
   }
 
   // ── Devoluciones ──
-  function upReturnStatusClass(st) {
+  function upReturnPillClass(st) {
     return ({
-      requested:'up-status-pending',
-      reviewing:'up-status-processing',
-      approved:'up-status-confirmed',
-      rejected_subsanable:'up-status-warn',
-      rejected_definitive:'up-status-muted',
-      in_transit:'up-status-shipped',
-      received:'up-status-processing',
-      validated:'up-status-confirmed',
-      refunded:'up-status-delivered',
-      closed:'up-status-cancelled',
-    })[st] || 'up-status-pending';
+      requested: 'up-return-pill--pending',
+      reviewing: 'up-return-pill--review',
+      approved: 'up-return-pill--ok',
+      rejected_subsanable: 'up-return-pill--warn',
+      rejected_definitive: 'up-return-pill--muted',
+      in_transit: 'up-return-pill--ship',
+      received: 'up-return-pill--review',
+      validated: 'up-return-pill--ok',
+      refunded: 'up-return-pill--ok',
+      closed: 'up-return-pill--muted',
+    })[st] || 'up-return-pill--pending';
   }
 
   let _upParentReturnForRetry = null;
@@ -7538,33 +7582,105 @@
 
   function renderUpReturnRow(r) {
     const st = r.status || 'requested';
-    const statusClass = upReturnStatusClass(st);
+    const pillClass = upReturnPillClass(st);
     const statusLabel = r.status_label || st;
     const tone = r.ui_rejection_tone || 'neutral';
     let cardClass = 'up-return-card';
     if (tone === 'subsanable') cardClass += ' up-return-card--subsanable';
     if (tone === 'definitive') cardClass += ' up-return-card--definitive';
     const retryBtn = r.can_retry
-      ? `<button type="button" class="btn btn-primary" style="margin-top:0.6rem" data-action="upRetryReturn" data-order-id="${escHtml(String(r.order_id || ''))}" data-parent-return-id="${escHtml(String(r.id || ''))}">Intentar nuevamente la devolución</button>`
+      ? `<button type="button" class="btn btn-primary" data-action="upRetryReturn" data-order-id="${escHtml(String(r.order_id || ''))}" data-parent-return-id="${escHtml(String(r.id || ''))}">Intentar nuevamente</button>`
       : '';
+    const statusMsg = r.status_message ? `<div class="up-return-status-msg">${escHtml(r.status_message)}</div>` : '';
+    const userReason = (r.reason_detail || r.customer_notes || '').trim();
     const rejBlock = (st === 'rejected_subsanable' || st === 'rejected_definitive')
       ? `<div class="up-return-rejection" style="margin-top:0.55rem;padding:0.65rem;border-radius:6px;font-size:0.88rem;line-height:1.45;background:rgba(0,0,0,0.18);">
-        <div><strong>Devolución rechazada</strong></div>
+        <div><strong>Respuesta del equipo</strong></div>
         <div style="margin-top:0.3rem;color:var(--ash)">${escHtml(r.customer_rejection_hint || '')}</div>
-        ${r.rejection_reason ? `<div style="margin-top:0.45rem;"><strong>Motivo:</strong> ${escHtml(r.rejection_reason)}</div>` : ''}
-        ${st === 'rejected_definitive' ? `<div style="margin-top:0.5rem;color:var(--ash)">Este producto no cumple con las condiciones de devolución según nuestras políticas.</div>` : ''}
-        ${retryBtn}
+        ${r.rejection_reason ? `<div style="margin-top:0.45rem;"><strong>Motivo indicado:</strong> ${escHtml(r.rejection_reason)}</div>` : ''}
+        ${st === 'rejected_definitive' ? `<div style="margin-top:0.5rem;color:var(--ash)">No es posible un nuevo intento para esta solicitud.</div>` : ''}
+        ${retryBtn ? `<div class="up-return-card-actions">${retryBtn}</div>` : ''}
       </div>`
       : '';
     const attemptN = Number(r.attempt_number || 1);
+    const rid = escHtml(String(r.id || ''));
     return `<div class="${cardClass}" style="display:block;padding:0.85rem 1rem;border:1px solid var(--olive-800);border-radius:8px;margin-bottom:0.65rem;">
-      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;justify-content:space-between;">
-        <div><strong>${escHtml(r.return_code || '')}</strong> · Orden #${escHtml(r.order_number || '—')} · Intento ${attemptN}</div>
-        <div class="up-order-status ${statusClass}">${escHtml(statusLabel)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:flex-start;justify-content:space-between;">
+        <div style="min-width:0;">
+          <div><strong>${escHtml(r.return_code || '')}</strong> · Pedido #${escHtml(r.order_number || '—')}</div>
+          <div style="margin-top:0.25rem;font-size:0.78rem;color:var(--ash)">Solicitud: ${fmtDate(r.requested_at)} · Intento ${attemptN}</div>
+        </div>
+        <div class="up-return-pill ${pillClass}">${escHtml(statusLabel)}</div>
       </div>
-      <div style="margin-top:0.35rem;font-size:0.86rem;color:var(--ash)">${Number(r.items_count || 0)} ítem(s) · ${escHtml(r.reason_label || r.reason || '')}${r.refund_amount ? ` · ${fmtCOP(r.refund_amount)}` : ''}</div>
+      <div style="margin-top:0.4rem;font-size:0.86rem;color:var(--ash)">
+        <strong style="color:var(--olive-100)">Tu motivo:</strong> ${escHtml(r.reason_label || r.reason || '—')}
+        ${userReason ? `<span style="display:block;margin-top:0.25rem;">${escHtml(userReason.length > 120 ? userReason.slice(0, 120) + '…' : userReason)}</span>` : ''}
+        ${r.refund_amount ? `<span style="display:block;margin-top:0.25rem;">Reembolso: ${fmtCOP(r.refund_amount)}</span>` : ''}
+      </div>
+      ${statusMsg}
       ${rejBlock}
+      <div class="up-return-card-actions">
+        <button type="button" class="btn btn-ghost" style="font-size:0.78rem;padding:0.45rem 0.85rem" data-action="upOpenReturnDetail" data-return-id="${rid}">Ver detalle</button>
+      </div>
     </div>`;
+  }
+
+  function closeReturnDetailModal() {
+    const ov = document.getElementById('up-return-detail-overlay');
+    if (!ov) return;
+    ov.classList.remove('open');
+    ov.setAttribute('aria-hidden', 'true');
+    const panel = document.getElementById('up-panel');
+    if (panel && panel.classList.contains('open')) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+  }
+
+  async function upOpenReturnDetail(returnId) {
+    if (!returnId || !_accessToken) {
+      showToast('Inicia sesión para ver el detalle.', 'error');
+      return;
+    }
+    const ov = document.getElementById('up-return-detail-overlay');
+    const body = document.getElementById('up-return-detail-body');
+    const sub = document.getElementById('up-return-detail-sub');
+    if (!ov || !body || !sub) return;
+    body.innerHTML = '<div class="up-loading">Cargando…</div>';
+    sub.textContent = '—';
+    ov.classList.add('open');
+    ov.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    const res = await UserPanelApi.returnDetail(returnId);
+    const raw = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      body.innerHTML = `<p class="fp-rp-p">${escHtml(formatDrfErrors(raw) || 'No se pudo cargar el detalle.')}</p>`;
+      return;
+    }
+    const d = raw;
+    sub.textContent = `${d.return_code || ''} · Pedido #${d.order_number || '—'}`;
+    const st = d.status || '';
+    const pill = upReturnPillClass(st);
+    const audit = Array.isArray(d.audit_log) ? d.audit_log : [];
+    const auditHtml = audit.length
+      ? `<h3 class="fp-rp-h3" style="margin-top:1rem">Historial de estados</h3><ul class="fp-rp-ol" style="list-style:none;padding-left:0;">${audit.map((a) => `
+        <li style="margin-bottom:0.5rem;font-size:0.86rem;color:var(--ash)">
+          <strong style="color:var(--olive-100)">${fmtDate(a.created_at)}</strong>
+          · ${escHtml(a.from_status_label || a.from_status || '')} → ${escHtml(a.to_status_label || a.to_status || '')}
+          ${a.note ? `<br><span>${escHtml(a.note)}</span>` : ''}
+        </li>`).join('')}</ul>`
+      : '';
+    const items = Array.isArray(d.items) ? d.items : [];
+    const itemsHtml = items.length
+      ? `<h3 class="fp-rp-h3">Productos</h3><ul class="fp-rp-ol">${items.map((it) => `<li>${escHtml(it.product_name || '')} · ${Number(it.quantity || 1)} u. · ${escHtml(it.condition_label || it.condition || '')}</li>`).join('')}</ul>`
+      : '';
+    body.innerHTML = `
+      <div class="up-return-pill ${pill}" style="margin-bottom:0.65rem;display:inline-flex">${escHtml(d.status_label || st)}</div>
+      <p class="fp-rp-p"><strong>Solicitud:</strong> ${fmtDate(d.requested_at)} · <strong>Última actualización:</strong> ${fmtDate(d.updated_at)}</p>
+      <p class="fp-rp-p"><strong>Motivo (categoría):</strong> ${escHtml(d.reason_label || d.reason || '—')}</p>
+      <p class="fp-rp-p"><strong>Descripción del cliente:</strong><br>${escHtml((d.reason_detail || d.customer_notes || '—').trim() || '—')}</p>
+      ${d.rejection_reason ? `<p class="fp-rp-p"><strong>Motivo indicado por el equipo:</strong><br>${escHtml(d.rejection_reason)}</p>` : ''}
+      ${d.refund_amount ? `<p class="fp-rp-p"><strong>Reembolso:</strong> ${fmtCOP(d.refund_amount)} · ${escHtml(d.refund_status_label || '')}</p>` : ''}
+      ${itemsHtml}
+      ${auditHtml}`;
   }
 
   function renderReturnPolicyDocumentHTML(policy) {
@@ -7698,11 +7814,15 @@
     const policy = await pres.json();
     body.innerHTML = renderReturnPolicyDocumentHTML(policy);
 
-    scrollEl.onscroll = function () { fpReturnPolicyUpdateScrollGate(); };
-    window.addEventListener('resize', fpReturnPolicyOnResize);
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () { fpReturnPolicyUpdateScrollGate(); });
-    });
+    if (mode === 'info') {
+      scrollEl.onscroll = null;
+    } else {
+      scrollEl.onscroll = function () { fpReturnPolicyUpdateScrollGate(); };
+      window.addEventListener('resize', fpReturnPolicyOnResize);
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { fpReturnPolicyUpdateScrollGate(); });
+      });
+    }
   }
 
   function fpOnReturnPolicyContinue() {
@@ -7852,38 +7972,83 @@
     loadUpReturns();
   }
 
+  async function _fetchUserReturnsListOnce() {
+    return UserPanelApi.returnsList();
+  }
+
+  async function _fetchUserReturnsListWithTokenRefresh() {
+    let res = await _fetchUserReturnsListOnce();
+    if (res.status === 401) {
+      const refreshed = await refreshAccessToken();
+      if (refreshed) res = await _fetchUserReturnsListOnce();
+    }
+    return res;
+  }
+
+  async function upReloadReturns() {
+    await refreshAccessToken();
+    await loadUpReturns();
+  }
+
   async function loadUpReturns() {
     const listEl = document.getElementById('up-returns-container');
     const policyEl = document.getElementById('up-returns-policy');
     listEl.innerHTML = `<div class="up-loading">Cargando devoluciones...</div>`;
+    if (!_accessToken) {
+      const refreshed = await refreshAccessToken();
+      if (!refreshed || !_accessToken) {
+        listEl.innerHTML = `<div class="up-empty">
+          <div class="up-empty-text">Inicia sesión para ver tus devoluciones</div>
+          <button type="button" class="btn btn-primary" data-action="openAuthModalFromPanel" style="margin-top:0.75rem">Iniciar sesión</button>
+        </div>`;
+        if (policyEl) policyEl.textContent = 'Inicia sesión para gestionar devoluciones.';
+        return;
+      }
+    }
     try {
       const [returnsRes, policyRes] = await Promise.all([
-        UserPanelApi.returnsList(),
+        _fetchUserReturnsListWithTokenRefresh(),
         UserPanelApi.returnsPolicy(),
       ]);
       if (policyRes.ok) {
         const policy = await policyRes.json();
-        policyEl.innerHTML = renderReturnPolicy(policy);
-      } else {
+        if (policyEl) policyEl.innerHTML = renderReturnPolicy(policy);
+      } else if (policyEl) {
         policyEl.textContent = 'No se pudo cargar la política de devoluciones.';
       }
+      const rawReturns = await returnsRes.json().catch(() => null);
       if (!returnsRes.ok) {
-        listEl.innerHTML = `<div class="up-empty"><div class="up-empty-text">No se pudieron cargar tus devoluciones</div></div>`;
+        const errBody = rawReturns && typeof rawReturns === 'object' ? rawReturns : {};
+        const hint = formatDrfErrors(errBody);
+        let msg;
+        if (returnsRes.status === 401) {
+          msg = 'Tu sesión expiró. Pulsa Reintentar tras iniciar sesión de nuevo, o cierra el panel y vuelve a entrar.';
+        } else if (returnsRes.status === 500 || returnsRes.status === 502 || returnsRes.status === 503) {
+          msg = (hint || 'El servidor no pudo cargar las devoluciones. Reintenta en unos segundos; si sigue igual, avísanos.');
+        } else {
+          msg = hint || `No se pudieron cargar tus devoluciones (${returnsRes.status}).`;
+        }
+        listEl.innerHTML = `<div class="up-empty">
+          <div class="up-empty-text">${escHtml(msg)}</div>
+          <button type="button" class="btn btn-primary" data-action="upReloadReturns" style="margin-top:0.85rem">Reintentar</button>
+        </div>`;
         return;
       }
-      const rows = await returnsRes.json();
-      if (!Array.isArray(rows) || !rows.length) {
+      const rows = Array.isArray(rawReturns) ? rawReturns : (Array.isArray(rawReturns && rawReturns.results) ? rawReturns.results : []);
+      if (!rows.length) {
         listEl.innerHTML = `<div class="up-empty">
           <div class="up-empty-icon">↩️</div>
-          <div class="up-empty-text">Aún no tienes devoluciones</div>
+          <div class="up-empty-text">Aún no has realizado devoluciones</div>
           <div class="up-empty-hint">Puedes iniciar una desde el detalle de un pedido entregado.</div>
+          <button type="button" class="btn btn-primary" data-action="upNav" data-section="orders" style="margin-top:0.85rem">Ir a mis pedidos</button>
         </div>`;
         return;
       }
       listEl.innerHTML = `<div class="up-orders-list">${rows.map(renderUpReturnRow).join('')}</div>`;
     } catch {
-      listEl.innerHTML = `<div class="up-empty"><div class="up-empty-text">Error de conexión</div></div>`;
-      policyEl.textContent = 'No se pudo cargar la política de devoluciones.';
+      listEl.innerHTML = `<div class="up-empty"><div class="up-empty-text">Error de conexión</div>
+        <button type="button" class="btn btn-primary" data-action="upReloadReturns" style="margin-top:0.85rem">Reintentar</button></div>`;
+      if (policyEl) policyEl.textContent = 'No se pudo cargar la política de devoluciones.';
     }
   }
 
@@ -8628,6 +8793,11 @@
   window.addEventListener('hashchange', fpMaybeOpenReturnPolicyFromHash);
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
+      const rdOv = document.getElementById('up-return-detail-overlay');
+      if (rdOv && rdOv.classList.contains('open')) {
+        closeReturnDetailModal();
+        return;
+      }
       const rpOv = document.getElementById('fp-return-policy-overlay');
       if (rpOv && rpOv.classList.contains('open')) {
         closeReturnPolicyModal();
@@ -8683,6 +8853,12 @@
         if (err) err.classList.remove('show');
         const c = document.getElementById('fp-rp-continue');
         if (c) c.disabled = !chk.checked;
+      });
+    }
+    const rdOv = document.getElementById('up-return-detail-overlay');
+    if (rdOv) {
+      rdOv.addEventListener('click', function (e) {
+        if (e.target === rdOv) closeReturnDetailModal();
       });
     }
   })();
@@ -9044,6 +9220,20 @@
       case 'upSubmitReturn':      upSubmitReturn(); break;
       case 'upRetryReturn':
         upRetryReturn(el.dataset.orderId, el.dataset.parentReturnId);
+        break;
+      case 'upOpenReturnDetail':
+        upOpenReturnDetail(el.dataset.returnId);
+        break;
+      case 'closeReturnDetailModal':
+        closeReturnDetailModal();
+        break;
+      case 'openAuthModalFromPanel':
+        openAuthModal();
+        switchAuthTab('login');
+        break;
+      case 'upReloadReturns':
+        e.preventDefault();
+        upReloadReturns();
         break;
       case 'upOrderBack':         loadUpOrders(_upOrdersPage); break;
       case 'upOrdersPage':        loadUpOrders(+el.dataset.page); break;

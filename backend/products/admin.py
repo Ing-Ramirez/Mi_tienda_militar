@@ -3,11 +3,13 @@ Franja Pixelada — Admin de Productos
 Panel de administración personalizado para gestión de inventario
 """
 import csv
+import json
 import logging
 from django.contrib import admin
 from django.utils.html import format_html
 from django.http import HttpResponse
-from .models import Category, Tag, Product, ProductImage, ProductVariant, ProductReview, InventoryLog, Favorito
+from django.urls import reverse
+from .models import Category, Tag, Product, ProductImage, ProductVariant, ProductReview, ReviewEvidence, InventoryLog, Favorito
 from core.admin_site import admin_site
 
 logger = logging.getLogger(__name__)
@@ -108,11 +110,11 @@ class ProductAdmin(admin.ModelAdmin):
         js = ('js/admin_productos.js',)
 
     list_display = [
-        'sku', 'thumbnail_preview', 'name', 'category',
+        'thumbnail_preview', 'name', 'category',
         'price_display', 'stock_display', 'status_badge',
-        'personalization_type', 'is_featured', 'is_new', 'updated_at'
+        'details_btn',
     ]
-    list_editable = ['is_featured', 'is_new']
+    list_editable = []
     list_filter = ['status', 'category', 'is_featured', 'is_new', 'personalization_type']
     search_fields = ['name', 'sku', 'description']
     prepopulated_fields = {'slug': ('name',)}
@@ -226,6 +228,49 @@ class ProductAdmin(admin.ModelAdmin):
             return '—'
     status_badge.short_description = 'Estado'
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('category').prefetch_related('images')
+
+    def details_btn(self, obj):
+        try:
+            images = []
+            for img in obj.images.all().order_by('order', '-is_primary')[:12]:
+                if img.image:
+                    try:
+                        images.append({'url': img.image.url, 'alt': img.alt_text or ''})
+                    except Exception:
+                        pass
+            data = {
+                'id':              str(obj.pk),
+                'sku':             obj.sku or '',
+                'name':            obj.name or '',
+                'status':          obj.status or '',
+                'category':        obj.category.name if obj.category else '—',
+                'personalization': obj.get_personalization_type_display(),
+                'is_featured':     obj.is_featured,
+                'is_new':          obj.is_new,
+                'updated_at':      obj.updated_at.strftime('%d/%m/%Y %H:%M') if obj.updated_at else '—',
+                'price':           str(obj.price) if obj.price else '0',
+                'compare_at_price': str(obj.compare_at_price) if obj.compare_at_price else '',
+                'cost_price':      str(obj.cost_price) if obj.cost_price else '',
+                'stock':           obj.stock,
+                'description':     obj.description or '',
+                'short_description': obj.short_description or '',
+                'images':          images,
+                'edit_url':        reverse('admin:products_product_change', args=[obj.pk]),
+            }
+            json_data = json.dumps(data, ensure_ascii=False)
+            return format_html(
+                '<button type="button" class="fp-detail-btn" data-product="{}">'
+                'Detalles</button>',
+                json_data,
+            )
+        except Exception as e:
+            logger.warning('details_btn error for product %s: %s', getattr(obj, 'pk', '?'), e)
+            return '—'
+    details_btn.short_description = ''
+
     def discount_info(self, obj):
         try:
             if obj.discount_percentage:
@@ -275,13 +320,70 @@ class ProductVariantAdmin(admin.ModelAdmin):
 
 # ── Reseñas ──────────────────────────────────────────────────────────────────
 
+class ReviewEvidenceInline(admin.TabularInline):
+    model = ReviewEvidence
+    extra = 0
+    readonly_fields = ['thumb', 'uploaded_at']
+    fields = ['thumb', 'uploaded_at']
+    verbose_name = 'Imagen'
+    verbose_name_plural = 'Imágenes de evidencia'
+
+    def thumb(self, obj):
+        if obj.image:
+            try:
+                return format_html(
+                    '<a href="{}" target="_blank">'
+                    '<img src="{}" style="width:80px;height:60px;object-fit:cover;border-radius:3px">'
+                    '</a>', obj.image.url, obj.image.url
+                )
+            except Exception:
+                pass
+        return '—'
+    thumb.short_description = 'Vista previa'
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+STATUS_BADGE_COLORS = {
+    'pending':  ('#c9a227', '⏳'),
+    'approved': ('#4a7c3f', '✅'),
+    'hidden':   ('#888',    '🙈'),
+}
+
+
 @admin.register(ProductReview, site=admin_site)
 class ProductReviewAdmin(admin.ModelAdmin):
-    list_display = ['product', 'user', 'rating_display', 'is_verified_purchase', 'is_approved', 'created_at']
-    list_filter = ['rating', 'is_approved', 'is_verified_purchase']
-    list_editable = ['is_approved']
-    search_fields = ['product__name', 'user__email', 'comment']
-    actions = ['approve_reviews', 'reject_reviews']
+    list_display = [
+        'product', 'user_email', 'rating_display', 'status_badge',
+        'is_verified_purchase', 'order_link', 'created_at',
+    ]
+    list_filter = ['status', 'rating', 'is_verified_purchase', 'created_at']
+    search_fields = ['product__name', 'user__email', 'comment', 'title']
+    readonly_fields = ['id', 'user', 'product', 'order', 'is_verified_purchase',
+                       'is_approved', 'created_at', 'updated_at']
+    inlines = [ReviewEvidenceInline]
+    actions = ['approve_reviews', 'hide_reviews', 'mark_pending']
+
+    fieldsets = (
+        ('Identificación', {
+            'fields': ('id', 'user', 'product', 'order', 'is_verified_purchase'),
+        }),
+        ('Contenido', {
+            'fields': ('rating', 'title', 'comment'),
+        }),
+        ('Moderación', {
+            'fields': ('status', 'is_approved'),
+        }),
+        ('Fechas', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',),
+        }),
+    )
+
+    def user_email(self, obj):
+        return obj.user.email if obj.user else '—'
+    user_email.short_description = 'Cliente'
 
     def rating_display(self, obj):
         try:
@@ -291,15 +393,43 @@ class ProductReviewAdmin(admin.ModelAdmin):
             return obj.rating
     rating_display.short_description = 'Calificación'
 
+    def status_badge(self, obj):
+        color, icon = STATUS_BADGE_COLORS.get(obj.status, ('#888', '•'))
+        label = obj.get_status_display()
+        return format_html(
+            '<span style="background:{};color:#fff;padding:2px 10px;border-radius:3px;font-size:0.82em">'
+            '{} {}</span>', color, icon, label
+        )
+    status_badge.short_description = 'Estado'
+
+    def order_link(self, obj):
+        if obj.order:
+            return format_html(
+                '<span style="font-family:monospace">{}</span>',
+                obj.order.order_number,
+            )
+        return '—'
+    order_link.short_description = 'Pedido'
+
+    def save_model(self, request, obj, form, change):
+        """Sincronizar is_approved con status al guardar desde admin."""
+        obj.is_approved = (obj.status == 'approved')
+        super().save_model(request, obj, form, change)
+
     @admin.action(description='✅ Aprobar reseñas seleccionadas')
     def approve_reviews(self, request, queryset):
-        count = queryset.update(is_approved=True)
-        self.message_user(request, f'{count} reseña(s) aprobada(s).')
+        count = queryset.update(status='approved', is_approved=True)
+        self.message_user(request, f'{count} reseña(s) aprobada(s) y publicada(s).')
 
-    @admin.action(description='❌ Rechazar reseñas seleccionadas')
-    def reject_reviews(self, request, queryset):
-        count = queryset.update(is_approved=False)
-        self.message_user(request, f'{count} reseña(s) rechazada(s).')
+    @admin.action(description='🙈 Ocultar reseñas seleccionadas')
+    def hide_reviews(self, request, queryset):
+        count = queryset.update(status='hidden', is_approved=False)
+        self.message_user(request, f'{count} reseña(s) ocultada(s).')
+
+    @admin.action(description='⏳ Volver a pendiente')
+    def mark_pending(self, request, queryset):
+        count = queryset.update(status='pending', is_approved=False)
+        self.message_user(request, f'{count} reseña(s) marcadas como pendientes.')
 
 
 # ── Registro de inventario ───────────────────────────────────────────────────
