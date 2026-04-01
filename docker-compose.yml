@@ -62,6 +62,18 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'python',
+          '-c',
+          "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/health/', timeout=5).read()",
+        ]
+      interval: 10s
+      timeout: 6s
+      retries: 6
+      start_period: 120s
     env_file:
       - .env.dev   # cambiar a .env.prod antes de desplegar en servidor
     # Puerto 8000 NO expuesto al host — accesible solo desde Nginx via app_net
@@ -139,7 +151,8 @@ services:
     container_name: franja_pixelada_nginx
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - "80:80"
       - "443:443"

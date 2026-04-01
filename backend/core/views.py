@@ -6,11 +6,16 @@ import json
 import logging
 
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 
 logger = logging.getLogger(__name__)
 
 _RATE_API = 'https://open.er-api.com/v6/latest/USD'
+
+
+def health_live(request):
+    """Señal liviana para healthcheck (Docker / balanceadores). Sin consultas a BD."""
+    return HttpResponse('ok', content_type='text/plain; charset=utf-8')
 
 
 @staff_member_required

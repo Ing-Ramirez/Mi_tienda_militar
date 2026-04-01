@@ -6,9 +6,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from core.admin_site import admin_site   # AdminSite con MFA (OTP) obligatorio
+from core.views import health_live
 from orders.file_views import staff_order_payment_proof
 
 urlpatterns = [
+    path('health/', health_live, name='health_live'),
     # ── Frontend SPA ───────────────────────────────────
     path('', TemplateView.as_view(
         template_name='store/index.html',
@@ -34,6 +36,7 @@ urlpatterns = [
     path('api/v1/proveedores/', include('proveedores.urls')),
     path('api/v1/loyalty/', include('loyalty.urls')),
     path('api/v1/core/', include('core.urls')),
+    path('api/v1/returns/', include('returns.urls')),
 ]
 
 if settings.DEBUG:
