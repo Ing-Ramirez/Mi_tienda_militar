@@ -5,6 +5,7 @@ import os
 import socket
 from pathlib import Path
 from datetime import timedelta
+from urllib.parse import quote
 from django.core.exceptions import ImproperlyConfigured
 
 # Cargar .env en desarrollo local (sin Docker).
@@ -210,7 +211,21 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# Producción: nombres hasheados (collectstatic + nginx immutable). Dev: rutas lógicas + nginx no-cache.
+STATICFILES_STORAGE = (
+    'django.contrib.staticfiles.storage.StaticFilesStorage'
+    if DEBUG
+    else 'franja_pixelada.storage.ManifestStaticFilesStorageRelaxed'
+)
+
+# ── WhiteNoise (dev + prod) ────────────────────────────────────────────────
+# En DEBUG: Nginx (docker-compose dev) enruta /static/ al backend; WhiteNoise
+# sirve desde STATICFILES_DIRS vía finders y recarga al cambiar archivos.
+# Así se evita depender del volumen staticfiles poblado solo en el arranque.
+if DEBUG:
+    WHITENOISE_USE_FINDERS = True
+    WHITENOISE_AUTOREFRESH = True
+    WHITENOISE_MAX_AGE = 0
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -328,16 +343,16 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Franja Pixelada <nore
 _redis_host = os.environ.get('REDIS_HOST', '')
 
 if _redis_host:
-    _redis_password = os.environ.get('REDIS_PASSWORD', '')
+    _redis_password = (os.environ.get('REDIS_PASSWORD') or '').strip()
     _redis_port = os.environ.get('REDIS_PORT', '6379')
-    _redis_url = (
-        os.environ.get('REDIS_URL')
-        or (
-            f'redis://:{_redis_password}@{_redis_host}:{_redis_port}/1'
-            if _redis_password
-            else f'redis://{_redis_host}:{_redis_port}/1'
-        )
-    )
+    _redis_url = os.environ.get('REDIS_URL')
+    if not _redis_url:
+        if _redis_password:
+            _redis_url = (
+                f'redis://:{quote(_redis_password, safe="")}@{_redis_host}:{_redis_port}/1'
+            )
+        else:
+            _redis_url = f'redis://{_redis_host}:{_redis_port}/1'
     CACHES = {
         'default': {
             'BACKEND': 'django_redis.cache.RedisCache',
@@ -363,12 +378,15 @@ else:
 
 # ── Celery — Cola asíncrona ────────────────────────────────────────────────
 # Broker y backend: Redis DB 2 (DB 1 es la caché de Django)
-_celery_redis_password = os.environ.get('REDIS_PASSWORD', '')
+_celery_redis_password = (os.environ.get('REDIS_PASSWORD') or '').strip()
 _celery_redis_host = os.environ.get('REDIS_HOST', 'redis')
 _celery_redis_port = os.environ.get('REDIS_PORT', '6379')
 
 if _celery_redis_password:
-    _celery_broker = f'redis://:{_celery_redis_password}@{_celery_redis_host}:{_celery_redis_port}/2'
+    _celery_broker = (
+        f'redis://:{quote(_celery_redis_password, safe="")}@{_celery_redis_host}:'
+        f'{_celery_redis_port}/2'
+    )
 else:
     _celery_broker = f'redis://{_celery_redis_host}:{_celery_redis_port}/2'
 
@@ -440,12 +458,11 @@ JAZZMIN_SETTINGS = {
 
     # Orden de apps en el sidebar
     "order_with_respect_to": [
-        "users", "products", "orders", "loyalty", "proveedores", "payments", "core", "auth",
+        "users", "products", "orders", "returns", "loyalty", "proveedores", "payments", "core", "auth",
     ],
 
-    # Estilos propios (paridad de marca con la tienda — ver static/css/franja_admin.css)
-    "custom_css": "css/franja_admin.css",
-    # JS global: botones de acción masiva (plantilla) + sync tras PJAX
+    # CSS del tema: templates/admin/base_site.html → fp_admin_base|layout|tables|forms|components.
+    # JS global: botones de acción masiva, contador selección, toasts
     "custom_js": "js/franja_admin_global.js",
 
     # Íconos por modelo (Font Awesome 5)
@@ -472,6 +489,7 @@ JAZZMIN_SETTINGS = {
         "proveedores.SupplierOrder":    "fas fa-file-export",
         "proveedores.SupplierTracking": "fas fa-shipping-fast",
         "proveedores.SupplierLog":      "fas fa-scroll",
+        "returns.ReturnRequest":   "fas fa-undo-alt",
         "core.LoginAttempt":       "fas fa-lock",
         "core.AdminAuditLog":      "fas fa-history",
         "loyalty.LoyaltyAccount":  "fas fa-coins",

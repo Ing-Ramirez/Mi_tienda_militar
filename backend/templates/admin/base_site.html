@@ -4,29 +4,44 @@
 {% block title %}{{ title }} | Franja Pixelada{% endblock %}
 
 {% block extrastyle %}
-{# Prevenir FOUC: aplica tema antes del primer render del navegador #}
-<script nonce="{{ csp_nonce }}">!function(){var t=localStorage.getItem('fp_theme');if(t!=='light')document.documentElement.classList.add('fp-dark');}();</script>
+{# Tema antes de CSS: clase fp-dark temprana y paridad data-fp-model tras DOM listo #}
+<script nonce="{{ csp_nonce }}">
+!function(){
+  var t=localStorage.getItem('fp_theme');
+  var dark=t!=='light';
+  var h=document.documentElement;
+  if(dark){h.classList.add('fp-dark');h.setAttribute('data-bs-theme','dark');}
+  else{h.classList.remove('fp-dark');h.setAttribute('data-bs-theme','light');}
+}();
+document.addEventListener('DOMContentLoaded',function(){
+  var b=document.body;if(!b)return;
+  var m=(b.getAttribute('class')||'').match(/\bmodel-(\S+)\b/);
+  b.setAttribute('data-fp-model',m?m[1]:'');
+});
+</script>
 {{ block.super }}
+{# Tema Franja: módulos CSS (orden = cascada heredada del antiguo monolito). #}
+<link rel="stylesheet" href="{% static 'css/fp_admin_base.css' %}">
+<link rel="stylesheet" href="{% static 'css/fp_admin_layout.css' %}">
+<link rel="stylesheet" href="{% static 'css/fp_admin_tables.css' %}">
+<link rel="stylesheet" href="{% static 'css/fp_admin_forms.css' %}">
+<link rel="stylesheet" href="{% static 'css/fp_admin_components.css' %}">
 {% endblock %}
 
 {% block footer %}{{ block.super }}
+<script src="{% static 'js/admin_productos.js' %}" defer></script>
 <div id="fp-loader"><div id="fp-loader-bar"></div></div>
 <script nonce="{{ csp_nonce }}">
 (function () {
   'use strict';
 
-  /* ── Constantes SPA ───────────────────────────────────────── */
+  /* Recarga completa en cada vista admin (sin fetch/SPA). */
   var ADMIN_BASE = (function () {
     var m = location.pathname.match(/^(\/[^/]+\/)/);
     return m ? m[1] : '/admin/';
   })();
-  var FULL_RELOAD = [
-    /\/add\/?$/, /\/change\/?$/, /\/delete\/?$/, /\/password_change\//,
-    /\/export\//, /\/import\//
-  ];
   var SB_SCROLL_KEY = 'fp_sb_scroll';
   var THEME_KEY     = 'fp_theme';
-  var loading       = false;
   var themeTimer    = null;
 
   /* ── Dark / Light mode ────────────────────────────────────── */
@@ -47,8 +62,13 @@
       html.offsetHeight; /* fuerza reflow para activar transitions antes del cambio */
       themeTimer = setTimeout(function () { html.classList.remove('fp-transitioning'); }, 320);
     }
-    if (theme === 'dark') { html.classList.add('fp-dark'); }
-    else                  { html.classList.remove('fp-dark'); }
+    if (theme === 'dark') {
+      html.classList.add('fp-dark');
+      html.setAttribute('data-bs-theme', 'dark');
+    } else {
+      html.classList.remove('fp-dark');
+      html.setAttribute('data-bs-theme', 'light');
+    }
     updateThemeBtn(theme);
   }
   function insertThemeBtn() {
@@ -70,16 +90,11 @@
     updateThemeBtn(getTheme());
   }
 
-  /* ── Loader ───────────────────────────────────────────────── */
-  var loader = document.getElementById('fp-loader');
-  function showLoader() { if (loader) loader.classList.add('active'); }
-  function hideLoader() { if (loader) loader.classList.remove('active'); }
-
   /* ── Sidebar fijo ─────────────────────────────────────────── */
   function fixSidebar() {
     document.body.classList.remove('sidebar-collapse');
     var toggle = document.querySelector('[data-widget="pushmenu"]');
-    if (toggle) toggle.setAttribute('data-no-spa', '1');
+    if (toggle) toggle.removeAttribute('data-no-spa');
   }
 
   /* ── Persistencia del scroll del sidebar ──────────────────── */
@@ -122,122 +137,11 @@
     sb.scrollTop = Math.max(0, aRect.top - sbRect.top + sb.scrollTop - (sb.clientHeight / 2) + (active.offsetHeight / 2));
   }
 
-  /* ── ¿URL requiere recarga completa? ─────────────────────── */
-  function needsFullReload(url) {
-    try {
-      var p = new URL(url, location.origin);
-      if (FULL_RELOAD.some(function (re) { return re.test(p.pathname); })) return true;
-      if (p.searchParams.has('_export') || p.searchParams.has('format')) return true;
-    } catch (e) {}
-    return false;
-  }
-
-  /* ── Reinit básico de Django admin tras carga dinámica ────── *
-   * Otros scripts pueden escuchar el evento 'djfp:loaded' en
-   * django.jQuery(document) para ejecutar lógica post-SPA:
-   *   django.jQuery(document).on('djfp:loaded', function() { ... });
-   * ─────────────────────────────────────────────────────────── */
-  function reinitAdmin() {
-    var cw = document.querySelector('.content-wrapper');
-    if (!cw) return;
-    cw.querySelectorAll('script').forEach(function (old) {
-      if (old.src) return;
-      var s = document.createElement('script');
-      s.textContent = old.textContent;
-      old.parentNode.replaceChild(s, old);
-    });
-    try {
-      if (typeof django !== 'undefined' && django.jQuery) {
-        django.jQuery(document).trigger('djfp:loaded');
-        if (typeof DateTimeShortcuts !== 'undefined') {
-          django.jQuery('.datetimeshortcuts').remove();
-          DateTimeShortcuts.init();
-        }
-      }
-    } catch (e) {}
-    try {
-      if (typeof window.$ !== 'undefined') {
-        $('[data-toggle="tooltip"]').tooltip();
-        $('[data-toggle="popover"]').popover();
-      }
-    } catch (e) {}
-  }
-
-  /* ── Reemplazar zona de contenido ────────────────────────── */
-  function replaceContent(doc) {
-    document.title = doc.title;
-    var newCW  = doc.querySelector('.content-wrapper');
-    var currCW = document.querySelector('.content-wrapper');
-    if (!newCW || !currCW) return false;
-    currCW.innerHTML = newCW.innerHTML;
-    currCW.classList.add('fp-content-fade');
-    currCW.addEventListener('animationend', function onEnd() {
-      currCW.classList.remove('fp-content-fade');
-      currCW.removeEventListener('animationend', onEnd);
-    });
-    currCW.scrollTop = 0;
-    window.scrollTo(0, 0);
-    return true;
-  }
-
-  /* ── Navegación SPA ───────────────────────────────────────── */
-  function navigate(url, push) {
-    if (loading) return;
-    if (needsFullReload(url)) { location.href = url; return; }
-    var parsed     = new URL(url, location.origin);
-    var controller = new AbortController();
-    var abortTimer = setTimeout(function () { controller.abort(); }, 15000);
-    loading = true;
-    saveSbScroll();
-    showLoader();
-
-    fetch(url, {
-      signal: controller.signal,
-      headers: { 'X-Requested-With': 'FpSPA' },
-      credentials: 'same-origin'
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        if (!res.url.includes(ADMIN_BASE)) { location.href = res.url; throw null; }
-        return res.text();
-      })
-      .then(function (html) {
-        var doc = new DOMParser().parseFromString(html, 'text/html');
-        if (!replaceContent(doc)) { location.href = url; return; }
-        if (push !== false) history.pushState({ spa: true, url: url }, doc.title, url);
-        markActive(parsed.pathname);
-        restoreSbScroll();
-        reinitAdmin();
-      })
-      .catch(function (err) {
-        if (err) {
-          var msg = err.name === 'AbortError' ? 'timeout (15s)' : err.message;
-          console.warn('[FpSPA] fallback \u2192', msg);
-          location.href = url;
-        }
-      })
-      .finally(function () { clearTimeout(abortTimer); loading = false; hideLoader(); });
-  }
-
-  /* ── Interceptor de clics ─────────────────────────────────── */
   document.addEventListener('click', function (e) {
-    var a = e.target.closest('a[href]');
+    var a = e.target.closest('.nav-sidebar a[href]');
     if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
-    var href = a.getAttribute('href');
-    if (!href || href.startsWith('#') || href.startsWith('javascript') || href.startsWith('mailto')) return;
-    if (a.target === '_blank' || a.dataset.noSpa) return;
-    var url;
-    try { url = new URL(href, location.origin); } catch (x) { return; }
-    if (url.origin !== location.origin) return;
-    if (!url.pathname.startsWith(ADMIN_BASE)) return;
-    if (a.className && /related-widget-wrapper-link|viewsite/.test(a.className)) return;
-    /* Para excluir un link específico del SPA, añadir: data-no-spa="1" */
-    e.preventDefault();
-    navigate(url.href);
+    saveSbScroll();
   }, true);
-
-  /* ── Botón atrás / adelante ───────────────────────────────── */
-  window.addEventListener('popstate', function () { navigate(location.href, false); });
 
   /* ── Init ─────────────────────────────────────────────────── */
   function init() {
@@ -253,9 +157,7 @@
     init();
   }
 
-  /* Exponer para depuración */
   window.FpSPA = {
-    navigate: navigate,
     markActive: markActive,
     scrollToActive: scrollToActive,
     toggleTheme: function () {

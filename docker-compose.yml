@@ -28,22 +28,34 @@ services:
       - no-new-privileges:true
 
   # ── Redis (caché y sesiones) ────────────────────────────────────────────────
+  # Misma fuente de REDIS_PASSWORD que backend (.env.dev) vía env_file.
+  # --requirepass en runtime evita desajuste si el .env raíz (solo interpolación Compose)
+  # difiere del env_file del backend.
   redis:
     image: redis:7-alpine
     container_name: franja_pixelada_redis
     restart: unless-stopped
-    command: >
-      redis-server
-      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD es obligatorio}
-      --maxmemory 256mb
-      --maxmemory-policy allkeys-lru
-      --loglevel warning
+    env_file:
+      - .env.dev
+    command:
+      - sh
+      - -c
+      - >
+        exec redis-server
+        --requirepass "$$(printf '%s' "$$REDIS_PASSWORD" | tr -d '\r')"
+        --maxmemory 256mb
+        --maxmemory-policy allkeys-lru
+        --loglevel warning
     volumes:
       - redis_data:/data
     networks:
       - app_net
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test:
+        [
+          "CMD-SHELL",
+          'P=$$(printf "%s" "$$REDIS_PASSWORD" | tr -d "\r"); redis-cli -a "$$P" ping | grep -q PONG',
+        ]
       interval: 10s
       timeout: 5s
       retries: 5

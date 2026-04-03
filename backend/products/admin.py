@@ -84,10 +84,7 @@ class CategoryAdmin(admin.ModelAdmin):
     def product_count(self, obj):
         try:
             count = obj.products.filter(status='active').count()
-            return format_html(
-                '<span style="background:#4f6124;color:white;padding:2px 8px;border-radius:3px">{}</span>',
-                count
-            )
+            return format_html('<span class="fp-cat-count">{}</span>', count)
         except Exception:
             return '—'
     product_count.short_description = 'Productos activos'

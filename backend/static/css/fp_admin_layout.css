@@ -1,0 +1,430 @@
+/* fp_admin — layout: shell, navbar, sidebar, contenido principal
+   Requiere fp_admin_base.css (variables + dashboard + tema) cargado antes. */
+
+/* ══════════════════════════════════════════════════════════════
+   LAYOUT GLOBAL — full-width, sin scroll horizontal
+   ══════════════════════════════════════════════════════════════ */
+body, .wrapper { overflow-x: hidden !important; }
+.wrapper { width: 100% !important; max-width: none !important; }
+
+.content-wrapper .container-fluid,
+.content-wrapper .container {
+  max-width: none !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+.content-wrapper .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.content-wrapper > .content,
+.content-wrapper section.content {
+  padding: 12px 16px 24px !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NAVBAR SUPERIOR — siempre oscuro en ambos temas
+   ══════════════════════════════════════════════════════════════ */
+#jazzy-navbar,
+.main-header.navbar {
+  background: var(--fp-navy) !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  z-index: 1030 !important;
+  transition: none !important;
+}
+body.sidebar-mini .main-header,
+body.sidebar-mini #jazzy-navbar { transition: none !important; }
+
+.main-header .nav-link            { color: rgba(255,255,255,.72) !important; }
+.main-header .nav-link:hover      { color: var(--fp-c-on-brand) !important; }
+
+.main-header.navbar > form.form-inline {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  margin-left: 8px !important;
+}
+.main-header.navbar > form.form-inline .input-group {
+  flex-wrap: nowrap !important;
+  width: 100% !important;
+}
+
+.main-header .form-control-navbar {
+  background: rgba(255,255,255,.08) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  color: var(--fp-c-on-brand) !important;
+  border-radius: 6px 0 0 6px !important;
+  font-size: .83rem !important;
+  flex: 1 1 auto !important;
+  min-width: 60px !important;
+  max-width: none !important;
+  width: 1px !important;
+}
+.main-header .form-control-navbar::placeholder { color: rgba(255,255,255,.35) !important; }
+.main-header .btn-navbar {
+  background: transparent !important;
+  color: rgba(255,255,255,.55) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  border-left: none !important;
+  border-radius: 0 6px 6px 0 !important;
+  flex-shrink: 0 !important;
+}
+.main-header .btn-navbar:hover { color: var(--fp-c-on-brand) !important; }
+.main-header .dropdown-menu {
+  background: var(--fp-navy-lt) !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+}
+.main-header .dropdown-item       { color: rgba(255,255,255,.8) !important; }
+.main-header .dropdown-item:hover { background: rgba(255,255,255,.07) !important; color: var(--fp-c-on-brand) !important; }
+[data-widget="pushmenu"] { display: none !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   SIDEBAR FIJO
+   ══════════════════════════════════════════════════════════════ */
+.main-sidebar,
+#jazzy-sidebar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+  width: 250px !important;
+  background: var(--fp-navy) !important;
+  box-shadow: 3px 0 18px rgba(0,0,0,.22) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 1035 !important;
+  transition: none !important;
+}
+.main-sidebar::-webkit-scrollbar       { width: 4px; }
+.main-sidebar::-webkit-scrollbar-track { background: transparent; }
+.main-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+@supports (scrollbar-width: thin) {
+  .main-sidebar { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+}
+.content-wrapper,
+.main-footer { margin-left: 250px !important; margin-right: 0 !important; transition: none !important; }
+body.sidebar-collapse .main-sidebar    { left: 0 !important; }
+body.sidebar-collapse .content-wrapper,
+body.sidebar-collapse .main-footer     { margin-left: 250px !important; }
+
+.brand-link {
+  display: flex !important; align-items: center !important; gap: 10px !important;
+  background: var(--fp-navy-lt) !important;
+  border-bottom: 1px solid rgba(255,255,255,.08) !important;
+  padding: 14px 16px !important; height: 57px !important;
+}
+.brand-link:hover { background: rgba(255,255,255,.05) !important; }
+.brand-image      { display: none !important; }
+.brand-text {
+  color: var(--fp-c-on-brand) !important; font-weight: 700 !important; font-size: .93rem !important;
+  letter-spacing: .2px !important; white-space: nowrap !important;
+}
+
+.sidebar-dark-primary .nav-sidebar .nav-link {
+  color: rgba(255,255,255,.62) !important;
+  border-left: 3px solid transparent !important;
+  transition: background .15s, color .15s, border-color .15s !important;
+  font-size: .85rem !important; padding: 7px 16px !important;
+}
+.sidebar-dark-primary .nav-sidebar .nav-link:hover {
+  color: var(--fp-c-on-brand) !important; background: rgba(255,255,255,.06) !important;
+}
+.sidebar-dark-primary .nav-sidebar .nav-link.active,
+.sidebar-dark-primary .nav-sidebar .nav-link[aria-current="page"] {
+  color: var(--fp-teal) !important;
+  background: rgba(0,168,120,.12) !important;
+  border-left-color: var(--fp-teal) !important;
+}
+.sidebar-dark-primary .nav-sidebar .nav-link .nav-icon {
+  color: rgba(255,255,255,.35) !important; font-size: .85rem !important; width: 1.4rem !important;
+}
+.sidebar-dark-primary .nav-sidebar .nav-link.active .nav-icon { color: var(--fp-teal) !important; }
+.nav-header {
+  color: rgba(255,255,255,.26) !important; font-size: .58rem !important;
+  letter-spacing: 1.7px !important; padding: 12px 16px 4px !important;
+}
+.sidebar-dark-primary .nav-sidebar .nav-treeview { background: rgba(0,0,0,.1) !important; }
+.sidebar-dark-primary .nav-sidebar .nav-treeview .nav-link {
+  padding-left: 32px !important; font-size: .82rem !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CONTENIDO PRINCIPAL
+   ══════════════════════════════════════════════════════════════ */
+.content-wrapper {
+  background: var(--fp-c-bg) !important;
+  color: var(--fp-c-text) !important;
+  min-height: 100vh !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding-bottom: 34px !important;
+}
+.main-footer {
+  background: var(--fp-c-card) !important;
+  border-top: 1px solid var(--fp-c-border) !important;
+  color: var(--fp-c-text) !important;
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 250px !important;
+  right: 0 !important;
+  margin-left: 0 !important;
+  z-index: 1020 !important;
+  padding: 4px 16px !important;
+  font-size: .71rem !important;
+  line-height: 1.45 !important;
+  box-shadow: 0 -2px 8px rgba(0,0,0,.08) !important;
+}
+html.fp-dark .main-footer {
+  box-shadow: 0 -2px 8px rgba(0,0,0,.35) !important;
+}
+.main-footer a { color: var(--fp-teal) !important; }
+.main-footer a:hover { color: var(--fp-teal-dk) !important; text-decoration: underline !important; }
+.content-header { display: none !important; }
+
+.breadcrumb, .breadcrumbs { background: transparent !important; color: var(--fp-c-muted) !important; }
+.breadcrumb-item a, .breadcrumbs a { color: var(--fp-teal) !important; }
+.breadcrumb-item.active { color: var(--fp-c-muted) !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   MODO OSCURO (html.fp-dark) — fondos que Jazzmin/AdminLTE dejan blancos
+   Pestañas del change form, cabecera, columnas y utilidades Bootstrap.
+   ══════════════════════════════════════════════════════════════ */
+html.fp-dark .content-wrapper,
+html.fp-dark .content-wrapper > .content,
+html.fp-dark .content-wrapper section.content,
+html.fp-dark .content-wrapper > .content > .container-fluid,
+html.fp-dark .content-wrapper > section.content > .container-fluid,
+html.fp-dark .content-wrapper > .content > .container,
+html.fp-dark #content,
+html.fp-dark #content-main {
+  background: var(--fp-c-bg) !important;
+  color: var(--fp-c-text) !important;
+}
+
+/* Título / migas si Jazzmin las pinta fuera de .content-header (oculto) */
+html.fp-dark .content h1,
+html.fp-dark .content .h1,
+html.fp-dark .content .col-12 > h1 {
+  color: var(--fp-c-text) !important;
+}
+
+html.fp-dark .bg-white,
+html.fp-dark .bg-light,
+html.fp-dark .bg-secondary {
+  background-color: var(--fp-c-card-alt) !important;
+  color: var(--fp-c-text) !important;
+}
+
+/* Pestañas del formulario (Credenciales, etc.) — tab activa suele ser #fff */
+html.fp-dark .nav-tabs {
+  border-bottom-color: var(--fp-c-border) !important;
+  background: transparent !important;
+}
+html.fp-dark .nav-tabs .nav-link {
+  color: var(--fp-teal) !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-color: transparent !important;
+}
+html.fp-dark .nav-tabs .nav-link:hover,
+html.fp-dark .nav-tabs .nav-link:focus {
+  color: var(--fp-c-text) !important;
+  background: var(--fp-c-card-alt) !important;
+  border-color: var(--fp-c-border) !important;
+}
+html.fp-dark .nav-tabs .nav-link.active,
+html.fp-dark .nav-tabs .nav-item.show .nav-link,
+html.fp-dark .nav-tabs .nav-link.active:focus {
+  color: var(--fp-c-text) !important;
+  background: var(--fp-c-card) !important;
+  border-color: var(--fp-c-border) var(--fp-c-border) var(--fp-c-card) !important;
+}
+
+html.fp-dark .card-header .nav-tabs .nav-link.active,
+html.fp-dark .card-header .nav-tabs .nav-item.show .nav-link {
+  background: var(--fp-c-card) !important;
+  color: var(--fp-c-text) !important;
+  border-bottom-color: var(--fp-c-card) !important;
+}
+
+html.fp-dark .tab-content,
+html.fp-dark .tab-pane,
+html.fp-dark .card-body.tab-content {
+  background: var(--fp-c-card) !important;
+  color: var(--fp-c-text) !important;
+  border-color: var(--fp-c-border) !important;
+}
+
+html.fp-dark .card.card-outline.card-primary,
+html.fp-dark .card.card-outline {
+  background: var(--fp-c-card) !important;
+  border-color: var(--fp-c-border) !important;
+}
+
+/* Columna lateral de acciones (Grabar / Eliminar) */
+html.fp-dark #content-related,
+html.fp-dark .sticky-top,
+html.fp-dark aside .submit-row {
+  background: transparent !important;
+}
+
+html.fp-dark .submit-row,
+html.fp-dark .object-tools {
+  background: var(--fp-c-card-alt) !important;
+  border-color: var(--fp-c-border) !important;
+}
+
+/*
+ * Fondo central aún blanco: Bootstrap 5 usa data-bs-theme en <html>;
+ * AdminLTE/Flatly a veces pinta .wrapper / .content-wrapper con mayor especificidad.
+ * Duplicamos selectores con html[data-bs-theme="dark"] y cadena body .wrapper.
+ */
+html[data-bs-theme="dark"] .content-wrapper,
+html[data-bs-theme="dark"] .content-wrapper > .content,
+html[data-bs-theme="dark"] .content-wrapper section.content,
+html[data-bs-theme="dark"] .content-wrapper > .content > .container-fluid,
+html[data-bs-theme="dark"] .content-wrapper > section.content > .container-fluid,
+html[data-bs-theme="dark"] .content-wrapper > .content > .container,
+html[data-bs-theme="dark"] #content,
+html[data-bs-theme="dark"] #content-main {
+  background: var(--fp-c-bg) !important;
+  color: var(--fp-c-text) !important;
+}
+
+html.fp-dark body,
+html[data-bs-theme="dark"] body {
+  background-color: var(--fp-c-bg) !important;
+}
+
+html.fp-dark body .wrapper,
+html[data-bs-theme="dark"] body .wrapper {
+  background-color: var(--fp-c-bg) !important;
+}
+
+html.fp-dark body .wrapper > .content-wrapper,
+html[data-bs-theme="dark"] body .wrapper > .content-wrapper,
+html.fp-dark body.layout-fixed .wrapper .content-wrapper,
+html[data-bs-theme="dark"] body.layout-fixed .wrapper .content-wrapper,
+html.fp-dark body.sidebar-mini .wrapper .content-wrapper,
+html[data-bs-theme="dark"] body.sidebar-mini .wrapper .content-wrapper {
+  background-color: var(--fp-c-bg) !important;
+  background-image: none !important;
+}
+
+html.fp-dark .main-footer,
+html[data-bs-theme="dark"] .main-footer {
+  background: var(--fp-c-card) !important;
+  color: var(--fp-c-text) !important;
+  border-top-color: var(--fp-c-border) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TEMA CLARO (data-bs-theme="light") — misma cobertura que dark.
+   Jazzmin pinta fondos blancos en light; los sobreescribimos con
+   las variables de `:root` (navy medio) para mantener la estética.
+   ══════════════════════════════════════════════════════════════ */
+html[data-bs-theme="light"] .content-wrapper,
+html[data-bs-theme="light"] .content-wrapper > .content,
+html[data-bs-theme="light"] .content-wrapper section.content,
+html[data-bs-theme="light"] .content-wrapper > .content > .container-fluid,
+html[data-bs-theme="light"] .content-wrapper > section.content > .container-fluid,
+html[data-bs-theme="light"] .content-wrapper > .content > .container,
+html[data-bs-theme="light"] #content,
+html[data-bs-theme="light"] #content-main {
+  background: var(--fp-c-bg) !important;
+  color: var(--fp-c-text) !important;
+}
+
+html[data-bs-theme="light"] body {
+  background-color: var(--fp-c-bg) !important;
+  color: var(--fp-c-text) !important;
+}
+
+html[data-bs-theme="light"] body .wrapper {
+  background-color: var(--fp-c-bg) !important;
+}
+
+html[data-bs-theme="light"] body .wrapper > .content-wrapper,
+html[data-bs-theme="light"] body.layout-fixed .wrapper .content-wrapper,
+html[data-bs-theme="light"] body.sidebar-mini .wrapper .content-wrapper {
+  background-color: var(--fp-c-bg) !important;
+  background-image: none !important;
+}
+
+html[data-bs-theme="light"] .bg-white,
+html[data-bs-theme="light"] .bg-light,
+html[data-bs-theme="light"] .bg-secondary {
+  background-color: var(--fp-c-card-alt) !important;
+  color: var(--fp-c-text) !important;
+}
+
+html[data-bs-theme="light"] .nav-tabs {
+  border-bottom-color: var(--fp-c-border) !important;
+  background: transparent !important;
+}
+html[data-bs-theme="light"] .nav-tabs .nav-link {
+  color: var(--fp-teal) !important;
+  background: rgba(0,0,0,.18) !important;
+  border-color: transparent !important;
+}
+html[data-bs-theme="light"] .nav-tabs .nav-link:hover,
+html[data-bs-theme="light"] .nav-tabs .nav-link:focus {
+  color: var(--fp-c-text) !important;
+  background: var(--fp-c-card-alt) !important;
+  border-color: var(--fp-c-border) !important;
+}
+html[data-bs-theme="light"] .nav-tabs .nav-link.active,
+html[data-bs-theme="light"] .nav-tabs .nav-item.show .nav-link {
+  color: var(--fp-c-text) !important;
+  background: var(--fp-c-card) !important;
+  border-color: var(--fp-c-border) var(--fp-c-border) var(--fp-c-card) !important;
+}
+
+html[data-bs-theme="light"] .tab-content,
+html[data-bs-theme="light"] .tab-pane,
+html[data-bs-theme="light"] .card-body.tab-content {
+  background: var(--fp-c-card) !important;
+  color: var(--fp-c-text) !important;
+  border-color: var(--fp-c-border) !important;
+}
+
+html[data-bs-theme="light"] .card,
+html[data-bs-theme="light"] .card.card-outline.card-primary,
+html[data-bs-theme="light"] .card.card-outline {
+  background: var(--fp-c-card) !important;
+  border-color: var(--fp-c-border) !important;
+}
+
+html[data-bs-theme="light"] .card-body {
+  background: var(--fp-c-card) !important;
+  color: var(--fp-c-text) !important;
+}
+
+html[data-bs-theme="light"] #content-related,
+html[data-bs-theme="light"] .sticky-top,
+html[data-bs-theme="light"] aside .submit-row {
+  background: transparent !important;
+}
+
+html[data-bs-theme="light"] .submit-row,
+html[data-bs-theme="light"] .object-tools {
+  background: var(--fp-c-card-alt) !important;
+  border-color: var(--fp-c-border) !important;
+}
+
+html[data-bs-theme="light"] .main-footer {
+  background: var(--fp-c-card) !important;
+  color: var(--fp-c-text) !important;
+  border-top-color: var(--fp-c-border) !important;
+}
+
+html[data-bs-theme="light"] .content h1,
+html[data-bs-theme="light"] .content .h1,
+html[data-bs-theme="light"] .content .col-12 > h1 {
+  color: var(--fp-c-text) !important;
+}
+
+/* Dashboard KPI, módulos y #fp-theme-btn: fp_admin_base.css (carga garantizada). */

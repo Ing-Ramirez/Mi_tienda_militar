@@ -1,0 +1,386 @@
+/* fp_admin — modo oscuro estructural, calendario, split-date */
+.inline-group h2 { background: var(--fp-navy-lt) !important; color: var(--fp-c-on-brand) !important; }
+.inline-related .module h3 { background: var(--fp-c-card-alt) !important; color: var(--fp-c-text) !important; border-bottom: 1px solid var(--fp-c-border) !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   DARK MODE — overrides para elementos AdminLTE/Django sin vars
+   La mayoría se maneja automáticamente via --fp-c-* variables.
+   Este bloque cubre los que AdminLTE hardcodea sin pasar por vars.
+   ══════════════════════════════════════════════════════════════ */
+html.fp-dark body,
+html.fp-dark .wrapper                     { background: var(--fp-c-bg) !important; }
+/* Footer fijo — sombra más marcada en modo oscuro */
+html.fp-dark .main-footer { box-shadow: 0 -2px 12px rgba(0,0,0,.4) !important; }
+html.fp-dark p, html.fp-dark li,
+html.fp-dark dt, html.fp-dark dd,
+html.fp-dark #content-main                { color: var(--fp-c-text) !important; }
+/* Fila total y pie de tabla */
+html.fp-dark #result_list tfoot td        { background: var(--fp-c-card-alt) !important; color: var(--fp-c-muted) !important; border-top: 2px solid var(--fp-c-border) !important; }
+/* Filas: mismo fondo con o sin .selected (checkbox no altera la fila) */
+html.fp-dark #result_list tr.selected td,
+html.fp-dark #result_list tr.selected th { background: var(--fp-c-card) !important; color: var(--fp-c-text) !important; }
+/* Fila "Añadir otro" en inlines */
+html.fp-dark .add-row td                  { background: var(--fp-c-card-alt) !important; }
+/* Select2 */
+html.fp-dark .select2-container--default .select2-selection--single,
+html.fp-dark .select2-container--default .select2-selection--multiple {
+  background: var(--fp-c-input-bg) !important; border-color: var(--fp-c-input-bdr) !important; color: var(--fp-c-text) !important;
+}
+html.fp-dark .select2-selection__rendered { color: var(--fp-c-text) !important; }
+html.fp-dark .select2-dropdown { background: var(--fp-c-card) !important; border-color: var(--fp-c-border) !important; }
+html.fp-dark .select2-results__option { color: var(--fp-c-text) !important; }
+html.fp-dark .select2-results__option--highlighted { background: var(--fp-teal) !important; color: var(--fp-c-on-brand) !important; }
+/* ── Calendar / DateTimePicker — Layout base (claro + oscuro) ───────────── */
+/* Contenedor */
+.calendarbox,
+.clockbox {
+  min-width: 290px !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  z-index: 9999 !important;
+}
+/* Tabla */
+.calendarbox .calendar {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
+}
+/* Caption → header con flexbox: ‹ Mes Año › en una sola fila */
+.calendarbox .calendar caption {
+  caption-side: top !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 14px !important;
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+}
+/* Botones de navegación mes anterior/siguiente */
+.calendarbox .calendarnav-previous,
+.calendarbox .calendarnav-next {
+  float: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 6px !important;
+  font-size: 1.1rem !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  transition: background 0.15s !important;
+}
+/* Cabecera días de la semana */
+.calendarbox .calendar thead th {
+  padding: 6px 4px !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  border: none !important;
+}
+/* Celdas de fecha */
+.calendarbox .calendar tbody td {
+  padding: 2px 3px !important;
+  border: none !important;
+  text-align: center !important;
+}
+.calendarbox .calendar td a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 30px !important;
+  height: 30px !important;
+  margin: 0 auto !important;
+  border-radius: 50% !important;
+  font-size: 0.82rem !important;
+  text-decoration: none !important;
+  transition: background 0.12s, color 0.12s !important;
+}
+/* Atajos Ayer | Hoy | Mañana */
+.calendarbox .calendar-shortcuts {
+  text-align: center !important;
+  padding: 7px 12px !important;
+  font-size: 0.8rem !important;
+}
+/* Botón Cancelar */
+.calendarbox .calendar-cancel {
+  text-align: center !important;
+  padding: 6px 12px 10px !important;
+}
+.calendarbox .calendar-cancel a {
+  display: inline-block !important;
+  padding: 5px 22px !important;
+  border-radius: 6px !important;
+  font-size: 0.8rem !important;
+  text-decoration: none !important;
+  transition: background 0.12s, color 0.12s !important;
+}
+
+/* ── Dark mode — colores ─────────────────────────────────────────────────── */
+html.fp-dark .calendarbox,
+html.fp-dark .clockbox {
+  background: var(--fp-c-card) !important;
+  border: 1px solid var(--fp-c-border) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.65) !important;
+}
+html.fp-dark .calendarbox .calendar { background: var(--fp-c-card) !important; }
+/* Caption / header */
+html.fp-dark .calendarbox .calendar caption {
+  background: var(--fp-navy) !important;
+  color: var(--fp-c-text) !important;
+  border-bottom: 1px solid var(--fp-c-border) !important;
+}
+html.fp-dark .calendarbox .calendarnav-previous,
+html.fp-dark .calendarbox .calendarnav-next {
+  color: var(--fp-blue-bright) !important;
+}
+html.fp-dark .calendarbox .calendarnav-previous:hover,
+html.fp-dark .calendarbox .calendarnav-next:hover {
+  background: rgba(255,255,255,0.12) !important;
+  color: var(--fp-c-on-brand) !important;
+}
+/* Días semana */
+html.fp-dark .calendarbox .calendar thead th {
+  background: var(--fp-c-card-alt) !important;
+  color: var(--fp-c-muted) !important;
+}
+/* Celdas */
+html.fp-dark .calendarbox .calendar tbody td {
+  background: var(--fp-c-card) !important;
+}
+html.fp-dark .calendarbox .calendar td.nonday {
+  background: var(--fp-c-card-alt) !important;
+}
+html.fp-dark .calendarbox .calendar td a {
+  color: var(--fp-c-text) !important;
+}
+html.fp-dark .calendarbox .calendar td.nonday a {
+  color: var(--fp-c-muted) !important;
+}
+html.fp-dark .calendarbox .calendar td a:hover {
+  background: var(--fp-teal) !important;
+  color: var(--fp-c-on-brand) !important;
+}
+/* Hoy */
+html.fp-dark .calendarbox .calendar td.today a {
+  background: rgba(56,178,172,.22) !important;
+  color: var(--fp-teal) !important;
+  font-weight: 700 !important;
+  box-shadow: inset 0 0 0 1px var(--fp-teal) !important;
+}
+/* Seleccionado */
+html.fp-dark .calendarbox .calendar td.selected a {
+  background: var(--fp-teal) !important;
+  color: var(--fp-c-on-brand) !important;
+  font-weight: 700 !important;
+}
+/* Atajos */
+html.fp-dark .calendarbox .calendar-shortcuts {
+  background: var(--fp-c-card-alt) !important;
+  border-top: 1px solid var(--fp-c-border) !important;
+  color: var(--fp-c-muted) !important;
+}
+html.fp-dark .calendarbox .calendar-shortcuts a {
+  color: var(--fp-teal) !important;
+  font-weight: 500 !important;
+}
+html.fp-dark .calendarbox .calendar-shortcuts a:hover {
+  color: var(--fp-c-on-brand) !important;
+}
+/* Cancelar */
+html.fp-dark .calendarbox .calendar-cancel {
+  background: var(--fp-c-card) !important;
+  border-top: 1px solid var(--fp-c-border) !important;
+}
+html.fp-dark .calendarbox .calendar-cancel a {
+  background: var(--fp-c-card-alt) !important;
+  color: var(--fp-c-text) !important;
+  border: 1px solid var(--fp-c-border) !important;
+}
+html.fp-dark .calendarbox .calendar-cancel a:hover {
+  background: var(--fp-danger) !important;
+  color: var(--fp-c-on-brand) !important;
+  border-color: var(--fp-danger-dk) !important;
+}
+/* Clockbox — selector de hora */
+html.fp-dark .clockbox h2 { color: var(--fp-c-text) !important; background: var(--fp-navy) !important; }
+html.fp-dark .timelist a  { color: var(--fp-c-text) !important; }
+html.fp-dark .timelist a:hover { background: var(--fp-teal) !important; color: var(--fp-c-on-brand) !important; }
+/* Módulos Django admin */
+html.fp-dark .module         { background: var(--fp-c-card) !important; border-color: var(--fp-c-border) !important; }
+html.fp-dark .module caption { background: var(--fp-navy-lt) !important; color: var(--fp-c-on-brand) !important; }
+/* Checkboxes */
+html.fp-dark input[type="checkbox"],
+html.fp-dark input[type="radio"] { accent-color: var(--fp-teal); }
+/* Selector widget FK */
+html.fp-dark .selector .selector-available h2,
+html.fp-dark .selector .selector-chosen h2 { background: var(--fp-navy) !important; color: var(--fp-c-on-brand) !important; }
+html.fp-dark .selector-filter input { background: var(--fp-c-input-bg) !important; border-color: var(--fp-c-input-bdr) !important; color: var(--fp-c-text) !important; }
+html.fp-dark .selector select { background: var(--fp-c-input-bg) !important; color: var(--fp-c-text) !important; border-color: var(--fp-c-input-bdr) !important; }
+/* Raw-id / related links */
+html.fp-dark .related-lookup,
+html.fp-dark .related-widget-wrapper a { color: var(--fp-teal) !important; }
+/* Paginación */
+html.fp-dark .paginator      { color: var(--fp-c-text) !important; }
+html.fp-dark .paginator a    { color: var(--fp-teal) !important; }
+/* Info-box de AdminLTE */
+html.fp-dark .info-box       { background: var(--fp-c-card) !important; }
+html.fp-dark .info-box-text,
+html.fp-dark .info-box-number { color: var(--fp-c-text) !important; }
+/* Collapse handlers */
+html.fp-dark .collapse-handler { color: var(--fp-teal) !important; }
+
+/* ── SplitDateWidget ─────────────────────────────────────────────────────── */
+/*
+ * PORTAL PATTERN: los paneles son movidos a <body> por JS → escapan cualquier
+ * ancestor con transform/overflow que atraparía position:fixed en Jazzmin.
+ * La barra (Día | Mes | Año) SIN position:relative.
+ */
+
+/* Barra principal — mismo ancho que inputs del formulario admin */
+.fp-split-date {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--fp-c-input-bdr);
+  border-radius: 6px;
+  background: var(--fp-c-card);
+  height: 36px;
+  width: 100%;
+  max-width: 374px;
+}
+
+/* Triggers Día / Mes */
+.fp-sd-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 11px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--fp-c-text);
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+.fp-sd-trigger:hover  { background: rgba(0,0,0,.05); }
+.fp-sd-trigger--open  { background: var(--fp-teal-soft-glow); }
+.fp-sd-label { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; }
+.fp-sd-caret { font-size: 0.58rem; color: var(--fp-c-subtle); flex-shrink: 0; }
+
+/* Divisores verticales */
+.fp-sd-divider {
+  width: 1px;
+  background: var(--fp-c-input-bdr);
+  flex-shrink: 0;
+  margin: 7px 0;
+}
+
+/* Año — sin bordes, integrado en la barra */
+.fp-sd-year {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 6px !important;
+  width: 64px !important;
+  min-width: 64px !important;
+  max-width: 64px !important;
+  flex-shrink: 0 !important;
+  font-size: 0.85rem !important;
+  color: var(--fp-c-text);
+  outline: none !important;
+  text-align: center !important;
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  height: 100% !important;
+  line-height: 36px !important;
+}
+.fp-sd-year::-webkit-outer-spin-button,
+.fp-sd-year::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.fp-sd-year::placeholder { color: var(--fp-c-subtle); }
+
+/* ── Paneles: position:fixed, en body, JS pone left/top/width ───────────── */
+.fp-sd-panel {
+  position: fixed !important;
+  background: var(--fp-c-card);
+  border: 1px solid var(--fp-c-border);
+  border-radius: 10px;
+  box-shadow: var(--fp-c-shadow-lg);
+  z-index: 99999;
+  padding: 14px;
+}
+
+/* Grid de chips — sin scroll */
+.fp-sd-chips {
+  display: grid;
+  gap: 6px;
+}
+/* Días:   7 cols × 5 filas  → todos 31 días */
+.fp-sd-panel--day   .fp-sd-chips { grid-template-columns: repeat(7, 1fr); }
+/* Meses:  4 cols × 3 filas  → 12 meses */
+.fp-sd-panel--month .fp-sd-chips { grid-template-columns: repeat(4, 1fr); }
+
+/* Chip */
+.fp-sd-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 38px;
+  padding: 0 3px;
+  border: 1px solid var(--fp-c-border);
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--fp-c-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+}
+.fp-sd-chip:hover      { background: var(--fp-c-card-alt); border-color: var(--fp-c-muted); }
+.fp-sd-chip--sel       { background: var(--fp-teal-dk); color: var(--fp-c-on-brand) !important; border-color: var(--fp-teal-dk); font-weight: 700; }
+.fp-sd-chip--sel:hover { background: var(--fp-teal) !important; border-color: var(--fp-teal) !important; }
+
+/* ── Dark mode ───────────────────────────────────────────────────────────── */
+html.fp-dark .fp-split-date {
+  border-color: var(--fp-c-input-bdr) !important;
+  background: var(--fp-c-input-bg) !important;
+}
+html.fp-dark .fp-sd-trigger         { color: var(--fp-c-text) !important; }
+html.fp-dark .fp-sd-trigger:hover   { background: rgba(255,255,255,.05) !important; }
+html.fp-dark .fp-sd-trigger--open   { background: rgba(56,178,172,.1) !important; }
+html.fp-dark .fp-sd-caret           { color: var(--fp-c-muted) !important; }
+html.fp-dark .fp-sd-divider         { background: var(--fp-c-border) !important; }
+html.fp-dark .fp-sd-year            { color: var(--fp-c-text) !important; }
+html.fp-dark .fp-sd-year::placeholder { color: var(--fp-c-muted) !important; }
+
+html.fp-dark .fp-sd-panel {
+  background: var(--fp-c-card) !important;
+  border-color: var(--fp-c-border) !important;
+  box-shadow: 0 12px 36px rgba(0,0,0,.65) !important;
+}
+html.fp-dark .fp-sd-chip {
+  color: var(--fp-c-text) !important;
+  border-color: var(--fp-c-border) !important;
+}
+html.fp-dark .fp-sd-chip:hover {
+  background: rgba(255,255,255,.07) !important;
+  border-color: var(--fp-c-muted) !important;
+}
+html.fp-dark .fp-sd-chip--sel {
+  background: var(--fp-teal) !important;
+  border-color: var(--fp-teal) !important;
+  color: var(--fp-c-on-brand) !important;
+}
+html.fp-dark .fp-sd-chip--sel:hover {
+  background: var(--fp-teal-dk) !important;
+  border-color: var(--fp-teal-dk) !important;
+}

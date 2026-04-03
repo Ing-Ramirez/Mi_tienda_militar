@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    Franja Pixelada — Admin: Productos
-   Layout plano vertical · 3 botones · notificaciones centrales
+   Paleta alineada con fp_admin_base (:root / html.fp-dark)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── 1. ANULAR TABS DE JAZZMIN ───────────────────────────────────────────── */
@@ -22,14 +22,13 @@
 #content-main .card.card-primary.card-outline.card-tabs > .card-body {
     padding: 0 !important;
 }
-/* Ocultar submit row nativo */
 .submit-row { display: none !important; }
 
-/* ── 1. SCROLL HORIZONTAL EN INLINES ────────────────────────────────────── */
+/* ── SCROLL HORIZONTAL EN INLINES ───────────────────────────────────────── */
 .inline-related .tabular { overflow-x: auto; display: block; }
 .inline-related .tabular table { min-width: 600px; }
 
-/* ── 2. THUMBNAILS EN LISTA ──────────────────────────────────────────────── */
+/* ── THUMBNAILS EN LISTA ─────────────────────────────────────────────────── */
 #result_list td img {
     width: 50px !important; height: 50px !important;
     object-fit: cover !important; border-radius: 4px; display: block;
@@ -39,16 +38,15 @@
     object-fit: cover !important; border-radius: 4px; display: block;
 }
 
-/* Lista de productos: barra de acciones = franja_admin.css + franja_admin_global.js */
+/* Lista de productos: barra = fp_admin_components + franja_admin_global.js */
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   4. LAYOUT PLANO VERTICAL
+   LAYOUT PLANO VERTICAL
    ═══════════════════════════════════════════════════════════════════════════ */
 #fp-flat-layout {
     margin-bottom: 1.5rem;
 }
 
-/* Separador visual entre secciones */
 .fp-section-label {
     display: flex;
     align-items: center;
@@ -56,7 +54,7 @@
     margin: 1.6rem 0 .6rem;
     font-size: .82rem;
     font-weight: 700;
-    color: #4f6124;
+    color: var(--fp-teal-dk);
     text-transform: uppercase;
     letter-spacing: .6px;
 }
@@ -65,14 +63,13 @@
     content: '';
     flex: 1;
     height: 1px;
-    background: #dee2e6;
+    background: var(--fp-c-border);
 }
 .fp-section-label:first-child { margin-top: .4rem; }
 
-/* Contenido de cada sección */
 .fp-section-content {
-    background: #fff;
-    border: 1px solid #e9ecef;
+    background: var(--fp-c-card);
+    border: 1px solid var(--fp-c-border);
     border-radius: 6px;
     padding: .5rem 0;
     margin-bottom: .25rem;
@@ -85,73 +82,138 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   5. MÓDULO DE TALLAS + STOCK
+   MÓDULO DE TALLAS + STOCK
    ═══════════════════════════════════════════════════════════════════════════ */
 #fp-tallas-ui {
-    background: #f8f9fa; border: 1px solid #dee2e6;
-    border-radius: 6px; padding: 1.25rem 1.5rem 1rem; margin: .5rem 0 1.25rem;
+    background: var(--fp-c-card-alt);
+    border: 1px solid var(--fp-c-border);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem 1rem;
+    margin: .5rem 0 1.25rem;
 }
 .fp-tallas-header {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: .9rem;
 }
-.fp-tallas-title  { font-size: .95rem; font-weight: 700; color: #343a40; }
+.fp-tallas-title  { font-size: .95rem; font-weight: 700; color: var(--fp-c-text); }
 .fp-tallas-badge  {
-    background: #4f6124; color: #fff; font-size: .75rem; font-weight: 700;
-    padding: 3px 10px; border-radius: 20px; min-width: 56px; text-align: center;
+    background: var(--fp-teal);
+    color: var(--fp-c-on-brand);
+    font-size: .75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    min-width: 56px;
+    text-align: center;
 }
 .fp-apply-bar {
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    padding: .5rem .8rem; background: #fff; border: 1px solid #e9ecef;
-    border-radius: 4px; margin-bottom: .9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: .5rem .8rem;
+    background: var(--fp-c-card);
+    border: 1px solid var(--fp-c-border);
+    border-radius: 4px;
+    margin-bottom: .9rem;
 }
-.fp-apply-label { font-size: .78rem; color: #6c757d; font-weight: 500; }
+.fp-apply-label { font-size: .78rem; color: var(--fp-c-muted); font-weight: 500; }
 .fp-apply-input {
-    width: 68px; padding: 3px 7px; border: 1px solid #ced4da;
-    border-radius: 3px; font-size: .82rem; text-align: center;
+    width: 68px;
+    padding: 3px 7px;
+    border: 1px solid var(--fp-c-input-bdr);
+    border-radius: 3px;
+    font-size: .82rem;
+    text-align: center;
+    background: var(--fp-c-input-bg);
+    color: var(--fp-c-text);
 }
 .fp-apply-btn {
-    padding: 4px 12px; border: none; border-radius: 3px;
-    font-size: .78rem; font-weight: 500; cursor: pointer;
-    background: #4f6124; color: #fff; transition: opacity .2s;
+    padding: 4px 12px;
+    border: none;
+    border-radius: 3px;
+    font-size: .78rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--fp-teal);
+    color: var(--fp-c-on-brand);
+    transition: opacity .2s;
 }
 .fp-apply-btn:hover     { opacity: .85; }
-.fp-apply-btn-clear     { background: #dc3545; }
+.fp-apply-btn-clear     { background: var(--fp-danger); color: var(--fp-c-on-brand); }
 .fp-tallas-section      { margin-bottom: .9rem; }
 .fp-tallas-section-label {
-    font-size: .72rem; font-weight: 700; color: #6c757d;
-    text-transform: uppercase; letter-spacing: .5px;
-    margin-bottom: .45rem; padding-bottom: 3px; border-bottom: 1px solid #e9ecef;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--fp-c-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: .45rem;
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--fp-c-border);
 }
 .fp-tallas-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: .4rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: .4rem;
 }
 .fp-talla-item {
-    display: flex; align-items: center; gap: 7px; padding: 5px 9px;
-    border: 1px solid #dee2e6; border-radius: 4px; background: #fff;
-    transition: border-color .18s, background .18s; cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 9px;
+    border: 1px solid var(--fp-c-border);
+    border-radius: 4px;
+    background: var(--fp-c-card);
+    transition: border-color .18s, background .18s;
+    cursor: pointer;
 }
-.fp-talla-item.checked { border-color: #4f6124; background: #f0f5dd; }
-.fp-talla-item:hover   { border-color: #4f6124; }
+.fp-talla-item.checked {
+    border-color: var(--fp-teal);
+    background: var(--fp-c-teal-bg);
+}
+.fp-talla-item:hover   { border-color: var(--fp-teal); }
 .fp-talla-row { display: flex; align-items: center; gap: 6px; cursor: pointer; flex: 1 0 auto; }
-.fp-talla-chk { width: 14px; height: 14px; cursor: pointer; accent-color: #4f6124; flex-shrink: 0; }
-.fp-talla-name { font-size: .82rem; font-weight: 700; color: #343a40; min-width: 32px; }
+.fp-talla-chk { width: 14px; height: 14px; cursor: pointer; accent-color: var(--fp-teal); flex-shrink: 0; }
+.fp-talla-name { font-size: .82rem; font-weight: 700; color: var(--fp-c-text); min-width: 32px; }
 .fp-talla-qty {
-    width: 58px; padding: 3px 5px; border: 1px solid #ced4da;
-    border-radius: 3px; font-size: .8rem; text-align: center;
-    margin-left: auto; transition: border-color .18s;
+    width: 58px;
+    padding: 3px 5px;
+    border: 1px solid var(--fp-c-input-bdr);
+    border-radius: 3px;
+    font-size: .8rem;
+    text-align: center;
+    margin-left: auto;
+    transition: border-color .18s;
+    background: var(--fp-c-input-bg);
+    color: var(--fp-c-text);
 }
-.fp-talla-qty:focus    { outline: none; border-color: #4f6124; }
-.fp-talla-qty:disabled { background: #e9ecef; color: #adb5bd; border-color: #e9ecef; }
+.fp-talla-qty:focus    { outline: none; border-color: var(--fp-teal); }
+.fp-talla-qty:disabled {
+    background: var(--fp-c-card-alt);
+    color: var(--fp-c-subtle);
+    border-color: var(--fp-c-border);
+}
 .fp-tallas-total {
-    margin-top: .6rem; padding: .4rem .8rem; background: #e9ecef;
-    border-radius: 4px; font-size: .82rem; color: #495057;
-    font-weight: 500; display: inline-block; transition: background .2s, color .2s;
+    margin-top: .6rem;
+    padding: .4rem .8rem;
+    background: var(--fp-c-card-alt);
+    border-radius: 4px;
+    font-size: .82rem;
+    color: var(--fp-c-text);
+    font-weight: 500;
+    display: inline-block;
+    transition: background .2s, color .2s;
 }
-.fp-tallas-total.has-stock { background: #d1e7dd; color: #146c43; }
+.fp-tallas-total.has-stock {
+    background: var(--fp-c-teal-bg);
+    color: var(--fp-teal-dk);
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   6. BARRA DE BOTONES FINALES (3 botones)
+   BARRA DE BOTONES FINALES
    ═══════════════════════════════════════════════════════════════════════════ */
 #fp-submit-bar {
     display: flex;
@@ -161,10 +223,10 @@
     flex-wrap: wrap;
     padding: 1.4rem 1.5rem;
     margin-top: 1.5rem;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
+    background: var(--fp-c-card-alt);
+    border: 1px solid var(--fp-c-border);
     border-radius: 6px;
-    border-top: 3px solid #4f6124;
+    border-top: 3px solid var(--fp-teal);
 }
 .fp-save-btn {
     padding: 11px 32px;
@@ -179,17 +241,17 @@
 }
 .fp-save-btn:hover  { opacity: .88; transform: translateY(-1px); }
 .fp-save-btn:active { transform: translateY(0); }
-.fp-btn-save   { background: #4a7c3f; color: #fff; }
-.fp-btn-new    { background: #2472a4; color: #fff; }
-.fp-btn-delete { background: #c9262c; color: #fff; }
+.fp-btn-save   { background: var(--fp-success-dk); color: var(--fp-c-on-brand); }
+.fp-btn-new    { background: var(--fp-blue); color: var(--fp-c-on-brand); }
+.fp-btn-delete { background: var(--fp-danger); color: var(--fp-c-on-brand); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   7. NOTIFICACIÓN CENTRAL (overlay)
+   NOTIFICACIÓN CENTRAL
    ═══════════════════════════════════════════════════════════════════════════ */
 #fp-notif-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, .45);
+    background: var(--fp-overlay-scrim);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -201,13 +263,13 @@
     to   { opacity: 1; }
 }
 .fp-notif-box {
-    background: #fff;
+    background: var(--fp-c-card);
     border-radius: 10px;
     padding: 2.2rem 2.8rem;
     text-align: center;
     min-width: 260px;
     max-width: 380px;
-    box-shadow: 0 8px 32px rgba(0,0,0,.22);
+    box-shadow: var(--fp-c-shadow-lg);
     animation: fp-slide-up .22s ease;
 }
 @keyframes fp-slide-up {
@@ -220,12 +282,12 @@
     margin-bottom: .6rem;
     display: block;
 }
-.fp-notif-save  .fp-notif-icon { color: #4a7c3f; }
-.fp-notif-delete .fp-notif-icon { color: #c9262c; }
+.fp-notif-save   .fp-notif-icon { color: var(--fp-teal); }
+.fp-notif-delete .fp-notif-icon { color: var(--fp-danger); }
 .fp-notif-msg {
     font-size: 1.05rem;
     font-weight: 600;
-    color: #343a40;
+    color: var(--fp-c-text);
     line-height: 1.4;
 }
 .fp-notif-actions {
@@ -244,5 +306,20 @@
     transition: opacity .18s;
 }
 .fp-notif-btn:hover     { opacity: .85; }
-.fp-notif-cancel        { background: #e9ecef; color: #495057; }
-.fp-notif-confirm       { background: #c9262c; color: #fff; }
+.fp-notif-cancel        { background: var(--fp-c-card-alt); color: var(--fp-c-text); border: 1px solid var(--fp-c-border); }
+.fp-notif-confirm       { background: var(--fp-danger); color: var(--fp-c-on-brand); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Tema oscuro — refuerzo (variables ya definidas en fp_admin_base html.fp-dark)
+   ═══════════════════════════════════════════════════════════════════════════ */
+html.fp-dark .fp-section-label {
+    color: var(--fp-teal);
+}
+html.fp-dark .fp-notif-cancel {
+    background: var(--fp-c-card-alt);
+    color: var(--fp-c-text);
+    border-color: var(--fp-c-border);
+}
+html.fp-dark .fp-btn-save   { background: var(--fp-success-dk) !important; color: var(--fp-c-on-brand) !important; }
+html.fp-dark .fp-btn-new    { background: var(--fp-blue) !important; color: var(--fp-c-on-brand) !important; }
+html.fp-dark .fp-btn-delete { background: var(--fp-danger) !important; color: var(--fp-c-on-brand) !important; }

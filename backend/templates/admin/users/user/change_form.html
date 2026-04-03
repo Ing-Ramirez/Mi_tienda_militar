@@ -1,0 +1,53 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+
+{% block field_sets %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-body">
+            {% get_changeform_template adminform as changeform_template %}
+            {% include changeform_template %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block after_related_objects %}
+<div class="col-12">
+    <div id="fp-submit-bar">
+
+        {# ✓ Guardar #}
+        {% if has_change_permission or has_add_permission %}
+        <button type="submit" name="_save" class="fp-save-btn fp-btn-save">
+            ✓ {% trans 'Save' %}
+        </button>
+        {% endif %}
+
+        {# ✕ Eliminar — solo en modo edición con permiso #}
+        {% if has_delete_permission and change and not is_popup and original %}
+            {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+            <a href="{% add_preserved_filters delete_url %}" class="fp-save-btn fp-btn-delete">
+                ✕ {% trans 'Delete' %}
+            </a>
+        {% endif %}
+
+        {# 📋 Histórico — solo en modo edición #}
+        {% if change and not is_popup and original %}
+            {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+            <a href="{% add_preserved_filters history_url %}" class="fp-save-btn fp-btn-history">
+                📋 {% trans 'History' %}
+            </a>
+        {% endif %}
+
+        {# ← Salir — volver al listado #}
+        {% if not is_popup %}
+        <a href="{% url opts|admin_urlname:'changelist' %}" class="fp-save-btn fp-btn-cancel">
+            ← Salir
+        </a>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block submit_buttons_bottom %}{% endblock %}

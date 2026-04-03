@@ -1,0 +1,581 @@
+/* fp_admin — base: variables, popup, transiciones, dashboard KPI + tema
+   (Shell navbar/sidebar: fp_admin_layout.css — orden en base_site.html.) */
+
+/* ── Variables de marca (fijas en ambos temas) ───────────────── */
+:root {
+  --fp-navy:    #1a2332;
+  --fp-navy-lt: #243044;
+  --fp-teal:    #00a878;
+  --fp-teal-dk: #008561;
+  /* Secundarios — misma paleta en todo el admin + formulario productos */
+  --fp-blue:       #2563eb;
+  --fp-blue-bright:#3b82f6;
+  --fp-blue-soft: rgba(59, 130, 246, 0.12);
+  --fp-success-dk: #15803d;
+  --fp-danger:     #dc2626;
+  --fp-danger-dk:  #b91c1c;
+  /* Texto sobre botones / acentos sólidos */
+  --fp-c-on-brand: #ffffff;
+  /* Alertas KPI / estados */
+  --fp-amber:      #f59e0b;
+  --fp-amber-dk:   #d97706;
+  --fp-amber-fg:   #b45309;
+  --fp-red-alert:  #ef4444;
+  /* Escalas teal (gradientes y hovers) */
+  --fp-teal-mid:      #00bd88;
+  --fp-teal-highlight:#00d69b;
+  --fp-teal-soft-glow: rgba(0, 168, 120, 0.18);
+  /* Bloque changelist categorías (oscuro) — coherente con --fp-teal */
+  --fp-cat-filter-1:     #0b3d2e;
+  --fp-cat-filter-2:     #0f4f3a;
+  --fp-cat-filter-light-1: #0f5a40;
+  --fp-cat-th-1:         #0b3d2e;
+  --fp-cat-th-2:         #0f4f3a;
+  --fp-cat-sorted-1:     #145e48;
+  --fp-cat-sorted-2:     #1a7858;
+  --fp-cat-cell:         #0e2d22;
+  --fp-cat-cell-alt:     #091f18;
+  --fp-cat-row-hover:    #14412f;
+  --fp-cat-fg:           #c8ead8;
+  --fp-cat-mint:         #7de0bc;
+  --fp-cat-link:         #2dd4a0;
+  --fp-cat-input-fg:     #d0f0e5;
+  --fp-cat-badge-fg:     #a0f0d0;
+  --fp-cat-link-light:   #008561;
+  --fp-cat-link-light-hv:#005c44;
+  --fp-cat-light-row:    #f0faf5;
+  --fp-cat-light-alt:    #e4f5ec;
+  --fp-cat-light-hover:  #d0eddf;
+  --fp-cat-light-text:   #0f2d22;
+  --fp-cat-danger-bg-1:  #1a3045;
+  --fp-cat-danger-bg-2:  #1e3d57;
+  --fp-cat-danger-bg-hv-1: #1e3d57;
+  --fp-cat-danger-bg-hv-2: #24496a;
+  --fp-cat-danger-fg:    #a8ccee;
+  --fp-overlay-scrim:    rgba(0, 0, 0, 0.45);
+  /* Opacidades / bordes changelist categorías (coherentes con --fp-teal) */
+  --fp-teal-a13: rgba(0, 168, 120, 0.13);
+  --fp-teal-a20: rgba(0, 168, 120, 0.2);
+  --fp-teal-a28: rgba(0, 168, 120, 0.28);
+  --fp-teal-a30: rgba(0, 168, 120, 0.3);
+  --fp-teal-a35: rgba(0, 168, 120, 0.35);
+  --fp-teal-a38: rgba(0, 168, 120, 0.38);
+  --fp-teal-a40: rgba(0, 168, 120, 0.4);
+  --fp-teal-a42: rgba(0, 168, 120, 0.42);
+  --fp-teal-a45: rgba(0, 168, 120, 0.45);
+  --fp-teal-a50: rgba(0, 168, 120, 0.5);
+  --fp-teal-a52: rgba(0, 168, 120, 0.52);
+  --fp-teal-a55: rgba(0, 168, 120, 0.55);
+  --fp-cat-mint-border: rgba(0, 200, 150, 0.28);
+  --fp-cat-mint-border-30: rgba(0, 200, 150, 0.3);
+  --fp-cat-input-scrim: rgba(0, 0, 0, 0.28);
+  --fp-cat-input-scrim-dk: rgba(0, 0, 0, 0.3);
+  --fp-cat-placeholder: rgba(160, 220, 195, 0.55);
+  --fp-cat-link-glow: rgba(0, 200, 143, 0.55);
+  --fp-cat-badge-shadow: rgba(0, 0, 0, 0.25);
+  --fp-cat-light-row-border: rgba(0, 133, 97, 0.18);
+  --fp-cat-light-order-bdr: rgba(0, 133, 97, 0.4);
+  --fp-cat-danger-bdr: rgba(90, 150, 200, 0.3);
+  --fp-cat-danger-bdr-hv: rgba(90, 150, 200, 0.5);
+
+  /* Contenido — tema claro (navy medio, nunca blanco) */
+  --fp-c-bg:        #0d1b2e;
+  --fp-c-card:      #162235;
+  --fp-c-card-alt:  #1c2e47;
+  --fp-c-border:    #253c58;
+  --fp-c-text:      #cdd8e8;
+  --fp-c-muted:     #7a99b8;
+  --fp-c-subtle:    #4f6a85;
+  --fp-c-teal-bg:   rgba(0,168,120,.10);
+  --fp-c-input-bg:  #162235;
+  --fp-c-input-bdr: #2a4060;
+  --fp-c-row-hover: rgba(0,168,120,.08);
+  --fp-c-shadow:    0 2px 8px rgba(0,0,0,.22);
+  --fp-c-shadow-lg: 0 4px 16px rgba(0,0,0,.32);
+
+  /* Confirmación eliminación masiva — fp_admin_delete.css (navy / teal / azul) */
+  --fp-del-header-1:       #0f3460;
+  --fp-del-header-2:       #16213e;
+  --fp-del-header-border:  #1a4a8a;
+  --fp-del-table-surface:  #0f2744;
+  --fp-del-table-border:   #1e3a5f;
+  --fp-del-table-head:     #0d2240;
+  --fp-del-table-row-bdr:  #162d4d;
+  --fp-del-mint:           #7dd3b8;
+  --fp-del-header-muted:   #94a3b8;
+  --fp-del-summary-bg:     #0d2b1f;
+  --fp-del-summary-border: #1a4a35;
+  --fp-del-summary-head:   #0a1e14;
+  --fp-del-section-cap:    #0a1e3a;
+  --fp-del-actions-bg:     #0a1e3a;
+  --fp-del-stat-row-bdr:   #1a3a2a;
+  --fp-del-stat-mint:      #5ecea0;
+  --fp-del-stat-mint-alt:  #64c7a0;
+  --fp-del-related-fg:     #475569;
+  --fp-del-related-bullet: #334155;
+  --fp-del-alert-bg:       #1e2a3a;
+  --fp-del-cancel-bdr:     #334155;
+  --fp-del-row-hover:      rgba(0, 168, 120, 0.07);
+  --fp-del-row-hover-alt:  rgba(0, 168, 120, 0.08);
+  --fp-del-warn-fg:        #fca5a5;
+  --fp-del-warn-border:    rgba(248, 113, 113, 0.25);
+  --fp-del-warn-bg:        rgba(248, 113, 113, 0.08);
+  --fp-del-badge-in-bg:    rgba(0, 168, 120, 0.18);
+  --fp-del-badge-in-bdr:   rgba(0, 168, 120, 0.35);
+  --fp-del-badge-out-bg:   rgba(30, 90, 160, 0.25);
+  --fp-del-badge-out-bdr:  rgba(96, 165, 250, 0.35);
+  --fp-del-badge-adj-bg:   rgba(100, 116, 139, 0.2);
+  --fp-del-badge-adj-bdr:  rgba(100, 116, 139, 0.35);
+  --fp-del-sub-bdr:        #0f2240;
+}
+
+/* ── Variables de contenido — tema oscuro ────────────────────── */
+html.fp-dark {
+  --fp-c-bg:        #0f172a;
+  --fp-c-card:      #1e293b;
+  --fp-c-card-alt:  #243044;
+  --fp-c-border:    #334155;
+  --fp-c-text:      #e2e8f0;
+  --fp-c-muted:     #94a3b8;
+  --fp-c-subtle:    #64748b;
+  --fp-c-teal-bg:   rgba(0,168,120,.14);
+  --fp-c-input-bg:  #243044;
+  --fp-c-input-bdr: #475569;
+  --fp-c-row-hover: rgba(0,168,120,.09);
+  --fp-c-shadow:    0 2px 8px rgba(0,0,0,.3);
+  --fp-c-shadow-lg: 0 4px 20px rgba(0,0,0,.45);
+}
+
+/* ── Transición suave al alternar tema (solo con clase activa) ── */
+html.fp-transitioning .content-wrapper,
+html.fp-transitioning .content-wrapper * {
+  transition: background-color .24s ease, color .24s ease,
+              border-color .24s ease, box-shadow .24s ease !important;
+}
+html.fp-transitioning #fp-loader,
+html.fp-transitioning #fp-loader-bar,
+html.fp-transitioning .fp-content-fade { transition: none !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   POPUP MODE — body.popup (Django admin ?_popup=1)
+   Neutraliza TODAS las reglas de layout del admin principal.
+   El formulario se presenta centrado, sin scroll horizontal.
+   ══════════════════════════════════════════════════════════════ */
+
+/* 1. Reinicio total del documento en modo popup */
+body.popup,
+body.popup html {
+  overflow-x: hidden !important;   /* cancela el scroll horizontal global */
+  overflow-y: auto !important;
+  background: var(--fp-c-bg) !important;
+  color: var(--fp-c-text) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 2. Ocultar sidebar, navbar, footer y widgets propios */
+body.popup .main-sidebar,
+body.popup aside.main-sidebar,
+body.popup .main-header,
+body.popup #jazzy-navbar,
+body.popup nav.main-header,
+body.popup .main-footer,
+body.popup footer.main-footer,
+body.popup .fp-action-bar,
+body.popup #fp-loader,
+body.popup #fp-toast-container,
+body.popup #fp-confirm-overlay { display: none !important; }
+
+/* 3. Wrapper y content-wrapper — cancelar margin-left del sidebar */
+body.popup .wrapper,
+body.popup #wrapper {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: unset !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  display: block !important;
+}
+body.popup .content-wrapper,
+body.popup .content-wrapper.os-host {
+  /* AdminLTE inyecta margin-left:250px via JS — doble override */
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: unset !important;
+  overflow-x: hidden !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* 4. Área de contenido — centrada con max-width razonable */
+body.popup .content-wrapper > .content,
+body.popup .content-wrapper section.content {
+  width: 100% !important;
+  max-width: 680px !important;
+  margin: 0 auto !important;          /* centrado horizontal */
+  padding: 24px 24px 36px !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+/* 5. Contenedores Bootstrap internos */
+body.popup .content-wrapper .container-fluid,
+body.popup .content-wrapper .container {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+body.popup .content-wrapper .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+}
+body.popup [class*="col-"] {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
+}
+
+/* 6. #content y #content-main — sin float ni padding extra */
+body.popup #content,
+body.popup #content-main {
+  width: 100% !important;
+  max-width: 100% !important;
+  float: none !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+/* 7. Título del popup */
+body.popup h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--fp-c-text);
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--fp-teal);
+}
+
+/* 8. Tabs Jazzmin */
+body.popup .nav-tabs { margin-bottom: 18px; flex-wrap: wrap; }
+body.popup .nav-tabs .nav-link { font-size: 0.82rem; }
+
+/* 9. Campos de formulario — bloque vertical, ancho completo */
+body.popup .form-row,
+body.popup .form-group {
+  margin-bottom: 16px !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+body.popup .form-row > *,
+body.popup .form-group > * {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
+}
+body.popup label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--fp-c-muted);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+body.popup input[type="text"],
+body.popup input[type="email"],
+body.popup input[type="url"],
+body.popup input[type="number"],
+body.popup input[type="date"],
+body.popup input[type="password"],
+body.popup textarea,
+body.popup select {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 8px 10px !important;
+  background: var(--fp-c-input-bg) !important;
+  border: 1px solid var(--fp-c-input-bdr) !important;
+  border-radius: 4px !important;
+  color: var(--fp-c-text) !important;
+  font-size: 0.9rem !important;
+}
+body.popup input:focus,
+body.popup textarea:focus,
+body.popup select:focus {
+  border-color: var(--fp-teal) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(0,168,120,.2) !important;
+}
+body.popup p.help    { font-size: 0.78rem; color: var(--fp-c-muted); margin-top: 4px; }
+body.popup ul.errorlist { color: var(--fp-danger-dk); font-size: 0.82rem; padding-left: 1.2em; margin: 4px 0 0; }
+
+/* 10. Botones de submit */
+body.popup .submit-row {
+  padding: 16px 0 0 !important;
+  border-top: 1px solid var(--fp-c-border) !important;
+  margin-top: 24px !important;
+  display: flex !important;
+  gap: 10px !important;
+  justify-content: flex-end !important;
+  background: transparent !important;
+  float: none !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+body.popup .submit-row input[type="submit"],
+body.popup .submit-row button[type="submit"] {
+  height: 36px !important;
+  padding: 0 22px !important;
+  background: var(--fp-teal) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  color: var(--fp-c-on-brand) !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+body.popup .submit-row input[type="submit"]:hover,
+body.popup .submit-row button[type="submit"]:hover {
+  background: var(--fp-teal-dk) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DASHBOARD (índice admin) — en base para que cargue aunque falle
+   fp_admin_layout.css (404, caché, imagen desactualizada).
+   display: grid !important evita que AdminLTE/Bootstrap pisen la grilla.
+   ══════════════════════════════════════════════════════════════ */
+.fp-dash {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin: -12px -16px 0;
+  padding: 12px 16px 24px;
+}
+
+html.fp-dark .fp-dash,
+html[data-bs-theme="dark"] .fp-dash {
+  background-color: var(--fp-c-bg) !important;
+}
+
+.fp-sticky {
+  position: sticky;
+  top: 57px;
+  z-index: 200;
+  background: var(--fp-c-bg);
+  padding: 14px 0 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--fp-c-border);
+  box-shadow: var(--fp-c-shadow);
+  width: 100%;
+}
+
+.fp-kpi-row {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+  width: 100% !important;
+}
+@media (max-width: 1000px) { .fp-kpi-row { grid-template-columns: repeat(2, 1fr) !important; } }
+@media (max-width: 480px)  { .fp-kpi-row { grid-template-columns: 1fr !important; } }
+
+.fp-kc {
+  background: var(--fp-c-card);
+  border-radius: 10px;
+  padding: 12px 14px 8px;
+  border-left: 4px solid var(--fp-c-border);
+  box-shadow: var(--fp-c-shadow);
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px;
+  min-height: 105px;
+  transition: transform .15s, box-shadow .15s;
+}
+.fp-kc:hover { transform: translateY(-2px); box-shadow: var(--fp-c-shadow-lg); }
+
+.fp-kc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+.fp-kc-ico { font-size: 1.25rem; line-height: 1; }
+.fp-kc-num { font-size: 1.75rem; font-weight: 800; line-height: 1; letter-spacing: -1px; color: var(--fp-c-text); }
+.fp-kc-lbl { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--fp-c-muted); }
+.fp-kc-sub { font-size: .7rem; color: var(--fp-c-subtle); margin-top: 3px; }
+.fp-kc-lnk { font-size: .7rem; font-weight: 600; text-decoration: none; opacity: .6; transition: opacity .15s; margin-top: 1px; }
+.fp-kc-lnk:hover { opacity: 1 !important; }
+
+.fp-kc.fp-blue   { border-left-color: var(--fp-blue-bright); }
+.fp-kc.fp-blue   .fp-kc-num, .fp-kc.fp-blue   .fp-kc-lnk { color: var(--fp-blue-bright); }
+.fp-kc.fp-green  { border-left-color: var(--fp-teal); }
+.fp-kc.fp-green  .fp-kc-num { color: var(--fp-teal); }
+.fp-kc.fp-teal   { border-left-color: var(--fp-teal); }
+.fp-kc.fp-teal   .fp-kc-num, .fp-kc.fp-teal   .fp-kc-lnk { color: var(--fp-teal); }
+.fp-kc.fp-orange { border-left-color: var(--fp-amber); }
+.fp-kc.fp-orange .fp-kc-num, .fp-kc.fp-orange .fp-kc-lnk { color: var(--fp-amber); }
+.fp-kc.fp-red    { border-left-color: var(--fp-red-alert); }
+.fp-kc.fp-red    .fp-kc-num, .fp-kc.fp-red    .fp-kc-lnk { color: var(--fp-red-alert); }
+
+.fp-qbar {
+  display: flex !important;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: var(--fp-c-card);
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--fp-c-border);
+  box-shadow: var(--fp-c-shadow);
+  width: 100%;
+  box-sizing: border-box;
+}
+.fp-ql {
+  font-size: .62rem;
+  font-weight: 700;
+  color: var(--fp-c-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.fp-qbar a {
+  padding: 4px 11px;
+  background: var(--fp-c-card-alt);
+  color: var(--fp-c-text) !important;
+  text-decoration: none !important;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 500;
+  border: 1px solid var(--fp-c-border);
+  transition: background .15s, color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.fp-qbar a:hover {
+  background: var(--fp-teal) !important;
+  color: var(--fp-c-on-brand) !important;
+  border-color: var(--fp-teal) !important;
+}
+
+.fp-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+@media (min-width: 1450px) { .fp-grid { grid-template-columns: repeat(4, 1fr) !important; } }
+@media (max-width: 1100px) { .fp-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+@media (max-width: 480px)  { .fp-grid { grid-template-columns: 1fr !important; } }
+
+.fp-mod {
+  background: var(--fp-c-card);
+  border-radius: 10px;
+  border: 1px solid var(--fp-c-border);
+  box-shadow: var(--fp-c-shadow);
+  overflow: hidden;
+  display: flex !important;
+  flex-direction: column !important;
+  transition: box-shadow .15s, transform .15s;
+}
+.fp-mod:hover { box-shadow: var(--fp-c-shadow-lg); transform: translateY(-1px); }
+
+.fp-mod-h {
+  background: var(--fp-navy);
+  padding: 9px 14px;
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .9px;
+}
+.fp-mod-h a { color: var(--fp-teal) !important; text-decoration: none !important; }
+.fp-mod-h a:hover { color: var(--fp-c-on-brand) !important; }
+.fp-mod-b { padding: 2px 0; }
+
+.fp-row {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--fp-c-border);
+  gap: 6px;
+  min-height: 36px;
+}
+.fp-row:last-child { border-bottom: none; }
+.fp-row:hover { background: var(--fp-c-row-hover); }
+
+.fp-mname {
+  font-size: .83rem;
+  color: var(--fp-c-text) !important;
+  text-decoration: none !important;
+  font-weight: 500;
+  flex: 1;
+  line-height: 1.2;
+}
+.fp-mname:hover { color: var(--fp-teal) !important; }
+.fp-mact { display: flex; gap: 4px; flex-shrink: 0; }
+
+.fp-add, .fp-lst {
+  font-size: .7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-decoration: none !important;
+  transition: background .1s, color .1s;
+  white-space: nowrap;
+}
+.fp-add       { background: var(--fp-c-teal-bg); color: var(--fp-teal) !important; }
+.fp-add:hover { background: var(--fp-teal);       color: var(--fp-c-on-brand) !important; }
+.fp-lst       { background: var(--fp-blue-soft);  color: var(--fp-blue-bright) !important; }
+.fp-lst:hover { background: var(--fp-blue);        color: var(--fp-c-on-brand) !important; }
+
+.fp-kc-num--compact {
+  font-size: 1.3rem;
+  letter-spacing: -0.5px;
+}
+
+#fp-theme-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  background: rgba(255,255,255,.08) !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  border-radius: 20px !important;
+  color: rgba(255,255,255,.78) !important;
+  cursor: pointer !important;
+  font-size: .77rem !important;
+  font-weight: 500 !important;
+  padding: 3px 12px !important;
+  line-height: 1.55 !important;
+  transition: background .15s, color .15s, border-color .15s !important;
+  white-space: nowrap !important;
+}
+#fp-theme-btn:hover {
+  background: rgba(255,255,255,.15) !important;
+  color: var(--fp-c-on-brand) !important;
+  border-color: rgba(255,255,255,.45) !important;
+}
+.fp-theme-nav.nav-item {
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 6px !important;
+}
+

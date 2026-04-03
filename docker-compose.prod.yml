@@ -15,6 +15,10 @@
 
 services:
 
+  redis:
+    env_file:
+      - .env.prod
+
   db:
     # Puerto 5432 eliminado — solo accesible internamente por db_net
     ports: !reset []

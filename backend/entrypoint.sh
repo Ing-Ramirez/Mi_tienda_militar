@@ -13,7 +13,14 @@ python manage.py migrate --noinput
 echo "==> Verificando tablas..."
 python manage.py check_db
 
-if [ "${SKIP_COLLECTSTATIC_ON_START}" = "true" ] || [ "${SKIP_COLLECTSTATIC_ON_START}" = "True" ]; then
+# DEBUG=True: no llenar STATIC_ROOT; WhiteNoise usa finders + archivos en backend/static/.
+# Si quedan copias viejas en el volumen, WhiteNoise las serviría antes que el código fuente.
+if [ "${DEBUG:-False}" = "True" ] || [ "${DEBUG:-False}" = "true" ]; then
+  echo "==> DEBUG: limpiando staticfiles (si existe) — estáticos vía WhiteNoise/finders en /static/."
+  if [ -d /app/staticfiles ]; then
+    find /app/staticfiles -mindepth 1 -delete 2>/dev/null || true
+  fi
+elif [ "${SKIP_COLLECTSTATIC_ON_START}" = "true" ] || [ "${SKIP_COLLECTSTATIC_ON_START}" = "True" ]; then
   echo "==> Omitiendo collectstatic (SKIP_COLLECTSTATIC_ON_START=true)."
 else
   echo "==> Recopilando archivos estáticos..."

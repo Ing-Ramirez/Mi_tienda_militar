@@ -46,6 +46,10 @@ class SecurityHeadersMiddleware:
         admin_url = getattr(settings, 'ADMIN_URL', 'admin/')
         is_admin = request.path.startswith(f'/{admin_url}')
         self._add_security_headers(response, request.csp_nonce, is_admin=is_admin)
+        if is_admin and 'text/html' in response.get('Content-Type', '').lower():
+            response['Cache-Control'] = 'private, no-cache, must-revalidate'
+            vary = response.get('Vary')
+            response['Vary'] = f'{vary}, Cookie' if vary else 'Cookie'
         return response
 
     def _build_csp(self, nonce: str, is_admin: bool = False) -> str:

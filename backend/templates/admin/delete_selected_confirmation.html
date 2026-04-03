@@ -1,0 +1,131 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n admin_urls static %}
+
+{% block extrahead %}
+{{ block.super }}
+{{ media }}
+<script src="{% static 'admin/js/cancel.js' %}" async></script>
+<link rel="stylesheet" href="{% static 'css/fp_admin_delete.css' %}">
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} delete-confirmation delete-selected-confirmation{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Inicio</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; Eliminar múltiples registros
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="fp-del-wrap">
+
+  {% if perms_lacking %}
+  <div class="fp-del-alert">
+    🔒 <strong class="fp-del-alert-title--perms">Sin permisos suficientes.</strong>
+    Tu cuenta no puede eliminar los siguientes tipos de objetos relacionados:
+    <ul>{{ perms_lacking|unordered_list }}</ul>
+  </div>
+
+  {% elif protected %}
+  <div class="fp-del-alert fp-del-alert--protected">
+    🛡️ <strong class="fp-del-alert-title--prot">Eliminación protegida.</strong>
+    Los registros seleccionados están vinculados a objetos que no pueden eliminarse:
+    <ul>{{ protected|unordered_list }}</ul>
+  </div>
+
+  {% else %}
+
+  <!-- Encabezado de advertencia -->
+  <div class="fp-del-header">
+    <div class="fp-del-header-icon">⚠️</div>
+    <div class="fp-del-header-text">
+      <h2>Confirmar eliminación</h2>
+      <p>
+        ¿Está seguro que desea eliminar
+        <strong>{{ queryset.count }} {{ objects_name }}</strong>?
+        <strong>Esta acción no se puede deshacer.</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- Layout dos columnas -->
+  <div class="fp-del-layout">
+
+    <!-- Tabla -->
+    <div class="fp-del-table-wrap">
+      <h3>Registros a eliminar</h3>
+      <table class="fp-del-table">
+        <thead>
+          <tr>
+            <th class="fp-del-th--index">#</th>
+            <th>{{ opts.verbose_name|capfirst }}</th>
+            <th>Objetos relacionados</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for obj in queryset %}
+          <tr>
+            <td class="fp-del-index">{{ forloop.counter }}</td>
+            <td>{{ obj }}</td>
+            <td>
+              {% for deletable_object in deletable_objects %}
+                {% if forloop.counter == forloop.parentloop.counter %}
+                  <ul class="fp-del-related">
+                    {{ deletable_object|unordered_list }}
+                  </ul>
+                {% endif %}
+              {% endfor %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="fp-del-td--empty">Sin registros seleccionados</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Resumen lateral -->
+    <div class="fp-del-summary">
+      <h3>Resumen</h3>
+      <div class="fp-del-summary-body">
+        {% for model_name, object_count in model_count %}
+        <div class="fp-del-stat">
+          <span class="fp-del-stat-label">{{ model_name|capfirst }}</span>
+          <span class="fp-del-stat-value">{{ object_count }}</span>
+        </div>
+        {% endfor %}
+        <div class="fp-del-stat fp-del-stat--total">
+          <span class="fp-del-stat-label fp-del-stat-label--emph">Total a eliminar</span>
+          <span class="fp-del-stat-value fp-del-stat-value--warn">{{ queryset.count }}</span>
+        </div>
+        <div class="fp-del-warn-box">
+          <span>⚠️</span>
+          <span>Los objetos relacionados indicados en la tabla también serán eliminados permanentemente.</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.fp-del-layout -->
+
+  <!-- Formulario -->
+  <form method="post">
+    {% csrf_token %}
+    {% for obj in queryset %}
+    <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}">
+    {% endfor %}
+    <input type="hidden" name="action" value="delete_selected">
+    <input type="hidden" name="post" value="yes">
+    <div class="fp-del-actions">
+      <button type="submit" class="fp-del-btn-confirm">🗑️ Sí, eliminar</button>
+      <a href="#" class="fp-del-btn-cancel cancel-link">↩ Cancelar</a>
+    </div>
+  </form>
+
+  {% endif %}
+</div>
+{% endblock %}

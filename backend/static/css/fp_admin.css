@@ -1,0 +1,11 @@
+/*
+ * Franja Pixelada — admin: un solo punto de entrada (barrel).
+ * Orden = cascada deseada (base → layout → tablas → formularios → componentes).
+ * base_site.html enlaza los módulos por separado; este @import sirve enlaces
+ * antiguos o herramientas que solo piden fp_admin.css tras collectstatic.
+ */
+@import url("fp_admin_base.css");
+@import url("fp_admin_layout.css");
+@import url("fp_admin_tables.css");
+@import url("fp_admin_forms.css");
+@import url("fp_admin_components.css");

@@ -798,6 +798,9 @@
         }
     }
 
+    // Exponer initDetailModal para que reinitAdmin() pueda llamarla tras SPA nav
+    window.FPAdminProductos = { initDetailModal: initDetailModal };
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', run);
     } else {

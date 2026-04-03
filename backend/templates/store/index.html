@@ -5250,6 +5250,7 @@
 
   // ── PRODUCT DATA — cargado desde /api/v1/products/ ──────────────────────
   let PRODUCTS = [];
+  let _productsLoadedPromise = null;  // Promise que resuelve cuando PRODUCTS está listo
 
   // Categorías cargadas dinámicamente desde /api/v1/products/categories/
   let CATEGORIES = [];
@@ -5484,7 +5485,7 @@
       const inWish = isWished(p.id);
       return `
         <div class="product-card" id="prod-${p.id}">
-          <div class="product-img-wrap" data-action="openProductDetail" data-id="${p.id}" style="cursor:pointer">
+          <div class="product-img-wrap" data-action="openProductDetail" data-id="${p.id}" data-slug="${p.slug}" style="cursor:pointer">
             ${productImg(p)}
             <div class="product-badges">
               ${p.badge ? `<span class="badge ${p.badge==='featured'?'badge-accent':p.badge==='new'?'badge-olive':'badge-danger'}">${escHtml(t(`badges.${p.badge}`, p.badge))}</span>` : ''}
@@ -5492,7 +5493,7 @@
             </div>
             <div class="product-actions">
               <button class="product-action-btn${inWish ? ' wished' : ''}" title="${inWish ? escHtml(t('products.wish_in_title', 'En favoritos')) : escHtml(t('products.wish_add_title', 'Agregar a favoritos'))}" data-action="addToWish" data-id="${p.id}">${inWish ? '♥' : '♡'}</button>
-              <button class="product-action-btn" title="${escHtml(t('products.quick_view', 'Vista rápida'))}" data-action="quickView" data-id="${p.id}">👁</button>
+              <button class="product-action-btn" title="${escHtml(t('products.quick_view', 'Vista rápida'))}" data-action="quickView" data-id="${p.id}" data-slug="${p.slug}">👁</button>
             </div>
             <button class="product-add-bar" data-action="addToCart" data-id="${p.id}">
               ${inCart ? escHtml(t('products.in_cart', '✓ En el carrito')) : escHtml(t('products.add_to_cart', '⊕ Agregar al carrito'))}
@@ -5500,7 +5501,7 @@
           </div>
           <div class="product-info">
             <div class="product-category">${escHtml(catLabel(p.cat))}</div>
-            <div class="product-name" data-action="openProductDetail" data-id="${p.id}" style="cursor:pointer">${escHtml(p.name)}</div>
+            <div class="product-name" data-action="openProductDetail" data-id="${p.id}" data-slug="${p.slug}" style="cursor:pointer">${escHtml(p.name)}</div>
             <div class="product-pricing">
               <span class="product-price">${fmt(p.price)}</span>
               ${p.compare ? `<span class="product-compare-price">${fmt(p.compare)}</span>` : ''}
@@ -5515,6 +5516,15 @@
         </div>
       `;
     }).join('');
+
+    // Adjuntar listeners directamente a cada tarjeta (refuerzo del delegador global)
+    shown.forEach(p => {
+      const card = document.getElementById('prod-' + p.id);
+      if (!card) return;
+      const openDetail = () => openProductDetail(p.id, p.slug);
+      card.querySelector('.product-img-wrap').addEventListener('click', openDetail);
+      card.querySelector('.product-name').addEventListener('click', openDetail);
+    });
 
     document.getElementById('load-more-btn').style.display =
       (currentFilter !== 'new' && shown.length < filtered.length) ? 'inline-flex' : 'none';
@@ -6731,9 +6741,9 @@
     }
   }
 
-  function quickView(e, id) {
+  function quickView(e, id, slug) {
     e.stopPropagation();
-    openProductDetail(id);
+    openProductDetail(id, slug);
   }
 
   // ── PRODUCT DETAIL MODAL (PDP) ──────────────────────
@@ -6828,9 +6838,24 @@
     });
   }
 
-  function openProductDetail(id) {
-    const p = PRODUCTS.find(p => p.id === id);
+  async function openProductDetail(id, slug) {
+    // Si los productos aún no se han cargado, esperar a que terminen
+    if (PRODUCTS.length === 0 && _productsLoadedPromise) {
+      await _productsLoadedPromise;
+    }
+    let p = PRODUCTS.find(p => p.id === id);
+    if (!p && slug) {
+      try {
+        const res = await fetch(`/api/v1/products/${encodeURIComponent(slug)}/`);
+        if (res.ok) {
+          const data = await res.json();
+          p = apiToLocal(data);
+          PRODUCTS.push(p);
+        }
+      } catch { /* silencioso */ }
+    }
     if (!p) return;
+    try {
     pdpSelectedTalla  = null;
     pdpSelectedColor  = null;
     pdpSelectedRH     = null;
@@ -6997,6 +7022,9 @@
 
     // Cargar snippet de reseñas en la PDP (sin bloquear apertura)
     if (p.reviews > 0) pdpLoadReviewSnippet(p.id);
+    } catch(pdpErr) {
+      console.error('[PDP]', pdpErr);
+    }
   }
 
   function closeProductDetail() {
@@ -8813,7 +8841,7 @@
   });
 
   // Cargar categorías primero (para que el emoji esté disponible al mapear productos)
-  loadCategories().then(() => loadProducts());
+  _productsLoadedPromise = loadCategories().then(() => loadProducts());
   updateCartUI();
 
   // Animate product cards on scroll
@@ -9158,10 +9186,10 @@
       case 'selectSize':          selectSize(el.dataset.talla); break;
 
       // ── Tarjetas de productos ───────────────────────────
-      case 'openProductDetail':   openProductDetail(id); break;
+      case 'openProductDetail':   openProductDetail(id, el.dataset.slug); break;
       case 'addToCart':           e.stopPropagation(); addToCart(e, id); break;
       case 'addToWish':           e.stopPropagation(); addToWish(e, id); break;
-      case 'quickView':           e.stopPropagation(); quickView(e, id); break;
+      case 'quickView':           e.stopPropagation(); quickView(e, id, el.dataset.slug); break;
 
       // ── Modal de detalle (PDP) ──────────────────────────
       case 'closeProductDetail':  closeProductDetail(); break;

@@ -1,0 +1,970 @@
+{
+  "summary": {
+    "critical": 17,
+    "high": 61,
+    "medium": 40,
+    "low": 2
+  },
+  "issues": [
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env",
+      "line": 8,
+      "description": "Environment file contains non-placeholder value for \"SECRET_KEY\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env",
+      "line": 17,
+      "description": "Environment file contains non-placeholder value for \"DB_PASSWORD\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env",
+      "line": 23,
+      "description": "Environment file contains non-placeholder value for \"REDIS_PASSWORD\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.dev",
+      "line": 7,
+      "description": "Environment file contains non-placeholder value for \"SECRET_KEY\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.dev",
+      "line": 15,
+      "description": "Environment file contains non-placeholder value for \"ENCRYPTION_KEY\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.dev",
+      "line": 20,
+      "description": "Environment file contains non-placeholder value for \"DB_PASSWORD\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.dev",
+      "line": 26,
+      "description": "Environment file contains non-placeholder value for \"REDIS_PASSWORD\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "MEDIUM",
+      "file": ".env.example",
+      "line": 9,
+      "description": "Environment file contains non-placeholder value for \"SECRET_KEY\"",
+      "recommendation": "Ensure .env.example only documents keys with dummy values; never real secrets."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "MEDIUM",
+      "file": ".env.example",
+      "line": 16,
+      "description": "Environment file contains non-placeholder value for \"DB_PASSWORD\"",
+      "recommendation": "Ensure .env.example only documents keys with dummy values; never real secrets."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "MEDIUM",
+      "file": ".env.example",
+      "line": 40,
+      "description": "Environment file contains non-placeholder value for \"REDIS_PASSWORD\"",
+      "recommendation": "Ensure .env.example only documents keys with dummy values; never real secrets."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "MEDIUM",
+      "file": ".env.example",
+      "line": 62,
+      "description": "Environment file contains non-placeholder value for \"STRIPE_PUBLIC_KEY\"",
+      "recommendation": "Ensure .env.example only documents keys with dummy values; never real secrets."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "MEDIUM",
+      "file": ".env.example",
+      "line": 63,
+      "description": "Environment file contains non-placeholder value for \"STRIPE_SECRET_KEY\"",
+      "recommendation": "Ensure .env.example only documents keys with dummy values; never real secrets."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "MEDIUM",
+      "file": ".env.example",
+      "line": 64,
+      "description": "Environment file contains non-placeholder value for \"STRIPE_WEBHOOK_SECRET\"",
+      "recommendation": "Ensure .env.example only documents keys with dummy values; never real secrets."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "MEDIUM",
+      "file": ".env.example",
+      "line": 73,
+      "description": "Environment file contains non-placeholder value for \"EMAIL_HOST_PASSWORD\"",
+      "recommendation": "Ensure .env.example only documents keys with dummy values; never real secrets."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.prod",
+      "line": 8,
+      "description": "Environment file contains non-placeholder value for \"SECRET_KEY\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.prod",
+      "line": 17,
+      "description": "Environment file contains non-placeholder value for \"DB_PASSWORD\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.prod",
+      "line": 23,
+      "description": "Environment file contains non-placeholder value for \"REDIS_PASSWORD\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.prod",
+      "line": 39,
+      "description": "Environment file contains non-placeholder value for \"STRIPE_PUBLIC_KEY\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.prod",
+      "line": 40,
+      "description": "Environment file contains non-placeholder value for \"STRIPE_SECRET_KEY\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.prod",
+      "line": 41,
+      "description": "Environment file contains non-placeholder value for \"STRIPE_WEBHOOK_SECRET\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.prod",
+      "line": 43,
+      "description": "Environment file contains non-placeholder value for \"PAYPAL_SECRET\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Secrets in file",
+      "severity": "CRITICAL",
+      "file": ".env.prod",
+      "line": 50,
+      "description": "Environment file contains non-placeholder value for \"EMAIL_HOST_PASSWORD\"",
+      "recommendation": "Never commit .env to version control; rotate any exposed values."
+    },
+    {
+      "type": "Unsafe JS",
+      "severity": "CRITICAL",
+      "file": "audit-tools/security-audit.js",
+      "line": 202,
+      "description": "Use of eval()",
+      "recommendation": "Avoid eval; parse JSON with JSON.parse, use safe alternatives."
+    },
+    {
+      "type": "Unsafe JS",
+      "severity": "HIGH",
+      "file": "audit-tools/security-audit.js",
+      "line": 214,
+      "description": "new Function() dynamic code generation",
+      "recommendation": "Avoid compiling strings to code; refactor to static functions."
+    },
+    {
+      "type": "Unsafe JS",
+      "severity": "CRITICAL",
+      "file": "audit-tools/security_audit.py",
+      "line": 212,
+      "description": "Use of eval()",
+      "recommendation": "Avoid eval; parse JSON with JSON.parse, use safe alternatives."
+    },
+    {
+      "type": "Unsafe JS",
+      "severity": "HIGH",
+      "file": "audit-tools/security_audit.py",
+      "line": 222,
+      "description": "new Function() dynamic code generation",
+      "recommendation": "Avoid compiling strings to code; refactor to static functions."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/core/admin.py",
+      "line": 179,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "Hardcoded credential",
+      "severity": "MEDIUM",
+      "file": "backend/proveedores/tests/test_integration_proveedores_orders.py",
+      "line": 71,
+      "description": "Possible hardcoded secret or password string",
+      "recommendation": "Use environment variables; exclude placeholders in examples only."
+    },
+    {
+      "type": "Hardcoded credential",
+      "severity": "MEDIUM",
+      "file": "backend/proveedores/tests/test_integration_proveedores_orders.py",
+      "line": 256,
+      "description": "Possible hardcoded secret or password string",
+      "recommendation": "Use environment variables; exclude placeholders in examples only."
+    },
+    {
+      "type": "Hardcoded credential",
+      "severity": "MEDIUM",
+      "file": "backend/returns/tests.py",
+      "line": 23,
+      "description": "Possible hardcoded secret or password string",
+      "recommendation": "Use environment variables; exclude placeholders in examples only."
+    },
+    {
+      "type": "Hardcoded credential",
+      "severity": "MEDIUM",
+      "file": "backend/returns/tests.py",
+      "line": 28,
+      "description": "Possible hardcoded secret or password string",
+      "recommendation": "Use environment variables; exclude placeholders in examples only."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 171,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 179,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 189,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 198,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 339,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 347,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 360,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 387,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 399,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 420,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 482,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 514,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 574,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 632,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/admin_productos.js",
+      "line": 692,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/fp_user_permissions.js",
+      "line": 56,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/fp_user_permissions.js",
+      "line": 118,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/fp_user_permissions.js",
+      "line": 231,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/fp_user_permissions.js",
+      "line": 245,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/franja_admin_global.js",
+      "line": 64,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/franja_admin_global.js",
+      "line": 131,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/franja_admin_global.js",
+      "line": 197,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "Hardcoded credential",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/i18n/es-co.js",
+      "line": 134,
+      "description": "Possible hardcoded secret or password string",
+      "recommendation": "Use environment variables; exclude placeholders in examples only."
+    },
+    {
+      "type": "Hardcoded credential",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/i18n/es-co.js",
+      "line": 387,
+      "description": "Possible hardcoded secret or password string",
+      "recommendation": "Use environment variables; exclude placeholders in examples only."
+    },
+    {
+      "type": "Hardcoded credential",
+      "severity": "MEDIUM",
+      "file": "backend/static/js/i18n/es-co.js",
+      "line": 390,
+      "description": "Possible hardcoded secret or password string",
+      "recommendation": "Use environment variables; exclude placeholders in examples only."
+    },
+    {
+      "type": "XSS / CSP",
+      "severity": "MEDIUM",
+      "file": "backend/templates/store/index.html",
+      "line": 4397,
+      "description": "Inline event handler attribute (e.g. onclick, onload)",
+      "recommendation": "Prefer addEventListener and keep logic in script files with a strict CSP."
+    },
+    {
+      "type": "XSS / CSP",
+      "severity": "MEDIUM",
+      "file": "backend/templates/store/index.html",
+      "line": 4408,
+      "description": "Inline event handler attribute (e.g. onclick, onload)",
+      "recommendation": "Prefer addEventListener and keep logic in script files with a strict CSP."
+    },
+    {
+      "type": "Validation",
+      "severity": "LOW",
+      "file": "backend/templates/store/index.html",
+      "line": 4749,
+      "description": "Form with user inputs may lack required/pattern client-side hints",
+      "recommendation": "Add server-side validation always; add required/pattern where appropriate (client is not sufficient)."
+    },
+    {
+      "type": "Maintainability / CSP",
+      "severity": "LOW",
+      "file": "backend/templates/store/index.html",
+      "line": 3798,
+      "description": "Inline style attributes detected (125 occurrence(s))",
+      "recommendation": "Prefer external CSS; inline styles complicate CSP style-src and maintenance."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 5337,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 5482,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 5653,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6092,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6158,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6243,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6262,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6489,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6682,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6690,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6785,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6803,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6822,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6833,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 6925,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7202,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7442,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7449,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7479,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7484,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7489,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7495,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7499,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7505,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7506,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7516,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7519,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7521,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7523,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7675,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7683,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7703,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7839,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7843,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7920,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 7997,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8024,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8028,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8043,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8059,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8067,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8075,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8077,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8088,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8089,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8097,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8119,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8126,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8132,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8150,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8156,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8157,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8948,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8951,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8974,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 8984,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 9004,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 9053,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "XSS",
+      "severity": "HIGH",
+      "file": "backend/templates/store/index.html",
+      "line": 9133,
+      "description": "Assignment to innerHTML (potential XSS if data is user-controlled)",
+      "recommendation": "Prefer textContent, or sanitize with a trusted library and encode output."
+    },
+    {
+      "type": "Hardcoded credential",
+      "severity": "MEDIUM",
+      "file": "backend/templates/store/index.html",
+      "line": 8543,
+      "description": "Possible hardcoded secret or password string",
+      "recommendation": "Use environment variables; exclude placeholders in examples only."
+    }
+  ]
+}

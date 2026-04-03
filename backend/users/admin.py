@@ -8,6 +8,10 @@ from core.admin_site import admin_site
 @admin.register(User, site=admin_site)
 class UserAdmin(BaseUserAdmin):
     form = UserAdminForm
+
+    class Media:
+        css = {'all': ['css/fp_user_permissions.css']}
+        js = ['js/fp_user_permissions.js']
     list_display = (
         'email',
         'nombre_display',
