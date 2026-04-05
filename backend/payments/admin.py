@@ -30,6 +30,23 @@ class PaymentAdmin(admin.ModelAdmin):
         }),
     )
 
+    def get_readonly_fields(self, request, obj=None):
+        """raw_response solo visible para superusuarios."""
+        if request.user.is_superuser:
+            return self.readonly_fields
+        # Staff no-super: ocultar datos crudos del proveedor de pagos
+        return tuple(f for f in self.readonly_fields if f != 'raw_response')
+
+    def get_fieldsets(self, request, obj=None):
+        """Ocultar sección 'Respuesta del proveedor' para staff no-superusuario."""
+        fieldsets = super().get_fieldsets(request, obj)
+        if request.user.is_superuser:
+            return fieldsets
+        return tuple(
+            (name, opts) for name, opts in fieldsets
+            if name != 'Respuesta del proveedor'
+        )
+
     def has_add_permission(self, request):
         return False
 

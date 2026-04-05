@@ -1,0 +1,937 @@
+/* ═══════════════════════════════════════════════════════════════════
+   fp_product_form.css  —  Ficha de Producto · FP Dark Neon Admin
+   Targets: DOM nativo Django + Jazzmin revelado por la plantilla.
+   Árbol:   .fp-product-card > .fp-product-card-body
+              .tab-content > .tab-pane > fieldset.module
+                h2 · .form-row · .form-group
+              .inline-group (images, variants)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════════
+   1. CARD EXTERNA — quitar shadow / borde de Jazzmin
+   ══════════════════════════════════════════════════════════════════ */
+.fp-product-card {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.fp-product-card-body {
+  padding: 12px 0 0 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   2. FIELDSETS → neon cards apiladas
+   Cada fieldset.module es una sección del formulario.
+   ══════════════════════════════════════════════════════════════════ */
+.fp-product-card fieldset.module {
+  background: var(--fp-c-card) !important;
+  border: 1.5px solid var(--fp-c-border) !important;
+  border-radius: 14px !important;
+  padding: 0 !important;
+  margin: 0 0 16px !important;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .22s, box-shadow .22s;
+}
+/* Línea superior de acento (color único por posición via nth-child) */
+.fp-product-card fieldset.module::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--fp-teal), rgba(0,212,163,.15), transparent 80%);
+  border-radius: 14px 14px 0 0;
+}
+/* Glow radial en hover */
+.fp-product-card fieldset.module::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 20% 0%, rgba(0,212,163,.05) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+.fp-product-card fieldset.module:hover {
+  border-color: rgba(0,212,163,.35) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,.18) !important;
+}
+.fp-product-card fieldset.module:hover::after { opacity: 1; }
+
+/* ── Título del fieldset (h2) ─────────────────────────────────── */
+.fp-product-card fieldset.module > h2 {
+  font-size: .68rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.4px !important;
+  color: var(--fp-teal) !important;
+  padding: 14px 20px 12px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--fp-c-border) !important;
+  background: rgba(0,212,163,.03) !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Descripción de sección (ayuda contextual) ──────────────── */
+.fp-product-card fieldset.module > p.help,
+.fp-product-card fieldset.module > .description {
+  font-size: .72rem;
+  color: var(--fp-c-muted);
+  background: rgba(0,212,163,.04);
+  border-left: 2px solid var(--fp-teal);
+  padding: 7px 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Contenido del fieldset ──────────────────────────────────── */
+.fp-product-card fieldset.module .form-row,
+.fp-product-card fieldset.module .form-group {
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px;
+}
+.fp-product-card fieldset.module .form-row:last-child,
+.fp-product-card fieldset.module .form-group:last-child {
+  border-bottom: none;
+}
+/* Hover en la fila */
+.fp-product-card fieldset.module .form-row:hover {
+  background: rgba(0,212,163,.02);
+}
+
+/* ── Labels ──────────────────────────────────────────────────── */
+.fp-product-card fieldset.module label {
+  font-size: .68rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .7px !important;
+  color: var(--fp-c-muted) !important;
+  display: block;
+  margin-bottom: 5px;
+}
+.fp-product-card fieldset.module label.required::after {
+  content: ' *';
+  color: var(--fp-red-alert);
+  font-weight: 900;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   3. INPUTS — estilo neon coherente con el sistema
+   ══════════════════════════════════════════════════════════════════ */
+.fp-product-card fieldset.module input[type="text"],
+.fp-product-card fieldset.module input[type="number"],
+.fp-product-card fieldset.module input[type="email"],
+.fp-product-card fieldset.module input[type="url"],
+.fp-product-card fieldset.module input[type="search"],
+.fp-product-card fieldset.module input[type="password"],
+.fp-product-card fieldset.module textarea,
+.fp-product-card fieldset.module select {
+  background: var(--fp-c-card-alt) !important;
+  border: 1px solid var(--fp-c-border) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  color: var(--fp-c-text) !important;
+  font-size: .875rem !important;
+  line-height: 1.5;
+  transition: border-color .18s, box-shadow .18s !important;
+  outline: none !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+.fp-product-card fieldset.module input:focus,
+.fp-product-card fieldset.module textarea:focus,
+.fp-product-card fieldset.module select:focus {
+  border-color: var(--fp-teal) !important;
+  box-shadow: 0 0 0 3px rgba(0,168,120,.12) !important;
+}
+.fp-product-card fieldset.module input::placeholder,
+.fp-product-card fieldset.module textarea::placeholder {
+  color: var(--fp-c-muted) !important;
+  opacity: .55;
+}
+.fp-product-card fieldset.module select option {
+  background: var(--fp-c-card);
+  color: var(--fp-c-text);
+}
+.fp-product-card fieldset.module textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+.fp-product-card fieldset.module input[type="checkbox"],
+.fp-product-card fieldset.module input[type="radio"] {
+  width: 16px !important;
+  height: 16px !important;
+  accent-color: var(--fp-teal) !important;
+  cursor: pointer;
+}
+
+/* ── Help text ───────────────────────────────────────────────── */
+.fp-product-card fieldset.module .help,
+.fp-product-card fieldset.module p.help,
+.fp-product-card fieldset.module .helptext {
+  font-size: .68rem !important;
+  color: var(--fp-c-muted) !important;
+  margin-top: 4px !important;
+  line-height: 1.45;
+  display: block;
+}
+
+/* ── Errores de validación ───────────────────────────────────── */
+.fp-product-card fieldset.module .errorlist {
+  background: rgba(239,68,68,.08);
+  border: 1px solid rgba(239,68,68,.28);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: .73rem;
+  color: var(--fp-red-alert);
+  list-style: none;
+  margin: 6px 0 0;
+}
+.fp-product-card fieldset.module input.vTextField.errors,
+.fp-product-card fieldset.module select.errors,
+.fp-product-card fieldset.module textarea.errors {
+  border-color: var(--fp-red-alert) !important;
+  box-shadow: 0 0 0 3px rgba(239,68,68,.12) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   4. INLINE GROUPS — imágenes y variantes
+   ══════════════════════════════════════════════════════════════════ */
+.fp-product-card .inline-group {
+  background: var(--fp-c-card) !important;
+  border: 1.5px solid var(--fp-c-border) !important;
+  border-radius: 14px !important;
+  margin: 0 0 16px !important;
+  overflow: hidden;
+  position: relative;
+}
+.fp-product-card .inline-group::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--fp-blue-bright), rgba(59,130,246,.15), transparent 80%);
+}
+
+/* Título del inline */
+.fp-product-card .inline-group > h2 {
+  font-size: .68rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.4px !important;
+  color: var(--fp-blue-bright) !important;
+  padding: 14px 20px 12px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--fp-c-border) !important;
+  background: rgba(59,130,246,.03) !important;
+}
+
+/* Tabla del inline */
+.fp-product-card .inline-related { overflow-x: auto; }
+.fp-product-card .inline-related table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+.fp-product-card .inline-related thead th {
+  background: rgba(0,0,0,.18) !important;
+  font-size: .63rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .8px !important;
+  color: var(--fp-c-muted) !important;
+  padding: 9px 12px !important;
+  border-bottom: 1px solid var(--fp-c-border) !important;
+  white-space: nowrap;
+}
+.fp-product-card .inline-related tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,.03);
+  transition: background .15s;
+}
+.fp-product-card .inline-related tbody tr:hover {
+  background: rgba(0,168,120,.03);
+}
+.fp-product-card .inline-related tbody td {
+  padding: 8px 12px !important;
+  vertical-align: middle !important;
+}
+.fp-product-card .inline-related input[type="text"],
+.fp-product-card .inline-related input[type="number"],
+.fp-product-card .inline-related select {
+  background: var(--fp-c-card-alt) !important;
+  border: 1px solid var(--fp-c-border) !important;
+  border-radius: 6px !important;
+  padding: 5px 8px !important;
+  color: var(--fp-c-text) !important;
+  font-size: .8rem !important;
+  transition: border-color .18s !important;
+}
+.fp-product-card .inline-related input:focus,
+.fp-product-card .inline-related select:focus {
+  border-color: var(--fp-teal) !important;
+  box-shadow: 0 0 0 2px rgba(0,168,120,.1) !important;
+  outline: none !important;
+}
+/* Botón eliminar fila inline */
+.fp-product-card .inline-related .delete input[type="checkbox"] {
+  accent-color: var(--fp-red-alert) !important;
+}
+/* "Añadir otro..." */
+.fp-product-card .inline-group .add-row a {
+  color: var(--fp-teal) !important;
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  padding: 10px 20px !important;
+  display: inline-block;
+  text-decoration: none !important;
+  transition: color .15s;
+}
+.fp-product-card .inline-group .add-row a:hover { color: #fff !important; }
+
+/* ══════════════════════════════════════════════════════════════════
+   5. MÓDULO DE TALLAS (#fp-tallas-ui) — neon upgrade
+   ══════════════════════════════════════════════════════════════════ */
+#fp-tallas-ui {
+  background: var(--fp-c-card) !important;
+  border: 1.5px solid var(--fp-c-border) !important;
+  border-radius: 14px !important;
+  padding: 1.25rem 1.5rem 1rem !important;
+  margin: .5rem 0 1rem !important;
+  position: relative;
+  overflow: hidden;
+}
+#fp-tallas-ui::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--fp-teal), transparent);
+}
+.fp-talla-item {
+  border-radius: 8px !important;
+  transition: border-color .18s, background .18s, box-shadow .18s !important;
+}
+.fp-talla-item.checked {
+  border-color: var(--fp-teal) !important;
+  background: rgba(0,168,120,.08) !important;
+  box-shadow: 0 0 0 1px rgba(0,168,120,.15) !important;
+}
+.fp-talla-item:hover {
+  box-shadow: 0 0 0 1px rgba(0,168,120,.2) !important;
+}
+.fp-talla-qty:focus {
+  border-color: var(--fp-teal) !important;
+  box-shadow: 0 0 0 2px rgba(0,168,120,.12) !important;
+}
+.fp-tallas-total.has-stock {
+  background: rgba(0,168,120,.1) !important;
+  color: var(--fp-teal) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   6. CONVERSOR USD → COP
+   ══════════════════════════════════════════════════════════════════ */
+#fp-converter-card {
+  background: var(--fp-c-card) !important;
+  border: 1.5px solid var(--fp-c-border) !important;
+  border-radius: 14px !important;
+  overflow: hidden;
+  position: relative;
+  margin-top: 16px;
+}
+#fp-converter-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--fp-blue-bright), transparent);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   7. BARRA DE SUBMIT (#fp-submit-bar)
+   ══════════════════════════════════════════════════════════════════ */
+#fp-submit-bar {
+  position: relative;
+  overflow: hidden;
+}
+#fp-submit-bar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--fp-teal), var(--fp-blue-bright), transparent 75%);
+}
+
+/* Botón Guardar → gradiente teal */
+.fp-btn-save {
+  background: linear-gradient(135deg, var(--fp-teal), var(--fp-teal-dk)) !important;
+  box-shadow: 0 4px 14px rgba(0,168,120,.25) !important;
+  border-radius: 9px !important;
+}
+.fp-btn-save:hover {
+  box-shadow: 0 6px 22px rgba(0,168,120,.4) !important;
+}
+/* Añadir otro → azul */
+.fp-btn-new {
+  background: linear-gradient(135deg, var(--fp-blue-bright), var(--fp-blue)) !important;
+  box-shadow: 0 4px 14px rgba(59,130,246,.2) !important;
+  border-radius: 9px !important;
+}
+.fp-btn-new:hover {
+  box-shadow: 0 6px 22px rgba(59,130,246,.35) !important;
+}
+/* Eliminar → rojo */
+.fp-btn-delete {
+  border-radius: 9px !important;
+  box-shadow: 0 4px 14px rgba(220,38,38,.18) !important;
+}
+.fp-btn-delete:hover {
+  box-shadow: 0 6px 22px rgba(220,38,38,.3) !important;
+}
+/* Histórico → ghost */
+.fp-btn-history {
+  border-radius: 9px !important;
+  border-color: var(--fp-c-border) !important;
+  box-shadow: none !important;
+}
+/* Salir → ghost neutro */
+.fp-btn-cancel {
+  background: transparent !important;
+  border: 1px solid var(--fp-c-border) !important;
+  color: var(--fp-c-muted) !important;
+  border-radius: 9px !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px;
+  box-shadow: none !important;
+}
+.fp-btn-cancel:hover {
+  border-color: var(--fp-c-text) !important;
+  color: var(--fp-c-text) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   8. GALERÍA DE IMÁGENES — #fp-gallery (fp_product_images.js)
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Wrapper principal ── */
+#fp-gallery {
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.fp-gallery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--fp-c-border);
+  background: linear-gradient(135deg, rgba(0,168,120,.06) 0%, transparent 60%);
+}
+.fp-gallery-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fp-gallery-title-icon { font-size: 1.25rem; line-height: 1; }
+.fp-gallery-title-text {
+  font-size: .75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.3px;
+  color: var(--fp-teal);
+}
+.fp-gallery-badge {
+  background: rgba(0,168,120,.15);
+  color: var(--fp-teal);
+  border: 1px solid rgba(0,168,120,.25);
+  font-size: .62rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  letter-spacing: .5px;
+  transition: background .2s;
+}
+.fp-gallery-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.fp-gallery-hint {
+  font-size: .65rem;
+  color: var(--fp-c-subtle);
+  font-style: italic;
+  letter-spacing: .2px;
+}
+.fp-gallery-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--fp-teal);
+  border: none;
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 9px;
+  cursor: pointer;
+  letter-spacing: .3px;
+  transition: box-shadow .2s, transform .15s, background .2s;
+  box-shadow: 0 4px 14px rgba(0,168,120,.3);
+}
+.fp-gallery-add-btn:hover {
+  background: var(--fp-teal-mid);
+  box-shadow: 0 6px 22px rgba(0,168,120,.5);
+  transform: translateY(-1px);
+}
+.fp-gallery-add-btn:active { transform: translateY(0); }
+
+/* ── Estado vacío ── */
+#fp-gallery-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 52px 24px;
+  text-align: center;
+}
+.fp-gallery-empty-icon {
+  font-size: 3rem;
+  opacity: .35;
+  animation: fp-float 3s ease-in-out infinite;
+}
+@keyframes fp-float {
+  0%,100% { transform: translateY(0);    }
+  50%      { transform: translateY(-8px); }
+}
+.fp-gallery-empty-title {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--fp-c-muted);
+  margin: 0;
+}
+.fp-gallery-empty-sub {
+  font-size: .75rem;
+  color: var(--fp-c-subtle);
+  margin: 0;
+  max-width: 280px;
+  line-height: 1.6;
+}
+
+/* ── Grid de tarjetas ── */
+#fp-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 20px;
+}
+@media (max-width: 1400px) { #fp-gallery-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px)  { #fp-gallery-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px)  { #fp-gallery-grid { grid-template-columns: 1fr; } }
+
+/* ── Tarjeta ── */
+.fp-gallery-card {
+  background: var(--fp-c-card-alt);
+  border: 1.5px solid var(--fp-c-border);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  cursor: grab;
+  transition:
+    border-color .22s ease,
+    box-shadow .22s ease,
+    transform .18s ease,
+    opacity .3s ease;
+}
+.fp-gallery-card:hover {
+  border-color: rgba(0,168,120,.45);
+  box-shadow:
+    0 0 0 1px rgba(0,168,120,.12),
+    0 8px 28px rgba(0,0,0,.35),
+    0 0 40px rgba(0,168,120,.06);
+  transform: translateY(-3px);
+}
+
+/* Principal — glow dorado */
+.fp-card--primary {
+  border-color: rgba(245,158,11,.6) !important;
+  box-shadow:
+    0 0 0 1px rgba(245,158,11,.2),
+    0 8px 28px rgba(0,0,0,.3),
+    0 0 30px rgba(245,158,11,.12) !important;
+}
+
+/* Dragging */
+.fp-card--dragging {
+  opacity: .4;
+  cursor: grabbing;
+  transform: scale(.95) rotate(1.5deg);
+  box-shadow: 0 20px 50px rgba(0,0,0,.5) !important;
+}
+
+/* Drop target */
+.fp-card--drop-target {
+  border-color: var(--fp-teal) !important;
+  box-shadow: 0 0 0 2px rgba(0,168,120,.4), 0 0 30px rgba(0,168,120,.15) !important;
+}
+
+/* Removing */
+.fp-card--removing {
+  opacity: 0;
+  transform: scale(.85);
+  pointer-events: none;
+}
+
+/* Aparecer */
+.fp-card--appear {
+  animation: fp-card-pop .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes fp-card-pop {
+  from { opacity: 0; transform: scale(.8) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Badge de orden */
+.fp-card-order-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.55);
+  color: rgba(255,255,255,.8);
+  font-size: .65rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.12);
+  transition: background .2s, color .2s;
+}
+.fp-card--primary .fp-card-order-badge {
+  background: rgba(245,158,11,.8);
+  color: #fff;
+  border-color: rgba(245,158,11,.4);
+}
+
+/* ── Zona de imagen (16:9) ── */
+.fp-card-zone {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: rgba(0,0,0,.3);
+  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.fp-card-zone--over {
+  background: rgba(0,168,120,.1) !important;
+  outline: 2px dashed var(--fp-teal);
+  outline-offset: -3px;
+}
+
+/* Imagen */
+.fp-gallery-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .4s ease;
+}
+.fp-gallery-card:hover .fp-gallery-img { transform: scale(1.06); }
+
+/* Placeholder */
+.fp-card-ph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: opacity .2s, color .2s;
+}
+.fp-card-ph--hidden { display: none; }
+.fp-card-ph-icon {
+  font-size: 2.2rem;
+  opacity: .35;
+  transition: opacity .2s, transform .2s;
+}
+.fp-gallery-card:hover .fp-card-ph-icon {
+  opacity: .6;
+  transform: scale(1.1);
+}
+.fp-card-ph-line1 {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--fp-c-muted);
+  letter-spacing: .3px;
+}
+.fp-card-ph-line2 {
+  font-size: .62rem;
+  color: var(--fp-c-subtle);
+}
+.fp-gallery-card:hover .fp-card-ph-line1 { color: var(--fp-teal); }
+
+/* Overlay (aparece en hover) */
+.fp-card-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.72) 0%, transparent 55%);
+  padding: 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 7px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease;
+}
+.fp-gallery-card:hover .fp-card-overlay { opacity: 1; pointer-events: auto; }
+
+/* Botones de overlay */
+.fp-card-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .15s, box-shadow .15s, background .15s;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.fp-card-btn:hover { transform: scale(1.2); }
+
+/* Estrella */
+.fp-card-btn--star {
+  background: rgba(255,255,255,.15);
+  color: rgba(255,255,255,.7);
+  border: 1px solid rgba(255,255,255,.2);
+  order: 2;
+}
+.fp-card-btn--star:hover,
+.fp-card-btn--star.active {
+  background: rgba(245,158,11,.3);
+  color: #fbbf24;
+  border-color: rgba(245,158,11,.5);
+  box-shadow: 0 0 16px rgba(245,158,11,.4);
+}
+
+/* Eliminar */
+.fp-card-btn--del {
+  background: rgba(220,38,38,.18);
+  color: rgba(248,113,113,.85);
+  border: 1px solid rgba(220,38,38,.25);
+  order: 1;
+}
+.fp-card-btn--del:hover {
+  background: rgba(220,38,38,.35);
+  color: #f87171;
+  box-shadow: 0 0 16px rgba(220,38,38,.4);
+}
+
+/* Badge PRINCIPAL */
+.fp-card-prime {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(245,158,11,.25);
+  color: #fbbf24;
+  border: 1px solid rgba(245,158,11,.45);
+  font-size: .58rem;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 12px rgba(245,158,11,.2);
+}
+.fp-hidden { display: none !important; }
+
+/* Barra de progreso */
+.fp-card-prog {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: rgba(255,255,255,.1);
+  z-index: 20;
+}
+.fp-card-prog-inner {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--fp-teal), var(--fp-teal-highlight));
+  box-shadow: 0 0 8px rgba(0,212,163,.6);
+  transition: width .08s linear;
+  border-radius: 0 2px 2px 0;
+}
+
+/* Drag handle */
+.fp-card-handle {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: rgba(255,255,255,.25);
+  font-size: 1.1rem;
+  cursor: grab;
+  line-height: 1;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: color .2s, text-shadow .2s;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.fp-gallery-card:hover .fp-card-handle {
+  color: rgba(255,255,255,.6);
+  text-shadow: 0 0 8px rgba(0,168,120,.4);
+}
+
+/* ── Pie de tarjeta ── */
+.fp-card-footer {
+  padding: 10px 12px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.08));
+}
+
+/* Info de archivo */
+.fp-card-file-info {
+  font-size: .66rem;
+  font-weight: 600;
+  color: var(--fp-c-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: .2px;
+}
+.fp-card-file-info--empty { color: var(--fp-c-subtle); font-style: italic; }
+.fp-card-file-size {
+  font-size: .6rem;
+  color: var(--fp-c-subtle);
+  margin-left: 4px;
+  font-weight: 400;
+}
+
+/* Input de alt text */
+.fp-card-alt-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.fp-card-alt-lbl {
+  font-size: .58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--fp-c-subtle);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.fp-card-alt-input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(0,0,0,.22);
+  border: 1px solid var(--fp-c-border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: var(--fp-c-text);
+  font-size: .72rem;
+  transition: border-color .18s, box-shadow .18s;
+  outline: none;
+  box-sizing: border-box;
+}
+.fp-card-alt-input:focus {
+  border-color: var(--fp-teal);
+  box-shadow: 0 0 0 2px rgba(0,168,120,.12);
+}
+.fp-card-alt-input::placeholder { color: var(--fp-c-subtle); opacity: .7; }
+
+/* ══════════════════════════════════════════════════════════════════
+   DROP BANNER — zona de drop global de página
+   ══════════════════════════════════════════════════════════════════ */
+#fp-gallery-drop-banner {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  background: rgba(0,10,20,.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+#fp-gallery-drop-banner.fp-drop-banner--active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.fp-gallery-drop-inner {
+  border: 3px dashed var(--fp-teal);
+  border-radius: 24px;
+  padding: 60px 80px;
+  text-align: center;
+  animation: fp-pulse-border 1.5s ease-in-out infinite;
+}
+@keyframes fp-pulse-border {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,168,120,.3), 0 0 60px rgba(0,168,120,.15); }
+  50%      { box-shadow: 0 0 0 12px rgba(0,168,120,0), 0 0 80px rgba(0,168,120,.3); }
+}
+.fp-gallery-drop-icon {
+  font-size: 3.5rem;
+  display: block;
+  margin-bottom: 16px;
+  animation: fp-bounce-drop 1s ease-in-out infinite;
+}
+@keyframes fp-bounce-drop {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+.fp-gallery-drop-inner p {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--fp-teal);
+  margin: 0;
+  letter-spacing: .5px;
+  text-shadow: 0 0 20px rgba(0,168,120,.5);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   9. RESPONSIVE
+   ══════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .fp-product-card fieldset.module .form-row,
+  .fp-product-card fieldset.module .form-group {
+    padding: 8px 12px;
+  }
+  .fp-product-card fieldset.module > h2 {
+    padding: 12px 14px 10px !important;
+  }
+}

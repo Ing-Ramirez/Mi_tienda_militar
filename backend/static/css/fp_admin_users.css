@@ -1,0 +1,320 @@
+/* ═══════════════════════════════════════════════════════════════════
+   fp_admin_users.css — Card grid para el changelist de Usuarios
+   Requiere fp_admin_base.css (variables CSS) ya cargado.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Barra de selección superior ────────────────────────────────── */
+#fp-users-selbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--fp-c-card);
+  border: 1px solid var(--fp-c-border);
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.fp-usb-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.fp-usb-txt {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--fp-c-muted);
+}
+
+/* Checkbox custom de la barra */
+.fp-usb-chkbox {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--fp-c-border);
+  border-radius: 4px;
+  background: transparent;
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.fp-usb-chkbox.fp-usb-chk--on {
+  background: var(--fp-teal);
+  border-color: var(--fp-teal);
+}
+.fp-usb-chkbox.fp-usb-chk--on::after {
+  content: '✓';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 900;
+  line-height: 1;
+}
+.fp-usb-chkbox.fp-usb-chk--partial {
+  background: rgba(0,168,120,.25);
+  border-color: var(--fp-teal);
+}
+.fp-usb-chkbox.fp-usb-chk--partial::after {
+  content: '—';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--fp-teal);
+  font-size: .65rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.fp-usb-count {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--fp-teal);
+  background: rgba(0,168,120,.12);
+  padding: 2px 10px;
+  border-radius: 20px;
+  min-width: 10px;
+  transition: opacity .2s;
+}
+.fp-usb-count:empty { opacity: 0; }
+
+/* ── Grid de tarjetas ───────────────────────────────────────────── */
+#fp-users-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+/* ── Tarjeta base ───────────────────────────────────────────────── */
+.fp-user-card {
+  position: relative;
+  background: var(--fp-c-card);
+  border: 1.5px solid var(--fp-c-border);
+  border-radius: 14px;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform .22s cubic-bezier(.34,1.56,.64,1),
+    box-shadow .22s ease,
+    border-color .18s ease;
+}
+
+/* Borde izquierdo coloreado por rol */
+.fp-user-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  border-radius: 14px 0 0 14px;
+  transition: width .2s;
+}
+.fp-user-card.fp-uc--super::before   { background: var(--fp-red-alert); }
+.fp-user-card.fp-uc--staff::before   { background: #f59e0b; }
+.fp-user-card.fp-uc--cliente::before { background: var(--fp-teal); }
+
+/* Hover */
+.fp-user-card:hover {
+  transform: translateY(-4px);
+  border-color: transparent;
+}
+.fp-user-card.fp-uc--super:hover {
+  box-shadow: 0 10px 32px rgba(239,68,68,.18), 0 0 0 1.5px var(--fp-red-alert);
+}
+.fp-user-card.fp-uc--staff:hover {
+  box-shadow: 0 10px 32px rgba(245,158,11,.18), 0 0 0 1.5px #f59e0b;
+}
+.fp-user-card.fp-uc--cliente:hover {
+  box-shadow: 0 10px 32px rgba(0,168,120,.18), 0 0 0 1.5px var(--fp-teal);
+}
+
+/* Seleccionada */
+.fp-user-card.fp-uc--selected {
+  border-color: var(--fp-teal) !important;
+  background: rgba(0,168,120,.05) !important;
+  box-shadow: 0 0 0 1px rgba(0,168,120,.3) !important;
+}
+
+/* ── Cabecera ────────────────────────────────────────────────────── */
+.fp-uc-head {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px 0;
+  gap: 8px;
+}
+.fp-uc-spacer { flex: 1; }
+
+/* Checkbox custom */
+.fp-uc-chk-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+.fp-uc-chk-wrap input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.fp-uc-chkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--fp-c-border);
+  border-radius: 4px;
+  background: transparent;
+  flex-shrink: 0;
+  transition: all .15s;
+  position: relative;
+}
+.fp-uc-chk-wrap:hover .fp-uc-chkbox { border-color: var(--fp-teal); }
+.fp-uc-cb:checked ~ .fp-uc-chkbox {
+  background: var(--fp-teal);
+  border-color: var(--fp-teal);
+}
+.fp-uc-cb:checked ~ .fp-uc-chkbox::after {
+  content: '✓';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: .62rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* Badge estado */
+.fp-uc-estado {
+  font-size: .63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.fp-uc--activo {
+  background: rgba(0,168,120,.15);
+  color: var(--fp-teal);
+}
+.fp-uc--inactivo {
+  background: rgba(239,68,68,.12);
+  color: var(--fp-red-alert);
+}
+
+/* ── Cuerpo ──────────────────────────────────────────────────────── */
+.fp-uc-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 14px 10px 18px;
+  flex: 1;
+}
+
+/* Avatar con iniciales */
+.fp-uc-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .95rem;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: .5px;
+  box-shadow: 0 3px 10px rgba(0,0,0,.25);
+}
+.fp-uc--super   .fp-uc-avatar { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+.fp-uc--staff   .fp-uc-avatar { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.fp-uc--cliente .fp-uc-avatar { background: linear-gradient(135deg, var(--fp-teal), #007a5e); }
+
+/* Bloque de información */
+.fp-uc-info { flex: 1; min-width: 0; }
+
+.fp-uc-email {
+  font-size: .84rem;
+  font-weight: 700;
+  color: var(--fp-teal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.fp-uc--super   .fp-uc-email { color: #f87171; }
+.fp-uc--staff   .fp-uc-email { color: #fbbf24; }
+
+.fp-uc-name {
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--fp-c-text);
+  margin-bottom: 7px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fp-uc-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.fp-uc-meta span {
+  font-size: .71rem;
+  color: var(--fp-c-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Pie ─────────────────────────────────────────────────────────── */
+.fp-uc-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px 10px 18px;
+  border-top: 1px solid var(--fp-c-border);
+}
+
+.fp-uc-rol {
+  font-size: .71rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--fp-c-subtle);
+}
+.fp-uc--super   .fp-uc-rol { color: #f87171; }
+.fp-uc--staff   .fp-uc-rol { color: #fbbf24; }
+.fp-uc--cliente .fp-uc-rol { color: var(--fp-teal); }
+
+.fp-uc-arrow {
+  font-size: .68rem;
+  color: var(--fp-c-subtle);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity .18s, transform .18s;
+}
+.fp-user-card:hover .fp-uc-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Focus visible (accesibilidad) ──────────────────────────────── */
+.fp-user-card:focus-visible {
+  outline: 2px solid var(--fp-teal);
+  outline-offset: 2px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 1199px) {
+  #fp-users-cards { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 767px) {
+  #fp-users-cards { grid-template-columns: 1fr; }
+  .fp-uc-body { padding-left: 14px; }
+  .fp-uc-foot { padding-left: 14px; }
+}

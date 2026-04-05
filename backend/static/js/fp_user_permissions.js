@@ -13,9 +13,11 @@
     gestorinventario:    { icon: '📦', desc: 'Control de stock, variantes e inventario del catálogo.' },
   };
   var BOOL_META = {
-    is_active:    { icon: '✅', title: 'Usuario activo',   desc: 'El usuario puede iniciar sesión y usar la tienda.', cls: '' },
-    is_staff:     { icon: '🔧', title: 'Acceso al panel',  desc: 'Permite entrar al panel de administración con permisos asignados.', cls: 'fp-staff' },
-    is_superuser: { icon: '🛡️', title: 'Superusuario',     desc: 'Todos los permisos sin restricciones. Solo para cuentas de máxima confianza.', cls: 'fp-super' },
+    is_active:          { icon: '✅', title: 'Usuario activo',        desc: 'El usuario puede iniciar sesión y usar la tienda.',                                cls: '' },
+    is_staff:           { icon: '🔧', title: 'Acceso al panel',       desc: 'Permite entrar al panel de administración con permisos asignados.',                cls: 'fp-staff' },
+    is_superuser:       { icon: '🛡️', title: 'Superusuario',          desc: 'Todos los permisos sin restricciones. Solo para cuentas de máxima confianza.',    cls: 'fp-super' },
+    two_factor_enabled: { icon: '🔐', title: '2FA activo',            desc: 'Verificación en dos pasos vía SMS. Recomendado para cuentas con acceso al panel.', cls: 'fp-security' },
+    accepts_marketing:  { icon: '📣', title: 'Acepta comunicaciones', desc: 'El usuario acepta recibir correos y notificaciones de marketing.',                 cls: 'fp-marketing' },
   };
 
   /* ── Utilidades de selección (sincronizan el <select> original) ── */
@@ -339,6 +341,153 @@
   }
 
   /* ══════════════════════════════════════════════════════════════
+     TARJETAS DE CAMPOS — Credenciales, Info personal, Documento
+     Mismo patrón visual que las bool cards de Permisos.
+     ══════════════════════════════════════════════════════════════ */
+  function initCredentialsSection() {
+
+    var FIELD_CARDS = [
+      /* Credenciales */
+      { field: 'email',           icon: '✉️', tag: 'input'  },
+      { field: 'username',        icon: '👤', tag: 'input'  },
+      /* Información personal */
+      { field: 'first_name',      icon: '🪪', tag: 'input'  },
+      { field: 'last_name',       icon: '🪪', tag: 'input'  },
+      { field: 'phone',           icon: '📱', tag: 'input'  },
+      /* birth_date se maneja por separado (SelectDateWidget = 3 selects) */
+      /* Documento de identidad */
+      { field: 'document_type',   icon: '📋', tag: 'select' },
+      { field: 'document_number', icon: '🔢', tag: 'input'  },
+      /* Seguridad */
+      { field: 'phone_2fa',       icon: '🔐', tag: 'input'  },
+      /* Formulario de alta y cambio de contraseña */
+      { field: 'password1',       icon: '🔑', tag: 'input'  },
+      { field: 'password2',       icon: '🔑', tag: 'input'  },
+    ];
+
+    /* Helper: construye una tarjeta genérica dado un row y un array de elementos */
+    function buildFieldCard(row, icon, elements) {
+      var labelEl   = row.querySelector('label');
+      var labelText = labelEl ? labelEl.textContent.replace(/\s*:?\s*\*?\s*$/, '').trim() : '';
+      var helpEl    = row.querySelector('.help, p.help, .helptext');
+      var helpText  = helpEl ? helpEl.textContent.trim() : '';
+      var required  = !!row.querySelector('[required], .required');
+
+      var card = document.createElement('div');
+      card.className = 'fp-field-card';
+
+      var icoSpan = document.createElement('span');
+      icoSpan.className = 'fp-field-ico';
+      icoSpan.textContent = icon;
+
+      var body = document.createElement('div');
+      body.className = 'fp-field-body';
+
+      var lbl = document.createElement('div');
+      lbl.className = 'fp-field-label';
+      lbl.innerHTML = labelText + (required ? ' <span class="fp-field-req">*</span>' : '');
+      body.appendChild(lbl);
+
+      var inputsWrap = document.createElement('div');
+      inputsWrap.className = 'fp-field-inputs-row';
+      elements.forEach(function (el) {
+        el.classList.add('fp-field-input');
+        inputsWrap.appendChild(el);
+        el.addEventListener('focus', function () { card.classList.add('fp-field-card--focus'); });
+        el.addEventListener('blur',  function () { card.classList.remove('fp-field-card--focus'); });
+      });
+      body.appendChild(inputsWrap);
+
+      if (helpText) {
+        var help = document.createElement('div');
+        help.className = 'fp-field-help';
+        help.textContent = helpText;
+        body.appendChild(help);
+      }
+
+      card.appendChild(icoSpan);
+      card.appendChild(body);
+      row.style.cssText = 'display:none!important';
+      row.insertAdjacentElement('afterend', card);
+    }
+
+    FIELD_CARDS.forEach(function (m) {
+      var row = document.querySelector('.field-' + m.field);
+      if (!row) return;
+      var el = row.querySelector(m.tag);
+      if (!el) return;
+      buildFieldCard(row, m.icon, [el]);
+    });
+
+    /* ── Fecha de nacimiento: SelectDateWidget → 3 selects (día/mes/año) ── */
+    var bdRow = document.querySelector('.field-birth_date');
+    if (bdRow) {
+      var bdSelects = Array.from(bdRow.querySelectorAll('select'));
+      if (bdSelects.length) buildFieldCard(bdRow, '🎂', bdSelects);
+    }
+
+    /* ── Contraseña — tarjeta especial sin input editable ─────── */
+    var pwRow = document.querySelector('.field-password');
+    if (!pwRow) return;
+    var pwLink = pwRow.querySelector('a[href]');
+    var pwHref = pwLink ? pwLink.href : null;
+
+    var pwCard = document.createElement('div');
+    pwCard.className = 'fp-field-card fp-field-card--pw';
+    pwCard.innerHTML =
+      '<span class="fp-field-ico">🔑</span>' +
+      '<div class="fp-field-body">' +
+        '<div class="fp-field-label">Contraseña</div>' +
+        '<div class="fp-pw-desc">Cifrada con <strong>argon2id</strong>. No se almacena en texto plano.</div>' +
+        (pwHref ? '<a href="' + pwHref + '" class="fp-pw-btn">🔄 Cambiar contraseña</a>' : '') +
+      '</div>';
+
+    pwRow.style.cssText = 'display:none!important';
+    pwRow.insertAdjacentElement('afterend', pwCard);
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     FECHAS — tarjetas de solo lectura para la sección Fechas
+     ══════════════════════════════════════════════════════════════ */
+  function initDatesCards() {
+    var DATE_META = [
+      { field: 'last_login',  icon: '🕐', label: 'Último acceso' },
+      { field: 'date_joined', icon: '📅', label: 'Fecha de alta' },
+      { field: 'created_at',  icon: '🗓️', label: 'Fecha de creación' },
+      { field: 'updated_at',  icon: '✏️', label: 'Última actualización' },
+    ];
+
+    var rows = [];
+    DATE_META.forEach(function (m) {
+      var row = document.querySelector('.field-' + m.field);
+      if (row) rows.push({ meta: m, row: row });
+    });
+    if (!rows.length) return;
+
+    var wrap = document.createElement('div');
+    wrap.className = 'fp-dates-grid';
+
+    rows.forEach(function (r) {
+      var valueEl = r.row.querySelector('.readonly') || r.row.querySelector('p');
+      var value   = valueEl ? valueEl.textContent.trim() : '';
+      if (!value || value === '-' || value === '(None)' || value === 'None') value = '—';
+
+      var card = document.createElement('div');
+      card.className = 'fp-date-card';
+      card.innerHTML =
+        '<span class="fp-date-ico">' + r.meta.icon + '</span>' +
+        '<div class="fp-date-body">' +
+          '<div class="fp-date-label">' + r.meta.label + '</div>' +
+          '<div class="fp-date-value">' + value + '</div>' +
+        '</div>';
+      wrap.appendChild(card);
+      r.row.style.cssText = 'display:none!important';
+    });
+
+    rows[0].row.insertAdjacentElement('beforebegin', wrap);
+  }
+
+  /* ══════════════════════════════════════════════════════════════
      BARRA DE ACCIONES INFERIOR
      Renderizada en el servidor vía template override:
        backend/templates/admin/users/user/change_form.html
@@ -353,7 +502,13 @@
 
   /* Bool cards + Submit bar: no dependen de SelectFilter, corren en DOMContentLoaded */
   function onDOMReady() {
+    /* Solo actuar en formularios, nunca en el changelist */
+    if (document.getElementById('result_list')) return;
+    /* Tampoco en el formulario de cambio de contraseña (tiene su propio template) */
+    if (window.location.pathname.indexOf('/password/') !== -1) return;
+    initCredentialsSection();
     initBoolCards();
+    initDatesCards();
     initSubmitBar();
   }
 

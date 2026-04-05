@@ -465,6 +465,225 @@
 .fp-perm-item--on .fp-perm-txt { color: var(--fp-teal); }
 .fp-perm-item--on .fp-perm-model { color: rgba(0,168,120,.7); }
 
+/* ══════════════════════════════════════════════════════════════
+   TARJETAS DE CAMPOS — Credenciales, Info personal, Documento
+   Mismo patrón visual que fp-bool-card
+   ══════════════════════════════════════════════════════════════ */
+.fp-field-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 20px;
+  background: var(--fp-c-card);
+  border: 1.5px solid var(--fp-c-border);
+  border-radius: 14px;
+  margin: 8px 0;
+  transition: border-color .2s, box-shadow .2s;
+}
+.fp-field-card--focus {
+  border-color: var(--fp-teal) !important;
+  box-shadow: 0 0 0 1px rgba(0,168,120,.22), 0 4px 18px rgba(0,168,120,.10) !important;
+}
+.fp-field-card--pw {
+  align-items: center;
+}
+
+.fp-field-ico {
+  font-size: 1.7rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 4px;
+  filter: grayscale(0.2);
+}
+
+.fp-field-body {
+  flex: 1;
+  min-width: 0;
+}
+.fp-field-label {
+  font-size: .72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--fp-c-muted);
+  margin-bottom: 6px;
+}
+.fp-field-req { color: var(--fp-red-alert); margin-left: 2px; }
+
+/* El input/select dentro de la tarjeta */
+.fp-field-input {
+  display: block;
+  width: 100%;
+  background: var(--fp-c-input-bg) !important;
+  border: 1px solid var(--fp-c-input-bdr) !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  color: var(--fp-c-text) !important;
+  font-size: .9rem !important;
+  transition: border-color .18s !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.fp-field-input:focus {
+  border-color: var(--fp-teal) !important;
+  box-shadow: none !important;
+}
+.fp-field-input option {
+  background: var(--fp-c-card);
+  color: var(--fp-c-text);
+}
+
+/* Fila de múltiples inputs/selects dentro de una tarjeta (ej: fecha nacimiento) */
+.fp-field-inputs-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.fp-field-inputs-row .fp-field-input {
+  width: auto !important;
+  flex: 1 1 80px;
+  min-width: 70px;
+}
+
+.fp-field-help {
+  font-size: .72rem;
+  color: var(--fp-c-subtle);
+  margin-top: 5px;
+  line-height: 1.4;
+}
+
+/* ── Tarjeta contraseña — botón de cambio ─────────────────────── */
+.fp-pw-desc {
+  font-size: .78rem;
+  color: var(--fp-c-muted);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.fp-pw-desc strong { color: var(--fp-teal); }
+.fp-pw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: var(--fp-blue);
+  color: var(--fp-c-on-brand) !important;
+  border-radius: 6px;
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none !important;
+  white-space: nowrap;
+  transition: opacity .18s, transform .12s;
+}
+.fp-pw-btn:hover { opacity: .88; transform: translateY(-1px); }
+
+/* ── Aviso superior en cambio de contraseña ──────────────────── */
+.fp-pw-notice {
+  padding: 12px 18px;
+  background: rgba(0,168,120,.08);
+  border: 1px solid rgba(0,168,120,.25);
+  border-radius: 10px;
+  font-size: .85rem;
+  color: var(--fp-teal);
+  font-weight: 600;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+.fp-pw-notice strong { color: var(--fp-c-text); }
+
+/* ── Tarjeta con error ───────────────────────────────────────── */
+.fp-field-card--error {
+  border-color: var(--fp-red-alert) !important;
+  box-shadow: 0 0 0 1px rgba(239,68,68,.2) !important;
+}
+.fp-field-errors {
+  margin-top: 6px;
+  font-size: .75rem;
+  color: var(--fp-red-alert);
+}
+.fp-field-errors ul { margin: 0; padding-left: 16px; }
+
+/* ── Estilo nativo del input en el template de contraseña ─────── */
+#id_password1, #id_password2 {
+  display: block;
+  width: 100%;
+  background: var(--fp-c-input-bg) !important;
+  border: 1px solid var(--fp-c-input-bdr) !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  color: var(--fp-c-text) !important;
+  font-size: .9rem !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: border-color .18s !important;
+}
+#id_password1:focus, #id_password2:focus {
+  border-color: var(--fp-teal) !important;
+}
+
+/* ── Toggle: Seguridad / 2FA — ámbar ─────────────────────────── */
+.fp-bool-card.fp-security.fp-on {
+  border-color: #f59e0b !important;
+  background: rgba(245,158,11,.07) !important;
+  box-shadow: 0 0 0 1px rgba(245,158,11,.25), 0 4px 18px rgba(245,158,11,.10) !important;
+}
+.fp-bool-card.fp-security.fp-on .fp-sw-track  { background: #f59e0b; }
+.fp-bool-card.fp-security.fp-on .fp-bool-badge { background: rgba(245,158,11,.18); color: #f59e0b; }
+.fp-bool-card.fp-security.fp-on .fp-sw-lbl    { color: #f59e0b; }
+
+/* ── Toggle: Marketing — violeta ─────────────────────────────── */
+.fp-bool-card.fp-marketing.fp-on {
+  border-color: #8b5cf6 !important;
+  background: rgba(139,92,246,.07) !important;
+  box-shadow: 0 0 0 1px rgba(139,92,246,.25), 0 4px 18px rgba(139,92,246,.10) !important;
+}
+.fp-bool-card.fp-marketing.fp-on .fp-sw-track  { background: #8b5cf6; }
+.fp-bool-card.fp-marketing.fp-on .fp-bool-badge { background: rgba(139,92,246,.18); color: #8b5cf6; }
+.fp-bool-card.fp-marketing.fp-on .fp-sw-lbl    { color: #8b5cf6; }
+
+/* ══════════════════════════════════════════════════════════════
+   TARJETAS DE FECHAS — sección Fechas (solo lectura)
+   ══════════════════════════════════════════════════════════════ */
+.fp-dates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+  margin: 10px 0 6px;
+}
+.fp-date-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--fp-c-card);
+  border: 1px solid var(--fp-c-border);
+  border-radius: 10px;
+  transition: border-color .18s;
+}
+.fp-date-card:hover { border-color: var(--fp-teal-a55); }
+.fp-date-ico {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.fp-date-body { flex: 1; min-width: 0; }
+.fp-date-label {
+  font-size: .64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--fp-c-muted);
+  margin-bottom: 5px;
+}
+.fp-date-value {
+  font-size: .86rem;
+  font-weight: 600;
+  color: var(--fp-c-text);
+  line-height: 1.3;
+}
+
 /* Estado "sin resultados de búsqueda" */
 .fp-perm-no-results {
   grid-column: 1 / -1;

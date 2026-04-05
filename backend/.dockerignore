@@ -1,0 +1,51 @@
+# ── Python ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Entornos virtuales ────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Variables de entorno (nunca en imagen) ────────────
+.env
+.env.*
+!.env.example
+
+# ── Git y control de versiones ────────────────────────
+.git/
+.gitignore
+.gitattributes
+
+# ── Editores / OS ─────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+Thumbs.db
+
+# ── Archivos de desarrollo ────────────────────────────
+*.log
+logs/
+node_modules/
+
+# ── Documentación y extras ────────────────────────────
+*.md
+docs/
+tests/

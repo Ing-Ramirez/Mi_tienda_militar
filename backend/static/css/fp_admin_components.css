@@ -1032,3 +1032,83 @@ input[name="_save"]:hover {
   border-radius: 4px !important;
   padding: 2px 8px !important;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   BARRA DE BOTONES DE FORMULARIO — #fp-submit-bar
+   Global: disponible en cualquier change_form del admin.
+   ══════════════════════════════════════════════════════════════ */
+#fp-submit-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.4rem 1.5rem;
+  margin-top: 1.5rem;
+  background: var(--fp-c-card-alt);
+  border: 1px solid var(--fp-c-border);
+  border-radius: 6px;
+  border-top: 3px solid var(--fp-teal);
+}
+
+.fp-save-btn {
+  padding: 11px 32px;
+  border: none;
+  border-radius: 5px;
+  font-size: .92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .2s, transform .12s;
+  white-space: nowrap;
+  letter-spacing: .15px;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.fp-save-btn:hover  { opacity: .88; transform: translateY(-1px); }
+.fp-save-btn:active { transform: translateY(0); }
+
+.fp-btn-save    { background: var(--fp-success-dk, #2e7d32); color: var(--fp-c-on-brand, #fff) !important; }
+.fp-btn-new     { background: var(--fp-blue, #3b82f6);       color: var(--fp-c-on-brand, #fff) !important; }
+.fp-btn-delete  { background: var(--fp-danger, #dc2626);     color: var(--fp-c-on-brand, #fff) !important; }
+.fp-btn-cancel  {
+  background: transparent;
+  border: 1px solid var(--fp-c-border);
+  color: var(--fp-c-muted) !important;
+}
+.fp-btn-cancel:hover {
+  border-color: var(--fp-c-text);
+  color: var(--fp-c-text) !important;
+  opacity: 1;
+}
+.fp-btn-history {
+  background: transparent;
+  border: 1px solid var(--fp-c-border);
+  color: var(--fp-c-muted) !important;
+}
+.fp-btn-history:hover {
+  border-color: var(--fp-c-text);
+  color: var(--fp-c-text) !important;
+  opacity: 1;
+}
+
+/* Tema oscuro */
+html.fp-dark .fp-btn-save   { background: var(--fp-success-dk, #2e7d32) !important; color: #fff !important; }
+html.fp-dark .fp-btn-new    { background: var(--fp-blue, #3b82f6) !important;       color: #fff !important; }
+html.fp-dark .fp-btn-delete { background: var(--fp-danger, #dc2626) !important;     color: #fff !important; }
+html.fp-dark .fp-btn-cancel { background: transparent !important; color: var(--fp-c-muted) !important; }
+
+/* Responsive */
+@media (max-width: 767px) {
+  #fp-submit-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .6rem;
+  }
+  #fp-submit-bar .fp-save-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+  }
+}

@@ -14,112 +14,16 @@
        LAYOUT PLANO VERTICAL
        ══════════════════════════════════════════════════════════════════════ */
     function initFlatLayout() {
+        /* La plantilla change_form.html ya define la estructura visual.
+           Este función solo activa subsistemas UX que requieren JS. */
         var form = document.querySelector('#content-main form');
         if (!form) return;
 
-        /* Con errores: solo mostrar todo sin reorganizar */
-        if (form.querySelector('.errorlist')) {
-            revealAll(form);
-            buildSubmitBar(form);
-            return;
-        }
-
-        /* 1. Neutralizar tabs de jazzmin */
-        form.querySelectorAll('.nav-tabs, .nav.nav-tabs').forEach(function (n) {
-            n.style.display = 'none';
-        });
-        form.querySelectorAll('.card-header').forEach(function (ch) {
-            if (ch.querySelector('.nav-tabs, .nav-link')) ch.style.display = 'none';
-        });
-        form.querySelectorAll('.tab-pane').forEach(function (tp) {
-            tp.style.cssText += ';display:block!important;opacity:1!important;';
-        });
-
-        /* 2. Recolectar secciones */
-        var sections = [];
-        var tabContent = form.querySelector('.tab-content');
-        if (tabContent) {
-            tabContent.querySelectorAll('.tab-pane').forEach(function (tp) {
-                var fs = tp.querySelector('fieldset');
-                if (fs) {
-                    var h2 = fs.querySelector('h2');
-                    sections.push({ el: tp, title: h2 ? h2.textContent.trim() : '' });
-                } else if (tp.children.length) {
-                    sections.push({ el: tp, title: '' });
-                }
-            });
-        }
-        if (sections.length === 0) {
-            form.querySelectorAll('fieldset.module').forEach(function (fs) {
-                var h2 = fs.querySelector('h2');
-                sections.push({ el: fs, title: h2 ? h2.textContent.trim() : '' });
-            });
-        }
-
-        /* 3. Construir contenedor plano */
-        var wrapper = document.createElement('div');
-        wrapper.id = 'fp-flat-layout';
-
-        sections.forEach(function (sec) {
-            if (sec.title) {
-                var lbl = document.createElement('div');
-                lbl.className   = 'fp-section-label';
-                lbl.textContent = sec.title;
-                wrapper.appendChild(lbl);
-            }
-            var box = document.createElement('div');
-            box.className = 'fp-section-content';
-            box.appendChild(sec.el);
-            wrapper.appendChild(box);
-        });
-
-        /* Inline groups (imágenes, variantes) */
-        form.querySelectorAll('.inline-group').forEach(function (g) {
-            var h = g.querySelector('h2, h3');
-            if (h) {
-                var lbl = document.createElement('div');
-                lbl.className   = 'fp-section-label';
-                lbl.textContent = h.textContent.trim();
-                wrapper.appendChild(lbl);
-            }
-            var box = document.createElement('div');
-            box.className = 'fp-section-content';
-            box.appendChild(g);
-            wrapper.appendChild(box);
-        });
-
-        /* 4. Insertar antes del submit row */
-        var submitRow = form.querySelector('.submit-row');
-        if (submitRow) {
-            form.insertBefore(wrapper, submitRow);
-        } else {
-            var card = tabContent ? tabContent.closest('.card') : null;
-            if (card) {
-                card.parentNode.insertBefore(wrapper, card.nextSibling);
-                card.style.display = 'none';
-            } else {
-                form.appendChild(wrapper);
-            }
-        }
-
-        /* Ocultar la card vacía de jazzmin */
-        var card = tabContent ? tabContent.closest('.card') : null;
-        if (card) card.style.display = 'none';
-
-        /* 5. UI de tallas */
-        buildTallasUI();
-
-        /* 6. Lógica dinámica requiere_talla */
-        initRequiereTalla();
-
-        /* 7. Barra de 3 botones */
-        buildSubmitBar(form);
-
-        /* 8. Aviso visual (no bloqueante) al guardar con stock 0 */
+        /* Aviso de stock 0 al guardar */
         form.addEventListener('submit', function () {
             var requiresSize = document.getElementById('id_requires_size');
             if (requiresSize && requiresSize.checked) {
-                var ta = document.getElementById('id_stock_by_size');
+                var ta   = document.getElementById('id_stock_by_size');
                 var data = {};
                 try { data = JSON.parse((ta && ta.value) || '{}'); } catch (ex) {}
                 var total = Object.keys(data).reduce(function (s, k) {
@@ -132,13 +36,13 @@
             }
         });
 
-        /* Mostrar notificación SOLO si Django guardó exitosamente.
-           Django añade el mensaje "fue cambiado exitosamente" en .success-message o
-           en el bloque .messagelist li.success tras un guardado real. */
+        /* Módulo de tallas y lógica requiere_talla */
+        buildTallasUI();
+        initRequiereTalla();
+
+        /* Notificación si Django guardó exitosamente */
         var djangoSuccess = document.querySelector('.messagelist .success, ul.messagelist li.success');
-        if (djangoSuccess) {
-            showAdminNotif('saved');
-        }
+        if (djangoSuccess) showAdminNotif('saved');
     }
 
     function revealAll(form) {
@@ -328,45 +232,54 @@
     function buildSubmitBar(form) {
         if (document.getElementById('fp-submit-bar')) return;
 
+        var isAdd     = /\/add\/$/.test(window.location.pathname);
+        var path      = window.location.pathname;
+        var histUrl   = isAdd ? null : path.replace(/\/change\/$/, '/history/');
+        var deleteUrl = isAdd ? null : path.replace('/change/', '/delete/');
+        var addUrl    = path.replace(/\/[^/]+\/change\/$/, '/add/');
+        if (addUrl === path) addUrl = path.replace(/\/change\/$/, '') + '/add/';
+
         var bar = document.createElement('div');
         bar.id = 'fp-submit-bar';
 
-        /* ── Guardar ── */
+        /* ── ✓ Guardar ── */
         var btnSave = document.createElement('button');
         btnSave.type      = 'submit';
-        btnSave.name      = '_continue';
+        btnSave.name      = '_save';
         btnSave.className = 'fp-save-btn fp-btn-save';
-        btnSave.innerHTML = '✔ Guardar';
-        /* localStorage se marca en el evento submit, no en click */
+        btnSave.innerHTML = '✓ Guardar';
         bar.appendChild(btnSave);
 
-        /* ── Nuevo producto ── */
-        var btnNew = document.createElement('button');
-        btnNew.type      = 'button';
-        btnNew.className = 'fp-save-btn fp-btn-new';
-        btnNew.innerHTML = '＋ Nuevo producto';
-        btnNew.addEventListener('click', function () {
-            var path    = window.location.pathname;
-            var addUrl  = path.replace(/\/[^/]+\/change\/$/, '/add/');
-            if (addUrl === path) addUrl = path.replace(/\/change\/$/, '') + '/add/';
+        /* ── + Añadir otro ── */
+        var btnAdd = document.createElement('button');
+        btnAdd.type      = 'button';
+        btnAdd.className = 'fp-save-btn fp-btn-new';
+        btnAdd.innerHTML = '＋ Añadir otro';
+        btnAdd.addEventListener('click', function () {
             window.location.href = addUrl;
         });
-        bar.appendChild(btnNew);
+        bar.appendChild(btnAdd);
 
-        /* ── Eliminar ── */
-        var btnDelete = document.createElement('button');
-        btnDelete.type      = 'button';
-        btnDelete.className = 'fp-save-btn fp-btn-delete';
-        btnDelete.innerHTML = '✕ Eliminar';
-        btnDelete.addEventListener('click', function () {
-            /* Ocultar si estamos en modo "add" (sin PK) */
-            if (/\/add\/$/.test(window.location.pathname)) {
-                showAdminNotif('no-delete');
-                return;
-            }
-            showAdminNotif('delete');
-        });
-        bar.appendChild(btnDelete);
+        /* ── 📋 Histórico (solo en change) ── */
+        if (histUrl) {
+            var btnHist = document.createElement('a');
+            btnHist.href      = histUrl;
+            btnHist.className = 'fp-save-btn fp-btn-history';
+            btnHist.innerHTML = '📋 Histórico';
+            bar.appendChild(btnHist);
+        }
+
+        /* ── ✕ Eliminar (solo en change) ── */
+        if (deleteUrl) {
+            var btnDelete = document.createElement('button');
+            btnDelete.type      = 'button';
+            btnDelete.className = 'fp-save-btn fp-btn-delete';
+            btnDelete.innerHTML = '✕ Eliminar';
+            btnDelete.addEventListener('click', function () {
+                showAdminNotif('delete');
+            });
+            bar.appendChild(btnDelete);
+        }
 
         form.appendChild(bar);
     }
@@ -469,9 +382,11 @@
         var priceInput = document.getElementById('id_price');
         if (!priceInput) return;
 
+        /* Guard: evitar duplicado si ya existe la tarjeta */
+        if (document.getElementById('fp-converter-card')) return;
+
         /* Encontrar el fieldset que contiene id_price */
         var priceFieldset = priceInput.closest('fieldset') ||
-                            priceInput.closest('.fp-section-content') ||
                             priceInput.parentElement;
         if (!priceFieldset) return;
 

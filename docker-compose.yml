@@ -185,6 +185,7 @@ services:
   certbot:
     image: certbot/certbot:latest
     container_name: franja_pixelada_certbot
+    restart: unless-stopped
     volumes:
       - certbot_www:/var/www/certbot
       - certbot_certs:/etc/letsencrypt

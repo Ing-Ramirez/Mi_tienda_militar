@@ -55,8 +55,11 @@ class ProductVariantInline(admin.TabularInline):
 
 @admin.register(Category, site=admin_site)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'parent', 'product_count', 'is_active', 'order']
-    list_editable = ['is_active', 'order']
+    class Media:
+        css = {'all': ('css/fp_admin_categories.css',)}
+        js = ('js/fp_admin_categories.js',)
+
+    list_display = ['icon_preview', 'name', 'parent', 'product_count', 'is_active', 'order']
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name', 'description']
     list_filter = ['is_active', 'parent']
@@ -81,6 +84,26 @@ class CategoryAdmin(admin.ModelAdmin):
         }),
     )
 
+    def icon_preview(self, obj):
+        try:
+            if obj.image:
+                return format_html(
+                    '<div style="width:48px;height:48px;overflow:hidden;border-radius:8px;'
+                    'border:1px solid #333">'
+                    '<img src="{}" style="width:100%;height:100%;object-fit:cover;display:block">'
+                    '</div>',
+                    obj.image.url
+                )
+            if obj.icon:
+                return format_html(
+                    '<i class="{}" style="font-size:1.6rem;opacity:.75"></i>',
+                    obj.icon
+                )
+        except Exception:
+            pass
+        return format_html('<span style="font-size:1.4rem">📁</span>')
+    icon_preview.short_description = ''
+
     def product_count(self, obj):
         try:
             count = obj.products.filter(status='active').count()
@@ -103,8 +126,8 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(Product, site=admin_site)
 class ProductAdmin(admin.ModelAdmin):
     class Media:
-        css = {'all': ('css/admin_productos.css',)}
-        js = ('js/admin_productos.js',)
+        css = {'all': ('css/admin_productos.css', 'css/fp_admin_products.css', 'css/fp_product_form.css')}
+        js = ('js/admin_productos.js', 'js/fp_admin_products.js', 'js/fp_product_images.js', 'js/fp_product_variants.js')
 
     list_display = [
         'thumbnail_preview', 'name', 'category',

@@ -3,26 +3,31 @@
    Paleta alineada con fp_admin_base (:root / html.fp-dark)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── 1. ANULAR TABS DE JAZZMIN ───────────────────────────────────────────── */
-#content-main .card-header:has(.nav-tabs),
-#content-main .card-header:has(.nav-link),
-#content-main ul.nav-tabs,
-#content-main .nav.nav-tabs { display: none !important; }
+/* ── 1. REVELAR TABS DE JAZZMIN COMO STACK VERTICAL ─────────────────────── */
+/* La plantilla ya define estructura; Jazzmin sigue envolviendo fieldsets en
+   .tab-content/.tab-pane — los revelamos todos y ocultamos la navegación.   */
+.fp-product-card .card-header:has(.nav-tabs),
+.fp-product-card .card-header:has(.nav-link),
+.fp-product-card ul.nav-tabs,
+.fp-product-card .nav.nav-tabs  { display: none !important; }
 
-#content-main .tab-content   { display: block !important; }
-#content-main .tab-pane {
+.fp-product-card .tab-content   { display: block !important; }
+.fp-product-card .tab-pane {
     display:    block !important;
     opacity:    1     !important;
     visibility: visible !important;
 }
-#content-main .card.card-primary.card-outline.card-tabs {
+/* Neutralizar la card interna que Jazzmin genera para los tabs */
+.fp-product-card .card.card-primary.card-outline.card-tabs,
+.fp-product-card .card.card-tabs {
     box-shadow: none !important;
     border:     none !important;
+    background: transparent !important;
 }
-#content-main .card.card-primary.card-outline.card-tabs > .card-body {
-    padding: 0 !important;
-}
-.submit-row { display: none !important; }
+.fp-product-card .card.card-tabs > .card-body { padding: 0 !important; }
+
+/* Ocultar submit-row nativo de Django (barra propia en plantilla) */
+.change-form .submit-row { display: none !important; }
 
 /* ── SCROLL HORIZONTAL EN INLINES ───────────────────────────────────────── */
 .inline-related .tabular { overflow-x: auto; display: block; }
@@ -40,46 +45,9 @@
 
 /* Lista de productos: barra = fp_admin_components + franja_admin_global.js */
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   LAYOUT PLANO VERTICAL
-   ═══════════════════════════════════════════════════════════════════════════ */
-#fp-flat-layout {
-    margin-bottom: 1.5rem;
-}
-
-.fp-section-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 1.6rem 0 .6rem;
-    font-size: .82rem;
-    font-weight: 700;
-    color: var(--fp-teal-dk);
-    text-transform: uppercase;
-    letter-spacing: .6px;
-}
-.fp-section-label::before,
-.fp-section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--fp-c-border);
-}
-.fp-section-label:first-child { margin-top: .4rem; }
-
-.fp-section-content {
-    background: var(--fp-c-card);
-    border: 1px solid var(--fp-c-border);
-    border-radius: 6px;
-    padding: .5rem 0;
-    margin-bottom: .25rem;
-}
-.fp-section-content fieldset > h2 { display: none !important; }
-.fp-section-content fieldset {
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
+/* (fp-flat-layout / fp-section-label / fp-section-content eliminados:
+    la plantilla admin/products/product/change_form.html + fp_product_form.css
+    apuntan directamente a fieldset.module y .inline-group) */
 
 /* ═══════════════════════════════════════════════════════════════════════════
    MÓDULO DE TALLAS + STOCK
@@ -242,8 +210,37 @@
 .fp-save-btn:hover  { opacity: .88; transform: translateY(-1px); }
 .fp-save-btn:active { transform: translateY(0); }
 .fp-btn-save   { background: var(--fp-success-dk); color: var(--fp-c-on-brand); }
-.fp-btn-new    { background: var(--fp-blue); color: var(--fp-c-on-brand); }
-.fp-btn-delete { background: var(--fp-danger); color: var(--fp-c-on-brand); }
+.fp-btn-new    { background: var(--fp-blue);       color: var(--fp-c-on-brand); }
+.fp-btn-delete { background: var(--fp-danger);     color: var(--fp-c-on-brand); }
+.fp-btn-history {
+    background: transparent;
+    border: 1px solid var(--fp-c-border);
+    color: var(--fp-c-muted) !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.fp-btn-history:hover {
+    border-color: var(--fp-c-text);
+    color: var(--fp-c-text) !important;
+    opacity: 1;
+}
+
+/* ── Responsive: mobile — columna, ancho completo ── */
+@media (max-width: 767px) {
+    #fp-submit-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .6rem;
+    }
+    #fp-submit-bar .fp-save-btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+        padding: 12px 16px;
+    }
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    NOTIFICACIÓN CENTRAL
@@ -323,3 +320,265 @@ html.fp-dark .fp-notif-cancel {
 html.fp-dark .fp-btn-save   { background: var(--fp-success-dk) !important; color: var(--fp-c-on-brand) !important; }
 html.fp-dark .fp-btn-new    { background: var(--fp-blue) !important; color: var(--fp-c-on-brand) !important; }
 html.fp-dark .fp-btn-delete { background: var(--fp-danger) !important; color: var(--fp-c-on-brand) !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GALERÍA DE VARIANTES — #fp-variant-gallery
+   Scope: #fp-variant-gallery, .fp-variant-*
+   ═══════════════════════════════════════════════════════════════════════════ */
+#fp-variant-gallery {
+    padding: 0;
+    margin: .5rem 0 1rem;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.fp-variant-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
+    padding: 1rem 1.25rem .9rem;
+    border-bottom: 1px solid var(--fp-c-border);
+    margin-bottom: 1rem;
+}
+.fp-variant-header-left {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+}
+.fp-variant-title-icon { font-size: 1.05rem; }
+.fp-variant-title-text {
+    font-size: .88rem;
+    font-weight: 700;
+    color: var(--fp-c-text);
+}
+.fp-variant-badge {
+    background: var(--fp-blue);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 20px;
+}
+.fp-variant-add-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 5px;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--fp-teal);
+    color: #fff;
+    transition: opacity .2s;
+}
+.fp-variant-add-btn:hover { opacity: .85; }
+
+/* ── Estado vacío ───────────────────────────────────────────────────────── */
+#fp-variant-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--fp-c-muted);
+}
+.fp-variant-empty-icon  { font-size: 2.5rem; margin-bottom: .5rem; opacity: .4; }
+.fp-variant-empty-title { font-size: .95rem; font-weight: 600; margin: 0 0 .3rem; color: var(--fp-c-text); }
+.fp-variant-empty-sub   { font-size: .8rem; margin: 0; }
+
+/* ── Grid de tarjetas ───────────────────────────────────────────────────── */
+#fp-variant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1rem;
+    padding: 0 .25rem 1rem;
+}
+@media (max-width: 600px) { #fp-variant-grid { grid-template-columns: 1fr; } }
+
+/* ── Tarjeta ─────────────────────────────────────────────────────────────── */
+.fp-variant-card {
+    background: var(--fp-c-card);
+    border: 1.5px solid var(--fp-c-border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color .22s, box-shadow .22s;
+}
+.fp-variant-card:hover {
+    border-color: rgba(0,168,120,.35);
+    box-shadow: 0 4px 16px rgba(0,168,120,.08);
+}
+.fp-variant-card--new {
+    border-style: dashed;
+    border-color: var(--fp-teal);
+}
+.fp-variant-card--deleted {
+    opacity: .38;
+    border-color: var(--fp-danger) !important;
+    position: relative;
+}
+.fp-variant-card--deleted::after {
+    content: 'ELIMINADA';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--fp-danger);
+    opacity: .65;
+    pointer-events: none;
+}
+@keyframes fp-variant-appear {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.fp-variant-card--appear { animation: fp-variant-appear .22s ease; }
+
+/* ── Cabecera de tarjeta ─────────────────────────────────────────────────── */
+.fp-variant-card-header {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .6rem 1rem;
+    background: var(--fp-c-card-alt);
+    border-bottom: 1px solid var(--fp-c-border);
+}
+.fp-variant-type-chip {
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: .68rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    opacity: .92;
+}
+.fp-variant-card-title {
+    flex: 1;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--fp-c-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.fp-variant-del-btn {
+    border: none;
+    background: transparent;
+    color: var(--fp-c-muted);
+    font-size: .85rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background .15s, color .15s;
+    flex-shrink: 0;
+    pointer-events: auto;
+}
+.fp-variant-del-btn:hover {
+    background: rgba(220,38,38,.12);
+    color: var(--fp-danger);
+}
+
+/* ── Bloques de campos ───────────────────────────────────────────────────── */
+.fp-variant-blocks {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 1100px) { .fp-variant-blocks { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .fp-variant-blocks { grid-template-columns: 1fr; } }
+
+.fp-variant-block {
+    padding: .85rem 1rem .9rem;
+    border-right: 1px solid var(--fp-c-border);
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+}
+.fp-variant-block:last-child { border-right: none; }
+
+.fp-variant-block-label {
+    font-size: .63rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .9px;
+    margin-bottom: .15rem;
+    padding-bottom: .3rem;
+    border-bottom: 2px solid;
+}
+.fp-variant-block--identity     .fp-variant-block-label { color: var(--fp-teal);        border-color: var(--fp-teal); }
+.fp-variant-block--commercial   .fp-variant-block-label { color: var(--fp-blue-bright); border-color: var(--fp-blue-bright); }
+.fp-variant-block--presentation .fp-variant-block-label { color: var(--fp-amber);       border-color: var(--fp-amber); }
+
+/* ── Campo individual ────────────────────────────────────────────────────── */
+.fp-variant-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.fp-variant-field-label {
+    font-size: .67rem;
+    color: var(--fp-c-muted);
+    font-weight: 500;
+}
+.fp-variant-input {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid var(--fp-c-input-bdr);
+    border-radius: 4px;
+    font-size: .8rem;
+    background: var(--fp-c-input-bg);
+    color: var(--fp-c-text);
+    transition: border-color .18s;
+    box-sizing: border-box;
+}
+.fp-variant-input:focus {
+    outline: none;
+    border-color: var(--fp-teal);
+    box-shadow: 0 0 0 2px rgba(0,168,120,.12);
+}
+select.fp-variant-input { cursor: pointer; }
+
+/* ── Pill activa ─────────────────────────────────────────────────────────── */
+.fp-active-pill {
+    width: 100%;
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: none;
+    font-size: .78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+    text-align: center;
+}
+.fp-active-pill--on  { background: rgba(0,168,120,.18); color: var(--fp-teal); }
+.fp-active-pill--off { background: rgba(220,38,38,.12);  color: var(--fp-danger); }
+
+/* ── Color hex + swatch ──────────────────────────────────────────────────── */
+.fp-variant-hex-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.fp-variant-hex-row .fp-variant-input { flex: 1; min-width: 0; }
+.fp-color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid var(--fp-c-border);
+    flex-shrink: 0;
+    background: transparent;
+    transition: background .15s;
+}
+
+/* ── Errores de validación ───────────────────────────────────────────────── */
+.fp-variant-errors {
+    padding: .5rem 1rem;
+    background: rgba(220,38,38,.07);
+    border-top: 1px solid rgba(220,38,38,.2);
+    font-size: .78rem;
+    color: var(--fp-danger);
+}

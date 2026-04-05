@@ -9,13 +9,22 @@ from core.admin_site import admin_site   # AdminSite con MFA (OTP) obligatorio
 from core.views import health_live
 from orders.file_views import staff_order_payment_proof
 
+
+class SPAView(TemplateView):
+    """SPA principal — expone admin_url solo a usuarios staff autenticados."""
+    template_name = 'store/index.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated and self.request.user.is_staff:
+            ctx['admin_url'] = f'/{settings.ADMIN_URL}'
+        return ctx
+
+
 urlpatterns = [
     path('health/', health_live, name='health_live'),
     # ── Frontend SPA ───────────────────────────────────
-    path('', TemplateView.as_view(
-        template_name='store/index.html',
-        extra_context={'admin_url': f'/{settings.ADMIN_URL}'},
-    ), name='home'),
+    path('', SPAView.as_view(), name='home'),
 
     # ── Admin con MFA TOTP ──────────────────────────────
     # La URL se configura mediante ADMIN_URL en .env (por defecto 'admin/')

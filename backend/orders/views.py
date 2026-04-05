@@ -122,42 +122,45 @@ class CartViewSet(viewsets.GenericViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        price = variant.final_price if variant else product.price
         has_personalization = bool(bordado or rh)
 
-        # ── Validar stock por talla ────────────────────────────────────────────
-        ok, disponible, en_carrito = _validar_stock(
-            product, talla, quantity, cart=cart
-        )
-        if not ok:
-            restante = max(0, disponible - en_carrito)
-            talla_label = talla or 'seleccionada'
-            return Response({
-                'detail': (
-                    f'Stock insuficiente para la talla {talla_label}. '
-                    f'Disponible: {disponible}, ya en carrito: {en_carrito}, '
-                    f'puedes agregar: {restante}.'
-                ),
-                'stock_disponible': disponible,
-                'ya_en_carrito': en_carrito,
-                'qty_disponible': restante,
-            }, status=status.HTTP_400_BAD_REQUEST)
+        # ── Validar stock y crear ítem de forma atómica (evita overselling) ────
+        with db_transaction.atomic():
+            product = Product.objects.select_for_update().get(id=product_id)
+            price = variant.final_price if variant else product.price
 
-        if has_personalization:
-            item = CartItem.objects.create(
-                cart=cart, product=product, variant=variant,
-                talla=talla, bordado=bordado, rh=rh,
-                quantity=quantity, price_at_addition=price
+            ok, disponible, en_carrito = _validar_stock(
+                product, talla, quantity, cart=cart
             )
-        else:
-            item, created = CartItem.objects.get_or_create(
-                cart=cart, product=product, variant=variant,
-                talla=talla, bordado='', rh='',
-                defaults={'quantity': quantity, 'price_at_addition': price}
-            )
-            if not created:
-                item.quantity += quantity
-                item.save()
+            if not ok:
+                restante = max(0, disponible - en_carrito)
+                talla_label = talla or 'seleccionada'
+                return Response({
+                    'detail': (
+                        f'Stock insuficiente para la talla {talla_label}. '
+                        f'Disponible: {disponible}, ya en carrito: {en_carrito}, '
+                        f'puedes agregar: {restante}.'
+                    ),
+                    'stock_disponible': disponible,
+                    'ya_en_carrito': en_carrito,
+                    'qty_disponible': restante,
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if has_personalization:
+                CartItem.objects.create(
+                    cart=cart, product=product, variant=variant,
+                    talla=talla, bordado=bordado, rh=rh,
+                    quantity=quantity, price_at_addition=price
+                )
+            else:
+                item, created = CartItem.objects.get_or_create(
+                    cart=cart, product=product, variant=variant,
+                    talla=talla, bordado='', rh='',
+                    defaults={'quantity': quantity, 'price_at_addition': price}
+                )
+                if not created:
+                    item.quantity += quantity
+                    item.save()
 
         return Response(CartSerializer(cart).data, status=201)
 
@@ -178,22 +181,26 @@ class CartViewSet(viewsets.GenericViewSet):
         if quantity <= 0:
             item.delete()
         else:
-            # Validar stock por talla (excluir el propio ítem del conteo)
-            ok, disponible, _ = _validar_stock(
-                item.product, item.talla, quantity,
-                cart=cart, exclude_item_id=item.id
-            )
-            if not ok:
-                talla_label = item.talla or 'seleccionada'
-                return Response({
-                    'detail': (
-                        f'Stock insuficiente para la talla {talla_label}. '
-                        f'Máximo disponible: {disponible} unidades.'
-                    ),
-                    'stock_disponible': disponible,
-                }, status=status.HTTP_400_BAD_REQUEST)
-            item.quantity = quantity
-            item.save()
+            # Validar stock de forma atómica (evita overselling concurrente)
+            with db_transaction.atomic():
+                product = item.product.__class__.objects.select_for_update().get(
+                    id=item.product_id
+                )
+                ok, disponible, _ = _validar_stock(
+                    product, item.talla, quantity,
+                    cart=cart, exclude_item_id=item.id
+                )
+                if not ok:
+                    talla_label = item.talla or 'seleccionada'
+                    return Response({
+                        'detail': (
+                            f'Stock insuficiente para la talla {talla_label}. '
+                            f'Máximo disponible: {disponible} unidades.'
+                        ),
+                        'stock_disponible': disponible,
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                item.quantity = quantity
+                item.save()
         return Response(CartSerializer(cart).data)
 
     @action(detail=False, methods=['delete'], url_path='remove_item/(?P<item_id>[^/.]+)')

@@ -4,6 +4,17 @@
 # ──────────────────────────────────────────────────
 set -e
 
+# Si arrancamos como root (UID 0), fijar permisos en los volúmenes montados
+# y re-lanzar este mismo script como usuario "django" usando gosu.
+# Esto resuelve que los volúmenes Docker se monten con ownership root
+# después de que el Dockerfile ejecutó su chown.
+if [ "$(id -u)" = "0" ]; then
+  mkdir -p /app/media /app/staticfiles /app/logs
+  chown -R django:django /app/media /app/staticfiles /app/logs
+  chmod -R 755 /app/media /app/staticfiles /app/logs
+  exec gosu django "$0" "$@"
+fi
+
 echo "==> Esperando PostgreSQL..."
 python manage.py wait_for_db
 

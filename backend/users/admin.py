@@ -10,8 +10,8 @@ class UserAdmin(BaseUserAdmin):
     form = UserAdminForm
 
     class Media:
-        css = {'all': ['css/fp_user_permissions.css']}
-        js = ['js/fp_user_permissions.js']
+        css = {'all': ['css/fp_user_permissions.css', 'css/fp_admin_users.css']}
+        js = ['js/fp_user_permissions.js', 'js/fp_admin_users.js']
     list_display = (
         'email',
         'nombre_display',
