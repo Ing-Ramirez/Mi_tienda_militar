@@ -1,0 +1,216 @@
+# ──────────────────────────────────────────────────────────────────────────────
+#  Franja Pixelada — CI Desarrollo (no bloqueante)
+#  Validación rápida: lint + tests + seguridad básica
+#  Estrategia: informar sin bloquear — nunca impide merge en ramas de desarrollo
+# ──────────────────────────────────────────────────────────────────────────────
+
+name: CI — Desarrollo
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+  pull_request:
+    branches-ignore:
+      - main
+      - master
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  PYTHON_VERSION: '3.12'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+
+  # ── 1. Lint (flake8) ────────────────────────────────────────────────────────
+  lint:
+    name: Lint — flake8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar flake8
+        run: pip install flake8
+
+      - name: Ejecutar lint
+        run: |
+          flake8 backend/ \
+            --max-line-length=120 \
+            --exclude=backend/*/migrations/,backend/staticfiles/ \
+            --statistics || true
+
+  # ── 2. Tests Django ─────────────────────────────────────────────────────────
+  tests:
+    name: Tests Django
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: franja_test
+          POSTGRES_USER: franja_user
+          POSTGRES_PASSWORD: franja_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SECRET_KEY: ci-insecure-dev-secret-key-not-for-production
+      DEBUG: 'True'
+      DB_NAME: franja_test
+      DB_USER: franja_user
+      DB_PASSWORD: franja_pass
+      DB_HOST: localhost
+      DB_PORT: '5432'
+      REDIS_HOST: localhost
+      REDIS_PORT: '6379'
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DISABLE_ADMIN_OTP: 'True'
+      ENCRYPTION_KEY: dGVzdC1lbmNyeXB0aW9uLWtleS1mb3ItY2ktb25seQ==
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar dependencias
+        run: |
+          pip install -r backend/requirements.txt
+
+      - name: Ejecutar migraciones
+        working-directory: backend
+        run: python manage.py migrate --no-input
+
+      - name: Ejecutar tests
+        working-directory: backend
+        run: python manage.py test --verbosity=2 || true
+
+  # ── 3. SAST Bandit (informativo) ────────────────────────────────────────────
+  sast-bandit:
+    name: SAST — Bandit (informativo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Instalar Bandit
+        run: pip install bandit[toml]
+
+      - name: Ejecutar Bandit
+        run: |
+          bandit -r backend/ -ll \
+            --exclude backend/*/migrations/,backend/*/tests/ \
+            --format json \
+            --output bandit-dev-report.json || true
+
+      - name: Subir reporte Bandit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-dev-report
+          path: bandit-dev-report.json
+          retention-days: 14
+
+  # ── 4. SCA pip-audit (informativo) ──────────────────────────────────────────
+  dependency-audit:
+    name: SCA — pip-audit (informativo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar pip-audit
+        run: pip install pip-audit
+
+      - name: Auditar dependencias
+        run: |
+          pip-audit \
+            --requirement backend/requirements.txt \
+            --format json \
+            --output pip-audit-dev-report.json || true
+
+      - name: Subir reporte pip-audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-audit-dev-report
+          path: pip-audit-dev-report.json
+          retention-days: 14
+
+  # ── 5. Trivy imagen Docker (informativo) ────────────────────────────────────
+  container-scan:
+    name: Trivy — imagen Docker (informativo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construir imagen backend
+        run: |
+          docker build \
+            --tag franja_pixelada_backend:${{ github.sha }} \
+            --file backend/Dockerfile \
+            backend/
+
+      - name: Escanear con Trivy
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          image-ref: franja_pixelada_backend:${{ github.sha }}
+          format: sarif
+          output: trivy-dev-report.sarif
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Subir SARIF a GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-dev-report.sarif
+          category: trivy-dev
+
+      - name: Subir reporte Trivy como artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-dev-report
+          path: trivy-dev-report.sarif
+          retention-days: 14

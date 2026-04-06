@@ -1,0 +1,295 @@
+# ──────────────────────────────────────────────────────────────────────────────
+#  Franja Pixelada — CI Producción (estricto, bloqueante)
+#  Aplica en push/PR a main/master — CUALQUIER fallo detiene el pipeline
+#  Orden: lint → tests → bandit → pip-audit → trivy → codeql → gitleaks
+# ──────────────────────────────────────────────────────────────────────────────
+
+name: CI — Producción
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  PYTHON_VERSION: '3.12'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+
+  # ── 1. Lint estricto ─────────────────────────────────────────────────────────
+  lint:
+    name: Lint — flake8 (estricto)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar flake8
+        run: pip install flake8
+
+      - name: Ejecutar lint
+        run: |
+          flake8 backend/ \
+            --max-line-length=120 \
+            --exclude=backend/*/migrations/,backend/staticfiles/ \
+            --statistics
+
+  # ── 2. Tests Django ──────────────────────────────────────────────────────────
+  tests:
+    name: Tests Django (obligatorio)
+    runs-on: ubuntu-latest
+    needs: lint
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: franja_test
+          POSTGRES_USER: franja_user
+          POSTGRES_PASSWORD: franja_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SECRET_KEY: ci-insecure-prod-pipeline-secret-key
+      DEBUG: 'False'
+      DB_NAME: franja_test
+      DB_USER: franja_user
+      DB_PASSWORD: franja_pass
+      DB_HOST: localhost
+      DB_PORT: '5432'
+      REDIS_HOST: localhost
+      REDIS_PORT: '6379'
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DISABLE_ADMIN_OTP: 'True'
+      ENCRYPTION_KEY: dGVzdC1lbmNyeXB0aW9uLWtleS1mb3ItY2ktb25seQ==
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar dependencias
+        run: pip install -r backend/requirements.txt
+
+      - name: Ejecutar migraciones
+        working-directory: backend
+        run: python manage.py migrate --no-input
+
+      - name: Ejecutar tests
+        working-directory: backend
+        run: python manage.py test --verbosity=2
+
+  # ── 3. SAST Bandit (bloqueante) ──────────────────────────────────────────────
+  sast-bandit:
+    name: SAST — Bandit (bloqueante)
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Instalar Bandit
+        run: pip install bandit[toml]
+
+      - name: Ejecutar Bandit (JSON)
+        run: |
+          bandit -r backend/ \
+            --severity-level medium \
+            --confidence-level medium \
+            --exclude backend/*/migrations/,backend/*/tests/ \
+            --format json \
+            --output bandit-prod-report.json
+
+      - name: Ejecutar Bandit (SARIF)
+        if: always()
+        run: |
+          bandit -r backend/ \
+            --severity-level medium \
+            --confidence-level medium \
+            --exclude backend/*/migrations/,backend/*/tests/ \
+            --format sarif \
+            --output bandit-prod-sarif.json || true
+
+      - name: Subir SARIF a GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: bandit-prod-sarif.json
+          category: bandit-prod
+
+      - name: Subir reporte Bandit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-prod-report
+          path: |
+            bandit-prod-report.json
+            bandit-prod-sarif.json
+          retention-days: 90
+
+  # ── 4. SCA pip-audit (bloqueante) ────────────────────────────────────────────
+  dependency-audit:
+    name: SCA — pip-audit (bloqueante)
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar pip-audit
+        run: pip install pip-audit
+
+      - name: Auditar dependencias (bloqueante)
+        run: |
+          pip-audit \
+            --requirement backend/requirements.txt \
+            --format json \
+            --output pip-audit-prod-report.json \
+            --strict
+
+      - name: Subir reporte pip-audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-audit-prod-report
+          path: pip-audit-prod-report.json
+          retention-days: 90
+
+  # ── 5. Trivy imagen Docker (bloqueante en HIGH/CRITICAL) ─────────────────────
+  container-scan:
+    name: Trivy — imagen Docker (bloqueante)
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construir imagen backend
+        run: |
+          docker build \
+            --tag franja_pixelada_backend:${{ github.sha }} \
+            --file backend/Dockerfile \
+            backend/
+
+      - name: Escanear imagen con Trivy
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          image-ref: franja_pixelada_backend:${{ github.sha }}
+          format: sarif
+          output: trivy-prod-report.sarif
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true
+
+      - name: Subir SARIF a GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-prod-report.sarif
+          category: trivy-prod
+
+      - name: Subir reporte Trivy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-prod-report
+          path: trivy-prod-report.sarif
+          retention-days: 90
+
+  # ── 6. CodeQL v4 — análisis semántico ────────────────────────────────────────
+  codeql:
+    name: CodeQL v4 — Python (bloqueante)
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inicializar CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: python
+          queries: security-extended
+
+      - name: Autobuild CodeQL
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Ejecutar análisis CodeQL
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: codeql-python-prod
+
+  # ── 7. Gitleaks — detección de secretos (bloqueante) ────────────────────────
+  secrets-scan:
+    name: Gitleaks — detección de secretos (bloqueante)
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Escanear secretos con Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── 8. Gate final — todos los jobs deben pasar ───────────────────────────────
+  production-gate:
+    name: Gate de producción
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - tests
+      - sast-bandit
+      - dependency-audit
+      - container-scan
+      - codeql
+      - secrets-scan
+    steps:
+      - name: Todos los controles pasaron
+        run: echo "Pipeline de producción completado exitosamente."

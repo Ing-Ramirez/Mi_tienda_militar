@@ -1,0 +1,207 @@
+# ──────────────────────────────────────────────────────────────────────────────
+#  Franja Pixelada — Seguridad Avanzada (flexible, todas las ramas)
+#  Análisis: CodeQL · Trivy FS · Gitleaks · pip-audit · Bandit SARIF
+#  Estrategia: escaneo profundo, nunca bloquea merge en dev
+#  Schedule: cron diario 06:00 UTC para detección de CVEs nuevos
+# ──────────────────────────────────────────────────────────────────────────────
+
+name: Security — Análisis Avanzado
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+  pull_request:
+    branches-ignore:
+      - main
+      - master
+  schedule:
+    - cron: '0 6 * * *'   # Diario 06:00 UTC
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  PYTHON_VERSION: '3.12'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+
+  # ── 1. CodeQL v4 — Análisis semántico ───────────────────────────────────────
+  codeql:
+    name: CodeQL v4 — Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inicializar CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: python
+          queries: security-extended
+
+      - name: Autobuild CodeQL
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Ejecutar análisis CodeQL
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: codeql-python-dev
+
+  # ── 2. Bandit SARIF — SAST con reporte estructurado ─────────────────────────
+  sast-bandit-sarif:
+    name: SAST — Bandit SARIF
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Instalar Bandit
+        run: pip install bandit[toml]
+
+      - name: Ejecutar Bandit (formato SARIF)
+        run: |
+          bandit -r backend/ -ll \
+            --exclude backend/*/migrations/,backend/*/tests/ \
+            --format sarif \
+            --output bandit-sarif.json || true
+
+      - name: Subir SARIF a GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: bandit-sarif.json
+          category: bandit-dev
+
+      - name: Subir artifact Bandit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-sarif-dev
+          path: bandit-sarif.json
+          retention-days: 30
+
+  # ── 3. pip-audit — SCA con reporte JSON ─────────────────────────────────────
+  dependency-audit:
+    name: SCA — pip-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar pip-audit
+        run: pip install pip-audit
+
+      - name: Auditar dependencias (sin bloquear)
+        run: |
+          pip-audit \
+            --requirement backend/requirements.txt \
+            --format json \
+            --output pip-audit-security-report.json || true
+
+      - name: Subir reporte pip-audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-audit-security-report
+          path: pip-audit-security-report.json
+          retention-days: 30
+
+  # ── 4. Trivy filesystem — escaneo de dependencias y config ──────────────────
+  trivy-filesystem:
+    name: Trivy — filesystem scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Escanear filesystem con Trivy
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          scan-type: fs
+          scan-ref: backend/
+          format: sarif
+          output: trivy-fs-report.sarif
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Subir SARIF a GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-fs-report.sarif
+          category: trivy-fs-dev
+
+      - name: Subir artifact Trivy FS
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-fs-dev-report
+          path: trivy-fs-report.sarif
+          retention-days: 30
+
+  # ── 5. Trivy imagen Docker ───────────────────────────────────────────────────
+  trivy-image:
+    name: Trivy — imagen Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construir imagen backend
+        run: |
+          docker build \
+            --tag franja_pixelada_backend:${{ github.sha }} \
+            --file backend/Dockerfile \
+            backend/
+
+      - name: Escanear imagen con Trivy
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          image-ref: franja_pixelada_backend:${{ github.sha }}
+          format: sarif
+          output: trivy-image-dev.sarif
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Subir SARIF a GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-image-dev.sarif
+          category: trivy-image-dev
+
+      - name: Subir artifact Trivy imagen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image-dev-report
+          path: trivy-image-dev.sarif
+          retention-days: 30
+
+  # ── 6. Gitleaks — detección de secretos ─────────────────────────────────────
+  secrets-scan:
+    name: Gitleaks — detección de secretos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Escanear secretos con Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
