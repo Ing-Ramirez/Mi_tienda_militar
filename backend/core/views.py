@@ -6,16 +6,25 @@ import json
 import logging
 
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
+from django.utils.timezone import now
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger(__name__)
 
 _RATE_API = 'https://open.er-api.com/v6/latest/USD'
 
 
+@csrf_exempt
+@require_http_methods(["GET", "HEAD"])
 def health_live(request):
-    """Señal liviana para healthcheck (Docker / balanceadores). Sin consultas a BD."""
-    return HttpResponse('ok', content_type='text/plain; charset=utf-8')
+    """Señal liviana para healthcheck (Docker / balanceadores / tests). Sin consultas a BD."""
+    return JsonResponse({
+        'status': 'ok',
+        'service': 'franja_pixelada',
+        'timestamp': now().isoformat(),
+    })
 
 
 @staff_member_required

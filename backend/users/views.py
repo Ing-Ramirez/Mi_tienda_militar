@@ -48,12 +48,14 @@ def _set_refresh_cookie(response, refresh_token: str) -> None:
 
 
 def _clear_refresh_cookie(response) -> None:
-    """Elimina la cookie del refresh token."""
+    """Elimina la cookie del refresh token.
+    Django 5.0.4: delete_cookie() solo acepta key, path, domain, samesite.
+    httponly/secure no son necesarios al borrar — el navegador expira la cookie
+    independientemente de esos atributos.
+    """
     response.delete_cookie(
         key=_COOKIE_NAME,
         path=_COOKIE_PATH,
-        httponly=True,
-        secure=not settings.DEBUG,
         samesite='Lax',
     )
 
@@ -109,11 +111,12 @@ class LoginView(TokenObtainPairView):
     throttle_classes = [LoginRateThrottle]
 
     def post(self, request, *args, **kwargs):
-        token  = request.data.get('captcha_token', '')
-        code   = (request.data.get('captcha', '') or '').strip().upper()
-        error  = self._validate_captcha(token, code)
-        if error:
-            return Response({'captcha': error}, status=status.HTTP_400_BAD_REQUEST)
+        if not settings.DISABLE_CAPTCHA:
+            token = request.data.get('captcha_token', '')
+            code  = (request.data.get('captcha', '') or '').strip().upper()
+            error = self._validate_captcha(token, code)
+            if error:
+                return Response({'captcha': error}, status=status.HTTP_400_BAD_REQUEST)
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
             refresh_token = response.data.pop('refresh', None)

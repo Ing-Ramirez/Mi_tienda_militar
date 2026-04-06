@@ -1,0 +1,19 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:80",
+  "backendAuthType": "public",
+  "executionArgs": {
+    "projectName": "Mi_tienda_militar",
+    "projectPath": "X:\\Mi_tienda_militar",
+    "testIds": [],
+    "additionalInstruction": "RULES: (1) No CAPTCHA. (2) Register: password2 required, strong password 'Xq7!mZ2#vL9', unique email with timestamp. (3) Login invalid = 401. (4) Token refresh no-cookie = 401, Spanish msg 'No hay sesión activa.' check 'no hay' in detail.lower(). (5) add_item: field 'product_id', returns Cart status 201. (6) Checkout POST returns {id, order_number, ...} status 201. (7) GET /health/ = 200 JSON with status/service/timestamp keys. POST /health/ = 405. (8) returns/policy: returns config object with keys window_days_new, steps, document — NOT {policy: string}. (9) Base URL http://localhost /api/v1/.",
+    "serverMode": "production",
+    "envs": {
+      "API_KEY": "sk-user-GslYrRBCVMq8UiPXsjWT62MQDhKJnrz4cL31PLjkVZZhgggXj6sJ33D4CdAiMtWmIpYkyolAYtWo9T8uebdwaJETaJygaiFKPsfZ2corVzfiFXuxE_gu10Kt6TiOB88cvF0"
+    }
+  },
+  "serverPort": 51875,
+  "proxy": "http://843d5183-235b-4f59-b88f-624dc90dd289:Lm3C0gRT5zg5nkeJkcLThH5v3eVdwHxJ@tun.testsprite.com:8080"
+}

@@ -87,7 +87,8 @@ class CartViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=['post'])
     def add_item(self, request):
         cart = self._get_cart(request)
-        product_id = request.data.get('product')
+        # Acepta 'product_id' (convención API) y 'product' (alias legacy del frontend SPA)
+        product_id = request.data.get('product_id') or request.data.get('product')
         talla = request.data.get('talla', '')
         bordado = request.data.get('bordado', '').upper()[:30]
         rh = request.data.get('rh', '')
@@ -451,6 +452,7 @@ class CheckoutNekiView(APIView):
 
         return Response(
             {
+                'id': str(order.id),
                 'order_number': order.order_number,
                 'total_amount': str(order.total_amount),
                 'status': order.status,

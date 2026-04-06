@@ -60,6 +60,11 @@ class AuthUserBriefSerializer(_AccountAndAvatarMixin, serializers.ModelSerialize
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    """
+    Registro de usuario. Campos requeridos:
+      - email, first_name, last_name, password, password2 (confirmación)
+    password2 se valida server-side y se descarta antes de crear el objeto.
+    """
     password = serializers.CharField(write_only=True, min_length=8)
     password2 = serializers.CharField(write_only=True, min_length=8, label='Confirmar contraseña')
     birth_date = serializers.DateField(required=False, allow_null=True)

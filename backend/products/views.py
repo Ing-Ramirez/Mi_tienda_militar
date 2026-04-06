@@ -43,21 +43,15 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=['get'])
     def featured(self, request):
+        """Devuelve array plano sin paginación (máx. uso en home/landing)."""
         qs = self.get_queryset().filter(is_featured=True)
-        page = self.paginate_queryset(qs)
-        if page is not None:
-            serializer = ProductListSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(serializer.data)
         serializer = ProductListSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
     def new_arrivals(self, request):
+        """Devuelve array plano sin paginación (máx. uso en home/landing)."""
         qs = self.get_queryset().filter(is_new=True)
-        page = self.paginate_queryset(qs)
-        if page is not None:
-            serializer = ProductListSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(serializer.data)
         serializer = ProductListSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 

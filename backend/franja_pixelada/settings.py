@@ -26,6 +26,14 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(','
 # En producción: dejar en False (o no definir) para requerir TOTP.
 DISABLE_ADMIN_OTP = os.environ.get('DISABLE_ADMIN_OTP', 'False') == 'True'
 
+# En desarrollo/test: DISABLE_CAPTCHA=True en .env para omitir la verificación CAPTCHA en login.
+# En producción: dejar en False (o no definir). El bloque de validación de producción lo bloquea.
+DISABLE_CAPTCHA = os.environ.get('DISABLE_CAPTCHA', 'False') == 'True'
+
+# En desarrollo/test: TESTING=True en .env para relajar rate limits y facilitar pruebas automatizadas.
+# En producción: dejar en False.
+TESTING = os.environ.get('TESTING', 'False') == 'True'
+
 _SECRET_KEY = os.environ.get('SECRET_KEY', '')
 if not _SECRET_KEY:
     if not DEBUG:
@@ -57,6 +65,12 @@ if not DEBUG:
 
     if DISABLE_ADMIN_OTP:
         _errors.append('DISABLE_ADMIN_OTP debe ser False en producción.')
+
+    if DISABLE_CAPTCHA:
+        _errors.append('DISABLE_CAPTCHA debe ser False en producción.')
+
+    if TESTING:
+        _errors.append('TESTING debe ser False en producción.')
 
     if not os.environ.get('DB_PASSWORD'):
         _errors.append('DB_PASSWORD no puede estar vacío en producción.')
@@ -254,6 +268,15 @@ REST_FRAMEWORK = {
         'login': '5/minute',
     },
 }
+
+# Relajar throttling en entornos de desarrollo y pruebas automatizadas.
+# En producción DEBUG=False y TESTING=False, así que este bloque nunca ejecuta.
+if DEBUG or TESTING:
+    REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {
+        'anon': '10000/hour',
+        'user': '10000/hour',
+        'login': '200/minute',
+    }
 
 # ── JWT ────────────────────────────────────────────────────────────────────
 SIMPLE_JWT = {
