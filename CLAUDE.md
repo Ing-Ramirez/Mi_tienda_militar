@@ -37,6 +37,7 @@ docker-compose up -d
 # Django management (run inside container)
 docker-compose exec backend python manage.py migrate
 docker-compose exec backend python manage.py createsuperuser
+docker-compose exec backend python manage.py ensure_superuser --email-env DJANGO_SUPERUSER_EMAIL --password-env DJANGO_SUPERUSER_PASSWORD  # idempotent: creates or promotes existing user
 docker-compose exec backend python manage.py collectstatic --no-input
 docker-compose exec backend python manage.py setup_roles               # creates default permission groups
 docker-compose exec backend python manage.py check_db                  # verify DB connectivity
@@ -57,6 +58,18 @@ docker-compose logs celery_beat    # view periodic task scheduler output
 
 **Django admin:** `http://localhost/<ADMIN_URL>` (default: `admin/`)
 **API root:** `http://localhost/api/v1/`
+
+### Desarrollo local (Windows)
+
+El override `docker-compose.dev.yml` expone PostgreSQL al host en el puerto 5432. Úsalo junto al base:
+
+```bash
+docker compose -p mi_tienda_militar -f docker-compose.yml -f docker-compose.dev.yml up -d
+```
+
+Scripts de conveniencia en `scripts/docker/` (Windows batch):
+- `actualizar.bat` — recrear servicios sin limpiar imágenes/volúmenes (modo rápido). `actualizar.bat build` o `nocache` para rebuild.
+- `reiniciar.bat` — limpieza profunda: baja todo, borra volúmenes e imágenes, reconstruye desde cero. Ofrece crear superusuario al final vía `create_superuser.ps1`.
 
 ### Producción (Docker Compose)
 
@@ -88,6 +101,7 @@ backend/
 ├── payments/           # Stripe & PayPal views
 ├── proveedores/        # Dropshipping supplier integration (adapters, sync, dispatch)
 ├── loyalty/            # Points system (LoyaltyAccount, PointTransaction, services)
+├── returns/            # Customer return requests (state machine + audit log)
 ├── templates/store/    # index.html — the entire SPA
 ├── manage.py
 └── requirements.txt
@@ -104,6 +118,7 @@ backend/
 | `payments` | `Payment` | Stripe PaymentIntent + webhook; PayPal is a stub |
 | `proveedores` | `Supplier`, `SupplierProduct`, `SupplierVariant`, `LinkedProduct`, `SupplierOrder`, `SupplierTracking`, `SupplierLog` | Dropshipping: sync, dispatch, webhook reception, stock capping |
 | `loyalty` | `LoyaltyAccount` (1:1 User), `PointTransaction` (immutable audit log) | Points system: earn on `subtotal`, redeem as COP discount; `PointTransaction` is never editable or deletable |
+| `returns` | `ReturnRequest`, `ReturnItem`, `ReturnEvidence`, `ReturnAuditLog` | Return requests with strict state machine (`VALID_TRANSITIONS` dict); `ReturnAuditLog` is append-only; max attempts per order configurable via `RETURN_MAX_ATTEMPTS_PER_ORDER` (default 3) |
 
 ### Services Layer
 
@@ -117,6 +132,7 @@ Business logic is extracted into service modules, not kept in views:
 - `loyalty/services.py` — `get_or_create_account()`, `calculate_points_earned()`, `preview_redemption()`, `assign_points_for_order()` (idempotent, post-payment), `redeem_points_for_order()` (atomic with order creation), `reverse_points_for_order()` (on cancel/refund); all mutations use `select_for_update()` + F-expressions
 - `loyalty/tasks.py` — `assign_loyalty_points` (3 retries), `reverse_loyalty_points` (3 retries)
 - `loyalty/signals.py` — triggers `reverse_loyalty_points` when `Order.status` transitions to `cancelled` or `refunded`
+- `returns/` — state machine enforced via `VALID_TRANSITIONS` in `returns/models.py`; use `ReturnRequest.transition(new_status, changed_by, note)` — never set `.status` directly
 
 ### Dropshipping / Supplier Flow
 
@@ -174,6 +190,19 @@ The refresh token is **not** returned in the response body. `users/views.py` sto
 - `loyalty/balance/` — GET, returns `points_balance`, `balance_in_cop`, `point_value_cop`, `points_per_cop`
 - `loyalty/transactions/` — GET, paginated history of `PointTransaction` for the authenticated user
 - `loyalty/preview/` — POST `{points_to_use, order_total}`, returns discount preview without persisting
+- `returns/` — GET list / POST create return request (authenticated)
+  - `returns/<uuid>/` — GET detail (owner or staff)
+  - `returns/<uuid>/evidence/` — POST upload image / DELETE remove (only while status=`requested`)
+  - `returns/<uuid>/transition/` — POST `{status}`, admin only; enforces `VALID_TRANSITIONS`
+  - `returns/eligibility/<order_id>/` — GET, checks if order qualifies (delivered, within window, no active return)
+  - `returns/admin/list/` — GET, admin-only full list
+  - `returns/policy/` — GET, returns the policy document text
+- `core/exchange-rate/live/` — GET, live exchange rate (USD→COP)
+
+### Non-API URLs
+
+- `/health/` — liveness probe (no auth)
+- `/internal/staff/orders/<uuid>/payment-proof/` — Neki payment proof for staff (Django session auth, not JWT)
 
 ### Naming Convention (ES → EN)
 
@@ -202,6 +231,10 @@ Key mappings: `talla` → `size`, `bordado` → `embroidery_text`, `rh` → `blo
 - **Points base:** earned on `order.subtotal` only (excludes IVA and shipping)
 - **Loyalty earn trigger:** both Neki VERIFIED (`orders/signals.py`) and Stripe `payment_intent.succeeded` (`payments/views.py`) enqueue `assign_loyalty_points` task
 - **Loyalty reversal trigger:** `loyalty/signals.py` detects `Order.status` → `cancelled`/`refunded` and enqueues `reverse_loyalty_points`
+- **Returns state machine:** transitions are strictly enforced via `VALID_TRANSITIONS` in `returns/models.py`; use `ReturnRequest.transition(new_status, changed_by, note)` — never set `.status` directly
+- **ReturnAuditLog immutability:** append-only; never call `.save()` or `.delete()` on existing log entries
+- **Returns window:** 30 days from delivery (`RETURN_WINDOW_DAYS_NEW`); shipment deadline is 5 days after approval (`RETURN_SHIPMENT_WINDOW_DAYS`)
+- **Returns eligibility:** order must be `delivered`; excluded by category slug list (`RETURN_EXCLUDED_CATEGORY_SLUGS`) or SKU prefix (`RETURN_SPECIAL_SKU_PREFIXES` default `['DIGI-', 'SPC-']`)
 
 ### Updating the Frontend
 
@@ -234,3 +267,16 @@ See `.env.example`. Key variables:
 - `LOYALTY_POINTS_PER_COP` (default `1000`) — COP in subtotal that generate 1 point
 - `LOYALTY_POINT_VALUE_COP` (default `10`) — COP value per point when redeeming
 - `LOYALTY_MAX_REDEMPTION_PCT` (default `0.20`) — max fraction of order total redeemable via points
+- `RETURN_MAX_ATTEMPTS_PER_ORDER` (default `3`) — max return attempts per order
+- `RETURN_EXCLUDED_CATEGORY_SLUGS` — comma/list of category slugs ineligible for returns
+- `RETURN_EXCLUDE_DIGITAL_PRODUCTS` (default `True`) — exclude SKUs matching `RETURN_SPECIAL_SKU_PREFIXES`
+- `RETURN_SPECIAL_SKU_PREFIXES` (default `['DIGI-', 'SPC-']`) — SKU prefixes ineligible for returns
+
+## Local Project Context Skill
+
+To ensure high-precision edits with full project context, use the local skill:
+
+- Cursor: `.cursor/skills/contexto-proyecto-franja-pixelada/SKILL.md`
+- Claude local: `.claude/skills/contexto-proyecto-franja-pixelada/SKILL.md`
+
+This skill summarizes architecture, critical business flows, security constraints, Docker model, and editing checklists for safe modifications.

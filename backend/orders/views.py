@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core import signing
 from django.core.exceptions import ValidationError
 from django.db import transaction as db_transaction
-from django.db.models import Count
+from django.db.models import Count, F
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
@@ -150,14 +150,22 @@ class CartViewSet(viewsets.GenericViewSet):
                 quantity=quantity, price_at_addition=price
             )
         else:
-            item, created = CartItem.objects.get_or_create(
-                cart=cart, product=product, variant=variant,
-                talla=talla, bordado='', rh='',
-                defaults={'quantity': quantity, 'price_at_addition': price}
-            )
-            if not created:
-                item.quantity += quantity
-                item.save()
+            # select_for_update + F() evita race condition en incremento concurrente
+            with db_transaction.atomic():
+                try:
+                    item = CartItem.objects.select_for_update().get(
+                        cart=cart, product=product, variant=variant,
+                        talla=talla, bordado='', rh='',
+                    )
+                    CartItem.objects.filter(pk=item.pk).update(
+                        quantity=F('quantity') + quantity
+                    )
+                except CartItem.DoesNotExist:
+                    CartItem.objects.create(
+                        cart=cart, product=product, variant=variant,
+                        talla=talla, bordado='', rh='',
+                        quantity=quantity, price_at_addition=price,
+                    )
 
         return Response(CartSerializer(cart).data, status=201)
 
@@ -210,32 +218,10 @@ class CartViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['get'])
     def calculate_totals(self, request):
+        from orders.services import calculate_cart_totals
         cart = self._get_cart(request)
-        subtotal = float(cart.subtotal)
-        shipping = 0.0 if subtotal >= settings.FREE_SHIPPING_THRESHOLD else settings.BASE_SHIPPING_COST
-        tax = round(subtotal * settings.TAX_RATE, 2)
-        total = subtotal + shipping + tax
         coupon_code = request.query_params.get('coupon', '')
-        discount = 0.0
-        if coupon_code:
-            try:
-                coupon = Coupon.objects.get(code=coupon_code.upper(), is_active=True)
-                if coupon.is_valid and subtotal >= float(coupon.minimum_purchase):
-                    if coupon.discount_type == 'percentage':
-                        discount = round(subtotal * float(coupon.discount_value) / 100, 2)
-                    else:
-                        discount = float(coupon.discount_value)
-                    total -= discount
-            except Coupon.DoesNotExist:
-                pass
-        return Response({
-            'subtotal': subtotal,
-            'shipping': shipping,
-            'tax': tax,
-            'discount': discount,
-            'total': max(total, 0),
-            'free_shipping_threshold': settings.FREE_SHIPPING_THRESHOLD,
-        })
+        return Response(calculate_cart_totals(cart, coupon_code=coupon_code))
 
 
 class OrderViewSet(viewsets.ReadOnlyModelViewSet):
