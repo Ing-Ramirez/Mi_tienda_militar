@@ -138,6 +138,17 @@ class ManualPaymentStatus(models.TextChoices):
     REJECTED = 'REJECTED', 'Pago rechazado'
 
 
+# Transiciones válidas para manual_payment_status.
+# Estados terminales (VERIFIED, REJECTED) no tienen salida.
+_VALID_MANUAL_PAYMENT_TRANSITIONS: dict[str, set[str]] = {
+    '': {ManualPaymentStatus.PENDING},
+    ManualPaymentStatus.PENDING: {ManualPaymentStatus.PAID, ManualPaymentStatus.VERIFIED, ManualPaymentStatus.REJECTED},
+    ManualPaymentStatus.PAID: {ManualPaymentStatus.VERIFIED, ManualPaymentStatus.REJECTED},
+    ManualPaymentStatus.VERIFIED: set(),   # estado terminal — sin retroceso
+    ManualPaymentStatus.REJECTED: set(),   # estado terminal — sin retroceso
+}
+
+
 class Order(models.Model):
     """Orden de compra completa"""
     STATUS_CHOICES = [
@@ -276,25 +287,49 @@ class Order(models.Model):
         """Alias del total para APIs (compatibilidad con naming externo)."""
         return self.total
 
+    def clean(self):
+        """Valida que la transición de manual_payment_status sea permitida."""
+        from django.core.exceptions import ValidationError
+
+        if not self.pk or not self.manual_payment_status:
+            return  # creación o sin pago manual: no validar
+
+        try:
+            prev_status = Order.objects.only('manual_payment_status').get(pk=self.pk).manual_payment_status
+        except Order.DoesNotExist:
+            return
+
+        if prev_status == self.manual_payment_status:
+            return  # sin cambio, nada que validar
+
+        valid_next = _VALID_MANUAL_PAYMENT_TRANSITIONS.get(prev_status, set())
+        if self.manual_payment_status not in valid_next:
+            etiquetas = ', '.join(valid_next) if valid_next else '(ninguna — estado terminal)'
+            raise ValidationError({
+                'manual_payment_status': (
+                    f'Transición inválida: "{prev_status or "(vacío)"}" → "{self.manual_payment_status}". '
+                    f'Transiciones permitidas: {etiquetas}.'
+                )
+            })
+
     def save(self, *args, **kwargs):
-        import random
-        import string
+        import uuid
 
         if self.order_number:
             super().save(*args, **kwargs)
             return
 
-        # Evita colisiones esporádicas bajo concurrencia alta.
-        for _ in range(5):
-            suffix = ''.join(random.choices(string.digits, k=8))
-            self.order_number = f'FP{suffix}'
+        # UUID hex proporciona ~10^12 combinaciones: colisión prácticamente imposible.
+        # 3 reintentos como salvaguarda ante improbables colisiones.
+        for _ in range(3):
+            self.order_number = f'FP{uuid.uuid4().hex[:10].upper()}'
             try:
                 super().save(*args, **kwargs)
                 return
             except IntegrityError:
                 self.order_number = ''
                 continue
-        raise IntegrityError('No se pudo generar un número de orden único tras múltiples intentos.')
+        raise IntegrityError('No se pudo generar un número de orden único.')
 
 
 class OrderItem(models.Model):

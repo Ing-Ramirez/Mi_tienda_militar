@@ -8,7 +8,7 @@ from .media_tokens import signed_payment_proof_absolute_url
 
 class CartItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
-    product_price = serializers.DecimalField(source='product.price', max_digits=12,
+    product_price = serializers.DecimalField(source='price_at_addition', max_digits=12,
                                               decimal_places=2, read_only=True)
     line_total = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
 

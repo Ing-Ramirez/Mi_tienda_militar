@@ -37,6 +37,11 @@ logs/*.log
 htmlcov/
 coverage.xml
 
+# ── Auditoría CSP y E2E ──────────────────────────
+reports/
+tests/e2e/node_modules/
+tests/e2e/reports/
+
 # ── IDEs ────────────────────────────────────────
 .vscode/settings.json
 .vscode/*.log

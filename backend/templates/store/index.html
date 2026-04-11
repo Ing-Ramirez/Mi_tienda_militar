@@ -827,6 +827,7 @@
       aspect-ratio: 4 / 3;
       background: var(--steel);
       overflow: hidden;
+      cursor: pointer;
     }
     .product-img-placeholder {
       width: 100%;
@@ -942,6 +943,7 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      cursor: pointer;
     }
     .product-pricing {
       display: flex;
@@ -964,6 +966,7 @@
       align-items: center;
       gap: 0.35rem;
       margin-top: 0.5rem;
+      cursor: pointer;
     }
     .stars { color: var(--accent); font-size: 0.8rem; }
     .rating-count { font-size: 0.75rem; color: var(--ash); }
@@ -1186,6 +1189,7 @@
       font-weight: 600;
       line-height: 1.3;
       color: var(--cream);
+      margin-bottom: 0.2rem;
     }
     .summary-prod-meta {
       font-size: 0.75rem;
@@ -1196,6 +1200,8 @@
       text-align: right;
       white-space: nowrap;
       color: var(--ash);
+      margin-left: 0.5rem;
+      padding-top: 0.1rem;
     }
     .summary-prod-sub {
       font-weight: 700;
@@ -1249,7 +1255,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      margin-top: 0.4rem;
+      margin-top: 0.45rem;
     }
     .summary-qty-btn {
       width: 24px; height: 24px;
@@ -1828,7 +1834,8 @@
     }
     .auth-pwd-bar {
       height: 100%;
-      width: 0%;
+      width: var(--pw-bar-width, 0%);
+      background: var(--pw-bar-color, #e53e3e);
       border-radius: 2px;
       transition: width 0.3s, background 0.3s;
     }
@@ -3283,7 +3290,7 @@
       letter-spacing: 0.1em;
       margin-top: 0.25rem;
     }
-    .pdp-rating-row { display: flex; align-items: center; gap: 0.5rem; }
+    .pdp-rating-row { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
     .pdp-stars { color: var(--gold); font-size: 0.9rem; }
     .pdp-reviews { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ash); }
     .pdp-price-row { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
@@ -3294,7 +3301,7 @@
     .pdp-stock-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .pdp-stock-dot--in-stock { background: var(--success-bright); }
     .pdp-sizes-lbl { font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mist); margin-bottom: 0.4rem; }
-    .pdp-size-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .pdp-size-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
     .pdp-size-err { color: var(--danger); font-family: var(--font-mono); font-size: 0.78rem; display: none; margin-top: 0.4rem; }
     .pdp-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.25rem; }
     .pdp-actions .btn { flex: 1; min-width: 120px; justify-content: center; }
@@ -3809,6 +3816,256 @@
     }
     .up-pts-msg { color: var(--ash); font-size: 0.85rem; padding: 1rem; }
     .up-avatar-msg { font-size: 0.78rem; color: var(--danger-soft); text-align: center; }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       FASE 1 CSP — Reemplaza todos los style="" del HTML estático y templates.
+       Regla: cada bloque aquí corresponde a uno o varios style="" eliminados.
+    ═══════════════════════════════════════════════════════════════════════ */
+
+    /* Secciones sin padding superior (reemplaza style="padding-top:0") */
+    .u-pt-0 { padding-top: 0; }
+
+    /* Barra de ordenamiento del catálogo */
+    .sort-bar { display: flex; gap: 1rem; align-items: center; }
+
+    /* Contenedor botón "Cargar más" */
+    .load-more-wrap { text-align: center; margin-top: 3rem; }
+
+    /* Grupo de label de código promo */
+    .promo-label-group { margin-top: 1rem; }
+    .promo-code-wrap   { margin-top: 1.5rem; }
+
+    /* Sección newsletter en footer */
+    .footer-newsletter { margin-top: 1.5rem; }
+    .newsletter-row    { display: flex; gap: 0; }
+
+    /* Ícono vacío en resumen de carrito */
+    .summary-empty-icon { font-size: 2rem; opacity: 0.3; }
+
+    /* Modificador: fila de totales del panel de resumen (preview, antes del pago) */
+    .summary-total-row--preview { margin-bottom: 0.75rem; }
+
+    /* Texto vacío dinámico en resumen */
+    .summary-empty-text { font-size: 0.8rem; color: var(--ash); text-align: center; }
+
+    /* Filas de ítems en resumen (reemplaza style= en template literal) */
+    .summary-row--items { flex-direction: column; align-items: stretch; gap: 0; }
+    .summary-item-row   { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
+    .summary-item-main  { flex: 1; min-width: 0; }
+    .summary-item-detail { margin-top: 0.3rem; font-size: 0.72rem; }
+    .summary-item-label  { color: var(--ash); }
+    .summary-item-value  { color: var(--gold); font-family: var(--font-mono); letter-spacing: 0.06em; }
+    .summary-max-label   { font-size: 0.65rem; color: var(--gold); white-space: nowrap; }
+
+    /* Carrito dinámico — párrafo de pista en estado vacío */
+    .cart-empty-p  { font-size: 0.85rem; color: var(--ash); text-align: center; }
+    .cart-edit-link { margin-left: auto; color: var(--gold); font-size: 0.8rem; }
+
+    /* Hint de total a pagar en checkout Neki */
+    .checkout-total-hint { display: block; margin-top: 0.5rem; color: var(--ash); font-size: 0.75rem; }
+
+    /* auth-row: hijos auth-field se expanden (reemplaza style="flex:1") */
+    .auth-row .auth-field { flex: 1; }
+
+    /* Loyalty — separadores y valores */
+    .loyalty-section-label svg { color: var(--gold); }
+    .loyalty-separator { color: var(--ash); }
+    .loyalty-dot-sep   { margin: 0 0.35rem; opacity: 0.5; }
+
+    /* Confirm dialog — padding uniforme en botones */
+    .up-confirm-actions .btn { padding: 0.6rem 1.2rem; }
+
+    /* Review form — texto hint en color ceniza */
+    .rform-hint { color: var(--ash); }
+
+    /* User panel — acciones rápidas */
+    .up-quick-actions      { display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; }
+    .up-quick-actions .btn { font-size: 0.78rem; padding: 0.6rem 1.1rem; }
+    .up-btn-desc           { display: block; margin-top: 0.35rem; }
+    .btn-up-stores {
+      font-size: 0.72rem; padding: 0.4rem 0.85rem;
+      display: inline-flex; gap: 0.35rem; align-items: center; margin-top: 0.25rem;
+    }
+
+    /* User panel — modificadores de sección y card */
+    .up-section-title--sm   { font-size: 1rem !important; margin-bottom: 0.5rem !important; }
+    .up-section-subtitle--sm { margin-bottom: 1rem !important; }
+    .up-card--sm            { margin-bottom: 1rem !important; }
+    .up-form-group--no-mb   { margin-bottom: 0; }
+    .up-form-group--checkbox { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; }
+    .up-action-wrap         { margin-top: 1rem; }
+    .btn-return-policy-info  { margin-top: 0.75rem; }
+    .btn-up-save            { min-width: 160px; }
+    .btn-up-change-pwd      { min-width: 180px; }
+    .up-session-desc        { font-size: 0.85rem; color: var(--ash); margin-bottom: 1rem; line-height: 1.6; }
+    .btn-logout             { border-color: rgba(224,92,92,0.27); color: var(--danger-text); }
+
+    /* Marketing checkbox */
+    #up-marketing              { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+    label[for="up-marketing"]  { font-size: 0.82rem; color: var(--ash); cursor: pointer; }
+
+    /* Return policy modal — variante centrada y estrecha */
+    #fp-rp-foot-info .fp-rp-actions,
+    #up-return-detail-foot .fp-rp-actions { justify-content: center; }
+    #up-return-detail-overlay .fp-rp-modal { max-width: 540px; }
+
+    /* PDP — elementos interactivos e inputs */
+    .pdp-img-col .badge  { align-self: center; margin-top: 0.25rem; }
+    .pdp-rating-row      { cursor: pointer; }
+    .pdp-stock-available { color: var(--mist); }
+    .pdp-color-swatch    { background: var(--swatch-bg, var(--iron)); }
+
+    #pdp-bordado-input {
+      width: 100%; margin-top: 0.4rem;
+      padding: 0.55rem 0.75rem;
+      background: var(--iron);
+      border: 1px solid var(--slate);
+      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    #pdp-bordado-input:focus { border-color: var(--olive-500); }
+
+    /* Carga de reseñas */
+    .reviews-loading { color: var(--ash); font-family: var(--font-mono); font-size: 0.78rem; }
+
+    /* Products cards — cursor en elementos clickeables */
+    .product-low-stock-wrap { margin-top: 0.4rem; }
+
+    /* Botón qty deshabilitado en resumen */
+    .summary-qty-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── ID-scoped: elementos únicos con style="" inline ─────────────────── */
+    #sort-select { width: auto; font-size: 0.8rem; padding: 0.5rem 1rem; }
+    #promo-code-label {
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.1em; color: var(--ash);
+      margin-top: 0.5rem; text-align: center;
+    }
+    #footer-newsletter-title { font-size: 0.8rem; margin-bottom: 0.75rem; }
+    #newsletter-email        { border-radius: 0; font-size: 0.85rem; }
+    #newsletter-btn          { border-radius: 0; padding: 0.75rem 1rem; white-space: nowrap; }
+    #cart-static-empty-hint  { font-size: 0.85rem; color: var(--ash); text-align: center; }
+    #cart-btn-checkout       { width: 100%; justify-content: center; font-size: 1.05rem; }
+    #summary-btn-back        { font-size: 0.8rem; padding: 0.4rem 0.75rem; gap: 0.4rem; }
+    #summary-qty-label       { color: var(--ash); font-size: 0.8rem; }
+    #summary-pending-total   { font-size: 0.9rem; font-weight: 700; }
+    #summary-btn-apply       { width: 100%; justify-content: center; font-size: 0.95rem; }
+    #summary-btn-cancel      { width: 100%; justify-content: center; margin-top: 0.5rem; font-size: 0.82rem; }
+    #checkout-demo-label {
+      margin-bottom: 0.35rem;
+      font-family: var(--font-mono); font-size: 0.65rem;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--ash);
+    }
+    #co-proof              { padding: 0.5rem; }
+    #checkout-submit-btn   { width: 100%; justify-content: center; margin-top: 0.5rem; }
+    #loyalty-applied-cop-val { font-size: 0.75rem; }
+    /* User panel returns — template literals */
+    .up-return-card         { display: block; padding: 0.85rem 1rem; border: 1px solid var(--olive-800); border-radius: 8px; margin-bottom: 0.65rem; }
+    .up-return-card-header  { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-start; justify-content: space-between; }
+    .up-return-card-meta    { min-width: 0; }
+    .up-return-card-date    { margin-top: 0.25rem; font-size: 0.78rem; color: var(--ash); }
+    .up-return-card-reason  { margin-top: 0.4rem; font-size: 0.86rem; color: var(--ash); }
+    .up-return-reason-title { color: var(--olive-100); }
+    .up-return-reason-block { display: block; margin-top: 0.25rem; }
+    .up-return-card-footer  { margin-top: 0.55rem; }
+    .up-return-detail-btn   { font-size: 0.78rem; padding: 0.45rem 0.85rem; }
+    .up-return-rejection-box {
+      margin-top: 0.55rem; padding: 0.65rem; border-radius: 6px;
+      font-size: 0.88rem; line-height: 1.45; background: rgba(0,0,0,0.18);
+    }
+    .up-return-rejection-hint { margin-top: 0.3rem; color: var(--ash); }
+    .up-return-rejection-reason { margin-top: 0.45rem; }
+    .up-return-rejection-final  { margin-top: 0.5rem; color: var(--ash); }
+    .up-return-pill--inline     { margin-bottom: 0.65rem; display: inline-flex; }
+    .up-return-process          { margin-top: 0.4rem; }
+    .up-return-history-title    { margin-top: 1rem; }
+    .up-return-history-list     { list-style: none; padding-left: 0; }
+    .up-return-history-item     { margin-bottom: 0.5rem; font-size: 0.86rem; color: var(--ash); }
+    .up-return-history-date     { color: var(--olive-100); }
+
+    /* User panel orders — template literals */
+    .up-order-number-val  { font-family: var(--font-mono); color: var(--gold); }
+    .up-order-item-flex   { flex: 1; min-width: 0; }
+    .up-order-item-review { margin-top: 0.4rem; font-size: 0.78rem; padding: 0.3rem 0.8rem; }
+    .up-order-review-sent { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ash); margin-top: 0.4rem; display: block; }
+    .up-order-coupon-val  { color: var(--success-soft); }
+    .up-order-loyalty-val { color: var(--gold); }
+    .up-order-return-btn  { font-size: 0.72rem; padding: 0.35rem 0.65rem; white-space: nowrap; }
+    .up-order-return-wrap { margin-top: 0.35rem; }
+    .up-order-no-items    { color: var(--ash); }
+    .up-order-detail-num  { font-family: var(--font-mono); color: var(--gold); }
+
+    /* Returns form — template literals */
+    .rform-items-grid   { display: grid; gap: 0.45rem; margin-bottom: 0.9rem; }
+    .rform-item-label   { display: flex; gap: 0.5rem; align-items: flex-start; }
+    .rform-item-text    { font-size: 0.86rem; }
+    .rform-submit-btn   { margin-top: 0.5rem; }
+    .up-returns-section-sub { margin-bottom: 0.75rem; }
+    .up-returns-retry-btn   { margin-top: 0.85rem; }
+    .up-returns-login-btn   { margin-top: 0.75rem; }
+
+    /* ═══════════════════════════════════════════════════════════
+       FASE 2 CSP — Elimina todas las mutaciones CSSOM directas.
+       Cada clase aquí reemplaza un el.style.<prop> = valor en JS.
+       ═══════════════════════════════════════════════════════════ */
+
+    /* Scroll del body bloqueado (reemplaza body.style.overflow='hidden') */
+    .body--no-scroll { overflow: hidden !important; }
+
+    /* Utilities de display (reemplazan style.display='flex/block/inline-flex') */
+    .d-flex        { display: flex         !important; }
+    .d-block       { display: block        !important; }
+    .d-inline-flex { display: inline-flex  !important; }
+
+    /* Animación de entrada de tarjetas de producto al hacer scroll
+       JS asigna --card-delay vía setProperty() y agrega esta clase */
+    .card-reveal {
+      opacity: 0;
+      animation: fadeUp 0.5s ease var(--card-delay, 0s) both;
+    }
+
+    /* Botón de carrito — flash visual al agregar producto
+       (reemplaza btn.style.borderColor = 'var(--olive-400)') */
+    .btn--cart-flash { border-color: var(--olive-400) !important; }
+
+    /* Botón de usuario con sesión iniciada
+       (reemplaza btn.style.color = 'var(--accent)') */
+    .nav-btn--logged { color: var(--accent) !important; }
+
+    /* Botón de resumen (carrito) en estado abierto
+       (reemplaza btn.style.opacity='1'; btn.style.color='var(--gold)') */
+    .summary-toggle--open { opacity: 1 !important; color: var(--gold) !important; }
+    .summary-toggle--closed { opacity: 0.7; }
+
+    /* Cart template literals */
+    .cart-empty-hint  { font-size: 0.85rem; color: var(--ash); text-align: center; }
+    .cart-view-edit   { margin-left: auto; color: var(--gold); font-size: 0.8rem; }
+
+    /* Summary empty state */
+    .summary-empty-icon { font-size: 2rem; opacity: 0.3; }
+    .summary-empty-hint { font-size: 0.8rem; color: var(--ash); text-align: center; }
+
+    /* Summary item rows */
+    .summary-row--col     { flex-direction: column; align-items: stretch; gap: 0; }
+    .summary-item-inner   { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
+    .summary-item-info    { flex: 1; min-width: 0; }
+    .summary-talla-info   { margin-top: 0.3rem; font-size: 0.72rem; color: var(--ash); }
+    .summary-talla-val    { color: var(--cream); }
+    .summary-custom-info  { margin-top: 0.3rem; font-size: 0.72rem; }
+    .summary-custom-label { color: var(--ash); }
+    .summary-custom-val   { color: var(--gold); font-family: var(--font-mono); letter-spacing: 0.06em; }
+    .summary-max-label    { font-size: 0.65rem; color: var(--gold); white-space: nowrap; }
+
+    /* PDP template literals */
+    .badge--pdp          { align-self: center; margin-top: 0.25rem; }
+    .pdp-available-text  { color: var(--mist); }
+    .pdp-reviews-loading { color: var(--ash); font-family: var(--font-mono); font-size: 0.78rem; }
   </style>
 </head>
 <body>
@@ -4009,15 +4266,15 @@
 </div>
 
 <!-- ═══════════════ PRODUCTS ═══════════════ -->
-<section class="section" id="products" style="padding-top:0">
+<section class="section u-pt-0" id="products">
   <div class="container">
     <div class="section-header">
       <div class="section-title-group">
         <div class="section-eyebrow" id="catalog-eyebrow" data-i18n="catalog.eyebrow">// CATÁLOGO</div>
         <h2 class="section-title" id="products-title" data-i18n="catalog.title_all">Todos los productos</h2>
       </div>
-      <div style="display:flex;gap:1rem;align-items:center">
-        <select class="input" id="sort-select" style="width:auto;font-size:0.8rem;padding:0.5rem 1rem">
+      <div class="sort-bar">
+        <select class="input" id="sort-select">
           <option value="featured" data-i18n="sort.featured">Destacados</option>
           <option value="price-asc" data-i18n="sort.price_asc">Precio: menor a mayor</option>
           <option value="price-desc" data-i18n="sort.price_desc">Precio: mayor a menor</option>
@@ -4039,7 +4296,7 @@
       <!-- Generated by JS -->
     </div>
 
-    <div style="text-align:center;margin-top:3rem">
+    <div class="load-more-wrap">
       <button class="btn btn-ghost" data-action="loadMoreProducts" id="load-more-btn">
         Cargar más productos
       </button>
@@ -4048,7 +4305,7 @@
 </section>
 
 <!-- ═══════════════ PROMO BANNER ═══════════════ -->
-<section class="section" style="padding-top:0">
+<section class="section u-pt-0">
   <div class="container">
     <div class="promo-banner">
       <div>
@@ -4060,16 +4317,16 @@
           Parche PDU + Apellido + RH y vestuario táctico/deportivo.
           Personalización por pedido para tu unidad.
         </p>
-        <div class="promo-code-wrap" style="margin-top:1.5rem">
+        <div class="promo-code-wrap">
           <button type="button" class="btn btn-accent" id="promo-cta-btn">Ver paquete completo</button>
         </div>
       </div>
       <div class="promo-discount">
         <div class="promo-pct">25%</div>
         <div class="promo-off" id="promo-discount-word">DESCUENTO</div>
-        <div style="margin-top:1rem">
+        <div class="promo-label-group">
           <div class="promo-code">TACTI25</div>
-          <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.1em;color:var(--ash);margin-top:0.5rem;text-align:center" id="promo-code-label">CÓDIGO DE DESCUENTO</div>
+          <div id="promo-code-label">CÓDIGO DE DESCUENTO</div>
         </div>
       </div>
     </div>
@@ -4170,11 +4427,11 @@
           <div class="footer-link">📍 Bogotá, Colombia</div>
           <div class="footer-link" id="footer-hours">⏰ Lun-Sab 8am-6pm</div>
         </div>
-        <div style="margin-top:1.5rem">
-          <div class="footer-col-title" id="footer-newsletter-title" style="font-size:0.8rem;margin-bottom:0.75rem">Newsletter</div>
-          <div style="display:flex;gap:0">
-            <input type="email" class="input" id="newsletter-email" placeholder="tu@email.com" style="border-radius:0;font-size:0.85rem">
-            <button type="button" class="btn btn-primary" id="newsletter-btn" style="border-radius:0;padding:0.75rem 1rem;white-space:nowrap">Suscribirme</button>
+        <div class="footer-newsletter">
+          <div class="footer-col-title" id="footer-newsletter-title">Newsletter</div>
+          <div class="newsletter-row">
+            <input type="email" class="input" id="newsletter-email" placeholder="tu@email.com">
+            <button type="button" class="btn btn-primary" id="newsletter-btn">Suscribirme</button>
           </div>
         </div>
       </div>
@@ -4213,7 +4470,7 @@
     <div class="cart-empty">
       <div class="cart-empty-icon">🎒</div>
       <div class="cart-empty-text" id="cart-static-empty-text">Tu carrito está vacío</div>
-      <p style="font-size:0.85rem;color:var(--ash);text-align:center" id="cart-static-empty-hint">
+      <p id="cart-static-empty-hint">
         Agrega productos para comenzar tu pedido
       </p>
       <button class="btn btn-primary" data-action="closeCart" id="cart-static-empty-btn">Ver catálogo</button>
@@ -4222,7 +4479,7 @@
 
   <!-- cart-footer: solo botones de acción (siempre oculto cuando carrito vacío) -->
   <div class="cart-footer d-none" id="cart-footer">
-    <button class="btn btn-accent" style="width:100%;justify-content:center;font-size:1.05rem" data-action="goToCheckout" id="cart-btn-checkout" data-i18n="cart_panel.checkout_nequi">
+    <button class="btn btn-accent" data-action="goToCheckout" id="cart-btn-checkout" data-i18n="cart_panel.checkout_nequi">
       Proceder al pago (Nequi)
     </button>
     <div class="cart-footer-actions">
@@ -4238,7 +4495,7 @@
   <!-- ── Panel de resumen (vista interior del carrito) ── -->
   <div class="summary-panel" id="summary-panel">
     <div class="summary-header">
-      <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.75rem;gap:0.4rem" data-action="closeCartSummary" id="summary-btn-back" data-i18n="cart_panel.summary_back">
+      <button class="btn btn-ghost" data-action="closeCartSummary" id="summary-btn-back" data-i18n="cart_panel.summary_back">
         ← Volver al carrito
       </button>
       <div class="summary-title" id="summary-title-text" data-i18n="cart_panel.summary_title">Resumen de productos</div>
@@ -4246,19 +4503,19 @@
     <!-- summary-body: renderizado por renderPendingItems() -->
     <div class="summary-body" id="summary-body">
       <div class="summary-empty">
-        <div style="font-size:2rem;opacity:0.3">📋</div>
+        <div class="summary-empty-icon">📋</div>
         <span id="summary-empty-text" data-i18n="cart_panel.summary_empty">El carrito está vacío</span>
       </div>
     </div>
     <div class="summary-footer d-none" id="summary-footer">
-      <div class="summary-total-row" style="margin-bottom:0.75rem">
-        <span id="summary-qty-label" style="color:var(--ash);font-size:0.8rem">0 productos</span>
-        <span class="amount" id="summary-pending-total" style="font-size:0.9rem;font-weight:700">$0</span>
+      <div class="summary-total-row summary-total-row--preview">
+        <span id="summary-qty-label">0 productos</span>
+        <span class="amount" id="summary-pending-total">$0</span>
       </div>
-      <button class="btn btn-accent" style="width:100%;justify-content:center;font-size:0.95rem" data-action="applyCartChanges" id="summary-btn-apply" data-i18n="cart_panel.apply_changes">
+      <button class="btn btn-accent" data-action="applyCartChanges" id="summary-btn-apply" data-i18n="cart_panel.apply_changes">
         ✅ Aplicar cambios
       </button>
-      <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:0.5rem;font-size:0.82rem" data-action="closeCartSummary" id="summary-btn-cancel" data-i18n="cart_panel.cancel_discard">
+      <button class="btn btn-ghost" data-action="closeCartSummary" id="summary-btn-cancel" data-i18n="cart_panel.cancel_discard">
         Cancelar — descartar cambios
       </button>
     </div>
@@ -4339,10 +4596,10 @@
   </div>
   <div class="checkout-modal-body">
     <div class="neki-pay-box">
-      <div id="checkout-demo-label" data-i18n="checkout_ui.demo_label" style="margin-bottom:0.35rem;font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--ash)">Instrucciones (demo)</div>
+      <div id="checkout-demo-label" data-i18n="checkout_ui.demo_label">Instrucciones (demo)</div>
       <span id="checkout-send-prefix" data-i18n="checkout_ui.send_prefix">Envía el pago a</span> <strong id="checkout-neki-phone">—</strong><br>
       <span id="checkout-holder-prefix" data-i18n="checkout_ui.holder_prefix">Titular:</span> <strong id="checkout-neki-holder">—</strong><br>
-      <span style="display:block;margin-top:0.5rem;color:var(--ash);font-size:0.75rem">
+      <span class="checkout-total-hint">
         <span id="checkout-total-prefix" data-i18n="checkout_ui.total_line_prefix">Total a pagar:</span> <strong id="checkout-total-preview">—</strong> <span id="checkout-total-suffix" data-i18n="checkout_ui.total_line_suffix">· Luego sube el comprobante abajo.</span>
       </span>
     </div>
@@ -4362,11 +4619,11 @@
         <input class="auth-input" type="tel" id="co-phone" name="shipping_phone" required autocomplete="tel" placeholder="300 123 4567">
       </div>
       <div class="auth-row">
-        <div class="auth-field" style="flex:1">
+        <div class="auth-field">
           <label class="auth-label" for="co-dept" data-i18n="checkout_ui.label_dept">Departamento</label>
           <input class="auth-input" type="text" id="co-dept" name="shipping_department" required placeholder="Cundinamarca">
         </div>
-        <div class="auth-field" style="flex:1">
+        <div class="auth-field">
           <label class="auth-label" for="co-city" data-i18n="checkout_ui.label_city">Ciudad</label>
           <input class="auth-input" type="text" id="co-city" name="shipping_city" required placeholder="Bogotá">
         </div>
@@ -4382,19 +4639,19 @@
       <!-- ── Puntos de fidelidad ── -->
       <div class="loyalty-section d-none" id="loyalty-section">
         <div class="loyalty-section-label">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color:var(--gold)"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
           Puntos de fidelidad
         </div>
         <div id="loyalty-balance-display" class="loyalty-balance-badge d-none">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
           <span id="loyalty-pts-label">0 pts</span>
-          <span style="color:var(--ash)">≈</span>
+          <span class="loyalty-separator">≈</span>
           <span id="loyalty-cop-label">COP 0</span>
         </div>
         <div id="loyalty-apply-row" class="loyalty-row">
           <input class="loyalty-input" type="number" id="loyalty-points-input"
             min="1" step="1" placeholder="Puntos a usar" autocomplete="off">
-          <button type="button" class="loyalty-btn" id="loyalty-apply-btn" onclick="applyLoyaltyPoints()">
+          <button type="button" class="loyalty-btn" id="loyalty-apply-btn" data-action="applyLoyaltyPoints">
             Aplicar
           </button>
         </div>
@@ -4402,10 +4659,10 @@
           <div class="loyalty-applied">
             <div class="loyalty-applied-info">
               <span class="loyalty-applied-pts" id="loyalty-applied-pts-val">0 pts</span>
-              <span style="margin:0 0.35rem;opacity:0.5">·</span>
-              <span id="loyalty-applied-cop-val" style="font-size:0.75rem">−COP 0</span>
+              <span class="loyalty-dot-sep">·</span>
+              <span id="loyalty-applied-cop-val">−COP 0</span>
             </div>
-            <button type="button" class="loyalty-remove" onclick="removeLoyaltyPoints()">✕ Quitar</button>
+            <button type="button" class="loyalty-remove" data-action="removeLoyaltyPoints">✕ Quitar</button>
           </div>
         </div>
         <div id="loyalty-error" class="loyalty-error"></div>
@@ -4413,9 +4670,9 @@
 
       <div class="auth-field">
         <label class="auth-label" for="co-proof" data-i18n="checkout_ui.label_proof">Comprobante de pago (JPG, PNG o WEBP, máx. 5 MB)</label>
-        <input class="auth-input" type="file" id="co-proof" name="payment_proof" accept="image/jpeg,image/png,image/webp" required style="padding:0.5rem">
+        <input class="auth-input" type="file" id="co-proof" name="payment_proof" accept="image/jpeg,image/png,image/webp" required>
       </div>
-      <button type="submit" class="btn btn-accent" style="width:100%;justify-content:center;margin-top:0.5rem" id="checkout-submit-btn" data-i18n="checkout_ui.submit">
+      <button type="submit" class="btn btn-accent" id="checkout-submit-btn" data-i18n="checkout_ui.submit">
         Enviar pedido y comprobante
       </button>
     </form>
@@ -4651,18 +4908,18 @@
             <div class="up-stat-label">Equivale en pesos</div>
           </div>
         </div>
-        <div class="up-section-title" style="font-size:1rem;margin-bottom:0.5rem;">Pedidos recientes</div>
-        <div class="up-section-subtitle" style="margin-bottom:1rem;">Tus últimas compras</div>
+        <div class="up-section-title up-section-title--sm">Pedidos recientes</div>
+        <div class="up-section-subtitle up-section-subtitle--sm">Tus últimas compras</div>
         <div id="up-dash-recent-orders"></div>
-        <div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;">
-          <button class="btn btn-ghost" data-action="upNav" data-section="orders" style="font-size:0.78rem;padding:0.6rem 1.1rem;">
+        <div class="up-quick-actions">
+          <button class="btn btn-ghost" data-action="upNav" data-section="orders">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
               <rect x="9" y="3" width="6" height="4" rx="1"/>
             </svg>
             Ver todos mis pedidos
           </button>
-          <button class="btn btn-ghost" data-action="upNav" data-section="points" style="font-size:0.78rem;padding:0.6rem 1.1rem;">
+          <button class="btn btn-ghost" data-action="upNav" data-section="points">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
@@ -4694,17 +4951,17 @@
       <div class="up-section" id="up-section-returns">
         <div class="up-section-title">Devoluciones</div>
         <div class="up-section-subtitle">Gestiona solicitudes y seguimiento postventa</div>
-        <div class="up-card" style="margin-bottom:1rem;">
+        <div class="up-card up-card--sm">
           <div class="up-card-head">Políticas de devolución</div>
           <div class="up-card-body">
             <p class="up-returns-intro">Consulta nuestras condiciones antes de solicitar o gestionar una devolución.</p>
             <div id="up-returns-policy" class="up-returns-policy-blurb">Cargando políticas...</div>
-            <button type="button" class="btn btn-ghost" data-action="openReturnPolicyInfo" style="margin-top:0.75rem;">
+            <button type="button" class="btn btn-ghost btn-return-policy-info" data-action="openReturnPolicyInfo">
               Leer políticas completas
             </button>
           </div>
         </div>
-        <div id="up-return-create-box" class="up-card d-none" style="margin-bottom:1rem;"></div>
+        <div id="up-return-create-box" class="up-card up-card--sm d-none"></div>
         <h3 class="up-returns-history-title">Mis devoluciones</h3>
         <p class="up-returns-history-sub">Historial de solicitudes, más recientes primero.</p>
         <div id="up-returns-container"></div>
@@ -4723,9 +4980,8 @@
             <strong>¿Cómo usar tus puntos?</strong><br>
             Aplica tus puntos directamente en el paso de pago al realizar una compra. Cada punto equivale a
             <strong id="up-pts-rate">$10 COP</strong>. Puedes canjear hasta el 20% del total de tu pedido.
-            <span style="display:block;margin-top:0.35rem;">
-              <button class="btn btn-ghost" data-action="closeUserPanel"
-                style="font-size:0.72rem;padding:0.4rem 0.85rem;display:inline-flex;gap:0.35rem;align-items:center;margin-top:0.25rem;">
+            <span class="up-btn-desc">
+              <button class="btn btn-ghost btn-up-stores" data-action="closeUserPanel">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                   <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
@@ -4735,8 +4991,8 @@
             </span>
           </div>
         </div>
-        <div class="up-section-title" style="font-size:1rem;margin-bottom:0.5rem;">Historial de movimientos</div>
-        <div class="up-section-subtitle" style="margin-bottom:1rem;">Actividad reciente de tus puntos</div>
+        <div class="up-section-title up-section-title--sm">Historial de movimientos</div>
+        <div class="up-section-subtitle up-section-subtitle--sm">Actividad reciente de tus puntos</div>
         <div id="up-tx-container"></div>
         <div class="up-pagination" id="up-tx-pagination"></div>
       </div>
@@ -4766,7 +5022,7 @@
                   <input class="up-form-input" type="text" id="up-last-name" autocomplete="family-name">
                 </div>
               </div>
-              <div class="up-form-group" style="margin-bottom:0">
+              <div class="up-form-group up-form-group--no-mb">
                 <label class="up-form-label" for="up-email">Correo electrónico</label>
                 <input class="up-form-input" type="email" id="up-email" autocomplete="email">
               </div>
@@ -4801,14 +5057,14 @@
                 <label class="up-form-label" for="up-doc-num">Número de documento</label>
                 <input class="up-form-input" type="text" id="up-doc-num" placeholder="Ej: 1234567890">
               </div>
-              <div class="up-form-group" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0">
-                <input type="checkbox" id="up-marketing" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer;">
-                <label for="up-marketing" style="font-size:0.82rem;color:var(--ash);cursor:pointer;">Quiero recibir noticias, ofertas y promociones</label>
+              <div class="up-form-group up-form-group--checkbox">
+                <input type="checkbox" id="up-marketing">
+                <label for="up-marketing">Quiero recibir noticias, ofertas y promociones</label>
               </div>
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary" style="min-width:160px;">Guardar cambios</button>
+          <button type="submit" class="btn btn-primary btn-up-save">Guardar cambios</button>
         </form>
       </div>
 
@@ -4831,17 +5087,17 @@
               <input class="up-form-input" type="password" id="up-pass-current" autocomplete="current-password">
             </div>
             <div class="up-form-2col">
-              <div class="up-form-group" style="margin-bottom:0">
+              <div class="up-form-group up-form-group--no-mb">
                 <label class="up-form-label" for="up-pass-new">Nueva contraseña</label>
                 <input class="up-form-input" type="password" id="up-pass-new" autocomplete="new-password" placeholder="Mínimo 8 caracteres">
               </div>
-              <div class="up-form-group" style="margin-bottom:0">
+              <div class="up-form-group up-form-group--no-mb">
                 <label class="up-form-label" for="up-pass-confirm">Confirmar contraseña</label>
                 <input class="up-form-input" type="password" id="up-pass-confirm" autocomplete="new-password">
               </div>
             </div>
-            <div style="margin-top:1rem;">
-              <button class="btn btn-primary" data-action="upChangePassword" style="min-width:180px;">Actualizar contraseña</button>
+            <div class="up-action-wrap">
+              <button class="btn btn-primary btn-up-change-pwd" data-action="upChangePassword">Actualizar contraseña</button>
             </div>
           </div>
         </div>
@@ -4855,11 +5111,10 @@
             Sesión activa
           </div>
           <div class="up-card-body">
-            <p style="font-size:0.85rem;color:var(--ash);margin-bottom:1rem;line-height:1.6;">
+            <p class="up-session-desc">
               Tienes una sesión activa en este dispositivo. Al cerrar sesión se eliminarán los tokens de acceso.
             </p>
-            <button class="btn btn-ghost" data-action="upLogout"
-              style="border-color:rgba(224,92,92,0.27);color:var(--danger-text);">
+            <button class="btn btn-ghost btn-logout" data-action="upLogout">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
@@ -4900,7 +5155,7 @@
       </div>
     </div>
     <div class="fp-rp-foot d-none" id="fp-rp-foot-info">
-      <div class="fp-rp-actions" style="justify-content:center;">
+      <div class="fp-rp-actions">
         <button type="button" class="btn btn-primary" data-action="closeReturnPolicyModal">Cerrar</button>
       </div>
     </div>
@@ -4909,7 +5164,7 @@
 
 <!-- Modal: detalle de devolución (solo lectura) -->
 <div class="fp-rp-overlay" id="up-return-detail-overlay" aria-hidden="true">
-  <div class="fp-rp-modal" role="dialog" aria-modal="true" aria-labelledby="up-return-detail-title" style="max-width:540px;">
+  <div class="fp-rp-modal" role="dialog" aria-modal="true" aria-labelledby="up-return-detail-title">
     <div class="fp-rp-head">
       <h2 class="fp-rp-title" id="up-return-detail-title">Detalle de devolución</h2>
       <p class="fp-rp-subtitle" id="up-return-detail-sub">—</p>
@@ -4920,7 +5175,7 @@
       </div>
     </div>
     <div class="fp-rp-foot" id="up-return-detail-foot">
-      <div class="fp-rp-actions" style="justify-content:center;">
+      <div class="fp-rp-actions">
         <button type="button" class="btn btn-primary" data-action="closeReturnDetailModal">Cerrar</button>
       </div>
     </div>
@@ -4954,8 +5209,8 @@
   <div class="up-confirm-title" id="up-confirm-title">¿Estás seguro?</div>
   <div class="up-confirm-msg" id="up-confirm-msg"></div>
   <div class="up-confirm-actions">
-    <button class="btn btn-ghost" id="up-confirm-cancel" data-action="upConfirmCancel" style="padding:0.6rem 1.2rem;">Cancelar</button>
-    <button class="btn btn-primary" id="up-confirm-ok" style="padding:0.6rem 1.2rem;">Confirmar</button>
+    <button class="btn btn-ghost" id="up-confirm-cancel" data-action="upConfirmCancel">Cancelar</button>
+    <button class="btn btn-primary" id="up-confirm-ok">Confirmar</button>
   </div>
 </div>
 
@@ -4994,7 +5249,7 @@
   </div>
   <div class="rform-star-hint" id="rform-star-hint">Selecciona una calificación</div>
 
-  <label class="rform-label" for="rform-comment">Comentario <span style="color:var(--ash)">(mínimo 10 caracteres)</span></label>
+  <label class="rform-label" for="rform-comment">Comentario <span class="rform-hint">(mínimo 10 caracteres)</span></label>
   <textarea class="rform-textarea" id="rform-comment" rows="4" placeholder="Cuéntanos tu experiencia con el producto…" maxlength="2000"></textarea>
 
   <label class="rform-label" for="rform-title">Título (opcional)</label>
@@ -5002,7 +5257,7 @@
 
   <label class="rform-label">Imágenes (opcional, máx. 5)</label>
   <label class="rform-file-label" for="rform-images">📷 Adjuntar fotos</label>
-  <input type="file" id="rform-images" accept="image/*" multiple style="display:none">
+  <input type="file" id="rform-images" accept="image/*" multiple class="d-none">
   <div class="rform-file-preview" id="rform-file-preview"></div>
 
   <div class="rform-err" id="rform-err"></div>
@@ -5033,6 +5288,30 @@
   let _captchaTimer  = null;   // interval del countdown
   const t = window.t || ((_, fallback = '') => fallback);
   const tf = window.tf || ((path, vars, fallback = '') => t(path, fallback));
+
+  // ── Helpers de visibilidad — Fase 2 CSP ────────────────────────────────────
+  // Reemplazan todas las mutaciones el.style.display directas.
+  // `show(el, 'flex')` → elimina d-none; añade d-flex si corresponde.
+  // `hide(el)`         → añade d-none; elimina d-flex/d-inline-flex.
+  // `setBodyScroll(false)` → añade .body--no-scroll al <body> (overflow:hidden).
+  function show(el, display) {
+    if (!el) return;
+    el.classList.remove('d-none');
+    if      (display === 'flex')        el.classList.add('d-flex');
+    else if (display === 'inline-flex') el.classList.add('d-inline-flex');
+    else                                el.classList.remove('d-flex', 'd-inline-flex');
+  }
+  function hide(el) {
+    if (!el) return;
+    el.classList.remove('d-flex', 'd-inline-flex');
+    el.classList.add('d-none');
+  }
+  function setBodyScroll(scrollable) {
+    document.body.classList.toggle('body--no-scroll', !scrollable);
+  }
+  // Obtiene elemento por ID y lo muestra/oculta en una sola llamada
+  function showById(id, display)  { show(document.getElementById(id), display); }
+  function hideById(id)           { hide(document.getElementById(id)); }
 
   // ── Sanitización HTML: escapa caracteres especiales para prevenir XSS ─────
   function escHtml(s) {
@@ -5485,7 +5764,7 @@
       const inWish = isWished(p.id);
       return `
         <div class="product-card" id="prod-${p.id}">
-          <div class="product-img-wrap" data-action="openProductDetail" data-id="${p.id}" data-slug="${p.slug}" style="cursor:pointer">
+          <div class="product-img-wrap" data-action="openProductDetail" data-id="${p.id}" data-slug="${p.slug}">
             ${productImg(p)}
             <div class="product-badges">
               ${p.badge ? `<span class="badge ${p.badge==='featured'?'badge-accent':p.badge==='new'?'badge-olive':'badge-danger'}">${escHtml(t(`badges.${p.badge}`, p.badge))}</span>` : ''}
@@ -5501,17 +5780,17 @@
           </div>
           <div class="product-info">
             <div class="product-category">${escHtml(catLabel(p.cat))}</div>
-            <div class="product-name" data-action="openProductDetail" data-id="${p.id}" data-slug="${p.slug}" style="cursor:pointer">${escHtml(p.name)}</div>
+            <div class="product-name" data-action="openProductDetail" data-id="${p.id}" data-slug="${p.slug}">${escHtml(p.name)}</div>
             <div class="product-pricing">
               <span class="product-price">${fmt(p.price)}</span>
               ${p.compare ? `<span class="product-compare-price">${fmt(p.compare)}</span>` : ''}
             </div>
             ${p.reviews > 0 && p.rating ? `
-            <div class="product-rating" style="cursor:pointer" data-action="openReviewsModal" data-product-id="${p.id}" title="Ver reseñas">
+            <div class="product-rating" data-action="openReviewsModal" data-product-id="${p.id}" title="Ver reseñas">
               <span class="stars">${'★'.repeat(Math.floor(p.rating))}${p.rating % 1 >= 0.5 ? '½' : ''}</span>
               <span class="rating-count">${p.rating.toFixed(1)} (${p.reviews})</span>
             </div>` : ''}
-            ${p.badge === 'featured' ? `<div style="margin-top:0.4rem"><span class="stock-alert"><span class="stock-alert-dot"></span>${escHtml(t('products.low_stock', '¡Pocas unidades!'))}</span></div>` : ''}
+            ${p.badge === 'featured' ? `<div class="product-low-stock-wrap"><span class="stock-alert"><span class="stock-alert-dot"></span>${escHtml(t('products.low_stock', '¡Pocas unidades!'))}</span></div>` : ''}
           </div>
         </div>
       `;
@@ -5526,8 +5805,8 @@
       card.querySelector('.product-name').addEventListener('click', openDetail);
     });
 
-    document.getElementById('load-more-btn').style.display =
-      (currentFilter !== 'new' && shown.length < filtered.length) ? 'inline-flex' : 'none';
+    const _showMore = currentFilter !== 'new' && shown.length < filtered.length;
+    _showMore ? show(document.getElementById('load-more-btn'), 'inline-flex') : hide(document.getElementById('load-more-btn'));
   }
 
   /* ── LIGHTBOX ─────────────────────────────────────────── */
@@ -5544,37 +5823,37 @@
 
     if (!overlay) return;
 
-    function show(idx) {
+    function lbShow(idx) {
       _idx = (idx + _imgs.length) % _imgs.length;
       img.src = _imgs[_idx].url;
       img.alt = _imgs[_idx].alt || '';
       counter.textContent = (_idx + 1) + ' / ' + _imgs.length;
-      btnPrev.style.display = _imgs.length > 1 ? '' : 'none';
-      btnNext.style.display = _imgs.length > 1 ? '' : 'none';
+      _imgs.length > 1 ? show(btnPrev) : hide(btnPrev);
+      _imgs.length > 1 ? show(btnNext) : hide(btnNext);
     }
 
     function open(images, startIdx) {
       _imgs = images;
       overlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
-      show(startIdx || 0);
+      setBodyScroll(false);
+      lbShow(startIdx || 0);
     }
 
     function close() {
       overlay.classList.remove('open');
-      document.body.style.overflow = '';
+      setBodyScroll(true);
       img.src = '';
     }
 
     btnClose.addEventListener('click', close);
-    btnPrev.addEventListener('click', function () { show(_idx - 1); });
-    btnNext.addEventListener('click', function () { show(_idx + 1); });
+    btnPrev.addEventListener('click', function () { lbShow(_idx - 1); });
+    btnNext.addEventListener('click', function () { lbShow(_idx + 1); });
     overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
     document.addEventListener('keydown', function (e) {
       if (!overlay.classList.contains('open')) return;
       if (e.key === 'Escape')    close();
-      if (e.key === 'ArrowLeft') show(_idx - 1);
-      if (e.key === 'ArrowRight')show(_idx + 1);
+      if (e.key === 'ArrowLeft') lbShow(_idx - 1);
+      if (e.key === 'ArrowRight')lbShow(_idx + 1);
     });
 
     /* Exponer en window para que el handler de clicks lo use */
@@ -5651,18 +5930,18 @@
       return `<button class="size-chip${active}${low ? ' low-stock' : ''}" data-action="selectSize" data-talla="${escHtml(String(size))}">${lbl}${stkT ? `<span class="size-stock-badge">${stkT}</span>` : ''}</button>`;
     }).join('');
     document.getElementById('size-options').innerHTML = options;
-    document.getElementById('size-error').style.display = 'none';
+    hideById('size-error');
 
     document.getElementById('size-modal').classList.add('open');
     document.getElementById('size-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    setBodyScroll(false);
   }
 
   function closeSizeModal() {
     document.getElementById('size-modal').classList.remove('open');
     document.getElementById('size-overlay').classList.remove('open');
     if (!document.getElementById('cart-panel').classList.contains('open')) {
-      document.body.style.overflow = '';
+      setBodyScroll(true);
     }
     pendingSizeProduct = null;
     pendingSizeCartIndex = null;
@@ -5671,7 +5950,7 @@
 
   function selectSize(size) {
     selectedSize = normalizeSize(size);
-    document.getElementById('size-error').style.display = 'none';
+    hideById('size-error');
     document.querySelectorAll('#size-options .size-chip').forEach(btn => {
       const chipTalla = btn.dataset.talla != null ? normalizeSize(btn.dataset.talla) : '';
       btn.classList.toggle('active', chipTalla === selectedSize);
@@ -5680,7 +5959,7 @@
 
   function confirmSizeSelection() {
     if (!selectedSize) {
-      document.getElementById('size-error').style.display = 'block';
+      showById('size-error');
       return;
     }
 
@@ -5692,7 +5971,10 @@
         i !== pendingSizeCartIndex && c.id === item.id && normalizeSize(c.talla) === size
       );
       if (mergeIndex !== -1) {
-        cart[mergeIndex].qty += item.qty;
+        const mergedQty = cart[mergeIndex].qty + item.qty;
+        const prod = productBySku.get(item.sku);
+        const disponible = prod ? stockParaTalla(prod, size) : 0;
+        cart[mergeIndex].qty = (disponible > 0 && mergedQty > disponible) ? disponible : mergedQty;
         cart.splice(pendingSizeCartIndex, 1);
       } else {
         item.talla = size;
@@ -5824,8 +6106,8 @@
 
     // Brief animation on cart icon
     const btn = document.getElementById('cart-btn');
-    btn.style.borderColor = 'var(--olive-400)';
-    setTimeout(() => btn.style.borderColor = '', 600);
+    btn.classList.add('btn--cart-flash');
+    setTimeout(() => btn.classList.remove('btn--cart-flash'), 600);
   }
 
   function addToCart(e, id) {
@@ -5846,6 +6128,9 @@
     addProductToCart(product, null);
   }
 
+  // NOTE: removeFromCart y updateQty no están expuestas en el delegador de eventos.
+  // El flujo de edición usa el summary panel (pendingQtyChange / pendingRemove).
+  // Se conservan por si se necesitan en código futuro.
   function removeFromCart(id, talla) {
     const size = normalizeSize(talla);
     cart = cart.filter(c => !(c.id === id && normalizeSize(c.talla) === size));
@@ -5933,9 +6218,9 @@
       loyaltyBalance = await res.json();
       const sec = document.getElementById('loyalty-section');
       if (sec && loyaltyBalance && loyaltyBalance.points_balance > 0) {
-        sec.style.display = 'block';
+        show(sec);
         const badge = document.getElementById('loyalty-balance-display');
-        if (badge) badge.style.display = 'inline-flex';
+        if (badge) show(badge, 'inline-flex');
         const ptsLbl = document.getElementById('loyalty-pts-label');
         const copLbl = document.getElementById('loyalty-cop-label');
         if (ptsLbl) ptsLbl.textContent = `${loyaltyBalance.points_balance} pts`;
@@ -5946,21 +6231,25 @@
 
   async function applyLoyaltyPoints() {
     const errEl = document.getElementById('loyalty-error');
-    errEl.style.display = 'none';
+    hide(errEl);
     const input = document.getElementById('loyalty-points-input');
     const pts = parseInt(input.value, 10);
     if (!pts || pts < 1) {
       errEl.textContent = 'Ingresa una cantidad válida de puntos.';
-      errEl.style.display = 'block';
+      show(errEl);
       return;
     }
 
-    // Calcular total actual del carrito para validar el límite
-    const subtotal = cart.reduce((s, i) => s + (Number(i.price) || 0) * (Number(i.qty) || 1), 0);
-    const shipping = subtotal >= (window._FREE_SHIPPING || 200000) ? 0 : (window._SHIPPING_COST || 15000);
-    const tax = subtotal * (window._TAX_RATE || 0.19);
+    // Calcular total actual del carrito — misma fórmula que updateCartUI()
+    const subtotal = cart.reduce((s, i) => {
+      const price = Number(i.price), qty = Number(i.qty);
+      return s + (isNaN(price) || isNaN(qty) ? 0 : price * qty);
+    }, 0);
     const couponDisc = appliedCoupon ? (appliedCoupon.discount || 0) : 0;
-    const orderTotal = Math.max(subtotal + shipping + tax - couponDisc, 0);
+    const discountedSubtotal = Math.max(subtotal - couponDisc, 0);
+    const shipping = subtotal >= (window._FREE_SHIPPING || 200000) ? 0 : (window._SHIPPING_COST || 15000);
+    const tax = discountedSubtotal * (window._TAX_RATE || 0.19);
+    const orderTotal = discountedSubtotal + shipping + tax;
 
     try {
       const res = await fetch('/api/v1/loyalty/preview/', {
@@ -5975,41 +6264,41 @@
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.valid) {
         errEl.textContent = data.reason || data.detail || 'No se pudo aplicar el descuento.';
-        errEl.style.display = 'block';
+        show(errEl);
         return;
       }
       appliedLoyalty = { points_applied: data.points_applied, discount_amount: data.discount_amount };
       // Mostrar estado aplicado
-      document.getElementById('loyalty-apply-row').style.display = 'none';
+      hideById('loyalty-apply-row');
       const applied = document.getElementById('loyalty-applied-display');
-      applied.style.display = 'block';
+      show(applied);
       document.getElementById('loyalty-applied-pts-val').textContent = `${data.points_applied} pts`;
       document.getElementById('loyalty-applied-cop-val').textContent = `−COP ${fmt(Math.round(data.discount_amount))}`;
     } catch (e) {
       errEl.textContent = String(e.message || 'Error al comunicarse con el servidor.');
-      errEl.style.display = 'block';
+      show(errEl);
     }
   }
 
   function removeLoyaltyPoints() {
     appliedLoyalty = null;
-    document.getElementById('loyalty-apply-row').style.display = 'flex';
-    document.getElementById('loyalty-applied-display').style.display = 'none';
+    show(document.getElementById('loyalty-apply-row'), 'flex');
+    hideById('loyalty-applied-display');
     document.getElementById('loyalty-points-input').value = '';
-    document.getElementById('loyalty-error').style.display = 'none';
+    hideById('loyalty-error');
   }
 
   function resetLoyaltySection() {
     appliedLoyalty = null;
     loyaltyBalance = null;
     const sec = document.getElementById('loyalty-section');
-    if (sec) sec.style.display = 'none';
+    if (sec) hide(sec);
     const badge = document.getElementById('loyalty-balance-display');
-    if (badge) badge.style.display = 'none';
+    if (badge) hide(badge);
     const applyRow = document.getElementById('loyalty-apply-row');
-    if (applyRow) applyRow.style.display = 'flex';
+    if (applyRow) show(applyRow, 'flex');
     const appliedDisp = document.getElementById('loyalty-applied-display');
-    if (appliedDisp) appliedDisp.style.display = 'none';
+    if (appliedDisp) hide(appliedDisp);
     const input = document.getElementById('loyalty-points-input');
     if (input) input.value = '';
   }
@@ -6019,23 +6308,23 @@
     const errorEl = document.getElementById('coupon-error');
     const code = input.value.trim().toUpperCase();
 
-    errorEl.style.display = 'none';
+    hide(errorEl);
 
     if (!code) {
       errorEl.textContent = t('coupon.enter_code', 'Ingresa un código de descuento.');
-      errorEl.style.display = 'block';
+      show(errorEl);
       return;
     }
     if (appliedCoupon) {
       errorEl.textContent = t('coupon.already_applied', 'Ya tienes un cupón aplicado. Quítalo primero para usar otro.');
-      errorEl.style.display = 'block';
+      show(errorEl);
       return;
     }
 
     const coupon = COUPONS[code];
     if (!coupon) {
       errorEl.textContent = t('coupon.invalid', 'Código no válido o no disponible.');
-      errorEl.style.display = 'block';
+      show(errorEl);
       input.value = '';
       return;
     }
@@ -6072,7 +6361,7 @@
   function removeCoupon() {
     appliedCoupon = null;
     document.getElementById('coupon-input').value = '';
-    document.getElementById('coupon-error').style.display = 'none';
+    hideById('coupon-error');
     updateCartUI();
     showToast(t('coupon.removed', 'Cupón eliminado'), '✕');
   }
@@ -6093,10 +6382,10 @@
         <div class="cart-empty">
           <div class="cart-empty-icon">🎒</div>
           <div class="cart-empty-text">${escHtml(t('cart.empty_title', 'Tu carrito está vacío'))}</div>
-          <p style="font-size:0.85rem;color:var(--ash);text-align:center">${escHtml(t('cart.empty_hint', 'Agrega productos para comenzar'))}</p>
+          <p class="cart-empty-hint">${escHtml(t('cart.empty_hint', 'Agrega productos para comenzar'))}</p>
           <button class="btn btn-primary" data-action="closeCart">${escHtml(t('cart.empty_cta', 'Ver catálogo'))}</button>
         </div>`;
-      footer.style.display = 'none';
+      hide(footer);
       return;
     }
 
@@ -6128,7 +6417,7 @@
 
     // ── Construir HTML de cupón ──────────────────────
     const couponHTML = appliedCoupon
-      ? `<div class="coupon-applied" style="display:flex">
+      ? `<div class="coupon-applied">
            <div class="coupon-applied-info">
              <span>🏷️</span>
              <div>
@@ -6160,7 +6449,7 @@
         ${totalQty === 1
           ? escHtml(t('cart.products_in_cart_one', '📦 1 producto en tu carrito'))
           : escHtml(tf('cart.products_in_cart_many', { n: totalQty }, `📦 ${totalQty} productos en tu carrito`))}
-        <span style="margin-left:auto;color:var(--gold);font-size:0.8rem">${escHtml(t('cart.view_edit', 'Ver y editar →'))}</span>
+        <span class="cart-view-edit">${escHtml(t('cart.view_edit', 'Ver y editar →'))}</span>
       </button>
       <div class="coupon-section">
         <div class="coupon-label">${escHtml(t('cart.coupon_label', 'Código de descuento'))}</div>
@@ -6186,13 +6475,13 @@
         </div>
       </div>`;
 
-    footer.style.display = 'block';
+    show(footer);
   }
 
   function openCart() {
     document.getElementById('cart-panel').classList.add('open');
     document.getElementById('cart-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    setBodyScroll(false);
   }
 
   function closeCart() {
@@ -6200,7 +6489,7 @@
     document.getElementById('cart-overlay').classList.remove('open');
     closeCartSummary();
     if (!document.getElementById('size-modal').classList.contains('open')) {
-      document.body.style.overflow = '';
+      setBodyScroll(true);
     }
   }
 
@@ -6223,7 +6512,7 @@
     renderPendingItems();
     document.getElementById('summary-panel').classList.add('open');
     const btn = document.getElementById('summary-toggle-btn');
-    if (btn) { btn.style.opacity = '1'; btn.style.color = 'var(--gold)'; }
+    if (btn) { btn.classList.add('summary-toggle--open'); btn.classList.remove('summary-toggle--closed'); }
   }
 
   function closeCartSummary() {
@@ -6231,7 +6520,7 @@
     pendingCart = null;
     pendingSizePickerIdx = null;
     const btn = document.getElementById('summary-toggle-btn');
-    if (btn) { btn.style.opacity = '0.7'; btn.style.color = ''; }
+    if (btn) { btn.classList.remove('summary-toggle--open'); btn.classList.add('summary-toggle--closed'); }
   }
 
   function renderPendingItems() {
@@ -6242,13 +6531,13 @@
     if (pendingCart.length === 0) {
       body.innerHTML = `
         <div class="summary-empty">
-          <div style="font-size:2rem;opacity:0.3">📋</div>
+          <div class="summary-empty-icon">📋</div>
           <span>${escHtml(t('summary.empty_no_products', 'No hay productos'))}</span>
-          <p style="font-size:0.8rem;color:var(--ash);text-align:center">
+          <p class="summary-empty-hint">
             ${escHtml(t('summary.empty_apply_hint', 'Presiona "Aplicar cambios" para confirmar que el carrito quede vacío.'))}
           </p>
         </div>`;
-      footer.style.display = 'block';
+      show(footer);
       document.getElementById('summary-qty-label').textContent = tf('summary.qty_label_many', { n: 0 }, '0 productos');
       document.getElementById('summary-pending-total').textContent = '$0';
       return;
@@ -6272,37 +6561,36 @@
 
       // ── Talla como texto informativo (solo lectura) ──
       const tallaInfoHTML = item.talla
-        ? `<div style="margin-top:0.3rem;font-size:0.72rem;color:var(--ash)">
-             ${escHtml(t('summary.size_prefix', 'Talla:'))} <strong style="color:var(--cream)">${escHtml(item.talla)}</strong>
+        ? `<div class="summary-talla-info">
+             ${escHtml(t('summary.size_prefix', 'Talla:'))} <strong class="summary-talla-val">${escHtml(item.talla)}</strong>
            </div>`
         : '';
 
       return `
-        <div class="summary-row" style="flex-direction:column;align-items:stretch;gap:0">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.75rem">
-            <div style="flex:1;min-width:0">
-              <div class="summary-prod-name" style="margin-bottom:0.2rem">${escHtml(item.emoji || '')} ${escHtml(item.name)}</div>
+        <div class="summary-row summary-row--col">
+          <div class="summary-item-inner">
+            <div class="summary-item-info">
+              <div class="summary-prod-name">${escHtml(item.emoji || '')} ${escHtml(item.name)}</div>
               <div class="summary-prod-meta">${escHtml(t('summary.sku_prefix', 'SKU'))}: ${escHtml(item.sku)} · ${fmt(price)} ${escHtml(t('summary.per_unit', 'c/u'))}</div>
-              ${item.bordado ? `<div style="margin-top:0.3rem;font-size:0.72rem">
-                <span style="color:var(--ash)">${escHtml(t('summary.embroidery_prefix', 'Texto bordado:'))} </span>
-                <strong style="color:var(--gold);font-family:var(--font-mono);letter-spacing:0.06em">${escHtml(item.bordado)}</strong>
+              ${item.bordado ? `<div class="summary-custom-info">
+                <span class="summary-custom-label">${escHtml(t('summary.embroidery_prefix', 'Texto bordado:'))} </span>
+                <strong class="summary-custom-val">${escHtml(item.bordado)}</strong>
               </div>` : ''}
-              ${item.rh ? `<div style="margin-top:0.3rem;font-size:0.72rem">
-                <span style="color:var(--ash)">${escHtml(t('summary.rh_prefix', 'Tipo de RH:'))} </span>
-                <strong style="color:var(--gold);font-family:var(--font-mono);letter-spacing:0.06em">${escHtml(item.rh)}</strong>
+              ${item.rh ? `<div class="summary-custom-info">
+                <span class="summary-custom-label">${escHtml(t('summary.rh_prefix', 'Tipo de RH:'))} </span>
+                <strong class="summary-custom-val">${escHtml(item.rh)}</strong>
               </div>` : ''}
               ${tallaInfoHTML}
-              <div class="summary-qty-ctrl" style="margin-top:0.45rem">
+              <div class="summary-qty-ctrl">
                 <button class="summary-qty-btn" data-action="pendingQtyChange" data-idx="${idx}" data-delta="-1">−</button>
                 <span class="summary-qty-num">${qty}</span>
                 <button class="summary-qty-btn" data-action="pendingQtyChange" data-idx="${idx}" data-delta="1"
-                  ${atMaxStock ? `disabled title="${escHtml(t('toasts.stock_max_title', 'Stock máximo alcanzado'))}"` : ''}
-                  style="${atMaxStock ? 'opacity:0.35;cursor:not-allowed' : ''}">+</button>
-                ${atMaxStock ? `<span style="font-size:0.65rem;color:var(--gold);white-space:nowrap">${escHtml(t('summary.max_short', 'máx.'))} ${dispItem}</span>` : ''}
+                  ${atMaxStock ? `disabled title="${escHtml(t('toasts.stock_max_title', 'Stock máximo alcanzado'))}"` : ''}>+</button>
+                ${atMaxStock ? `<span class="summary-max-label">${escHtml(t('summary.max_short', 'máx.'))} ${dispItem}</span>` : ''}
                 <button class="summary-remove-btn" data-action="pendingRemove" data-idx="${idx}">${escHtml(t('summary.remove', 'Eliminar'))}</button>
               </div>
             </div>
-            <div class="summary-prod-numbers" style="margin-left:0.5rem;padding-top:0.1rem">
+            <div class="summary-prod-numbers">
               <div class="summary-prod-sub">${fmt(sub)}</div>
             </div>
           </div>
@@ -6314,7 +6602,7 @@
         ? t('summary.qty_label_one', '1 producto')
         : tf('summary.qty_label_many', { n: totalQty }, `${totalQty} productos`);
     document.getElementById('summary-pending-total').textContent = fmt(total);
-    footer.style.display = 'block';
+    show(footer);
   }
 
   function pendingQtyChange(idx, delta) {
@@ -6448,7 +6736,7 @@
   function openCheckoutModal() {
     document.getElementById('checkout-overlay').classList.add('open');
     document.getElementById('checkout-modal').classList.add('open');
-    document.getElementById('checkout-error').style.display = 'none';
+    hideById('checkout-error');
     resetLoyaltySection();
     fetchLoyaltyBalance();
   }
@@ -6582,13 +6870,13 @@
   async function submitCheckoutNekiForm(ev) {
     if (ev && ev.preventDefault) ev.preventDefault();
     const errEl = document.getElementById('checkout-error');
-    errEl.style.display = 'none';
+    hide(errEl);
     const btn = document.getElementById('checkout-submit-btn');
     const form = document.getElementById('checkout-neki-form');
     const proofInput = document.getElementById('co-proof');
     if (!proofInput.files || !proofInput.files[0]) {
       errEl.textContent = t('checkout.proof_required', 'Adjunta una imagen del comprobante.');
-      errEl.style.display = 'block';
+      show(errEl);
       return;
     }
 
@@ -6623,7 +6911,7 @@
       showToast(tf('checkout.order_registered', { order_number: data.order_number }, `Pedido ${data.order_number} registrado. Validaremos tu pago pronto.`));
     } catch (e) {
       errEl.textContent = String(e.message || e);
-      errEl.style.display = 'block';
+      show(errEl);
     } finally {
       btn.disabled = false;
     }
@@ -6670,7 +6958,7 @@
     const count = wishlist.length;
     const countEl = document.getElementById('wish-count');
     countEl.textContent = count;
-    countEl.style.display = count > 0 ? 'flex' : 'none';
+    count > 0 ? show(countEl, 'flex') : hide(countEl);
 
     document.getElementById('wish-header-count').textContent =
       count === 1
@@ -6729,7 +7017,7 @@
   function openWishlist() {
     document.getElementById('wish-panel').classList.add('open');
     document.getElementById('wish-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    setBodyScroll(false);
   }
 
   function closeWishlist() {
@@ -6737,7 +7025,7 @@
     document.getElementById('wish-overlay').classList.remove('open');
     if (!document.getElementById('cart-panel').classList.contains('open') &&
         !document.getElementById('size-modal').classList.contains('open')) {
-      document.body.style.overflow = '';
+      setBodyScroll(true);
     }
   }
 
@@ -6889,6 +7177,8 @@
       </div>` : '';
 
     // Swatches de color
+    // El color de fondo se aplica vía CSS custom property --swatch-bg después del render
+    // (CSSOM mutation — no viola CSP style-src, a diferencia de style="background:…")
     const swatchesHTML = tieneColores ? `
       <div>
         <div class="pdp-sizes-lbl">Color
@@ -6896,13 +7186,12 @@
         </div>
         <div class="pdp-color-swatches">
           ${p.colores_disponibles.map(c => {
-            const bgStyle = c.color_hex ? `background:${escHtml(c.color_hex)}` : 'background:var(--iron)';
             const innerImg = c.imagen ? `<img src="${escHtml(c.imagen)}" alt="${escHtml(c.color)}">` : '';
             return `<button class="pdp-color-swatch"
               data-action="pdpSelectColor" data-color="${escHtml(c.color)}"
               data-imagen="${escHtml(c.imagen || '')}"
-              title="${escHtml(c.color)}"
-              style="${bgStyle}">${innerImg}</button>`;
+              data-swatch="${escHtml(c.color_hex || '')}"
+              title="${escHtml(c.color)}">${innerImg}</button>`;
           }).join('')}
         </div>
         <div class="pdp-size-err" id="pdp-color-err">${escHtml(t('pdp.color_required', 'Debes seleccionar un color antes de continuar.'))}</div>
@@ -6930,7 +7219,7 @@
             : `<span class="pdp-emoji-inner">${escHtml(p.emoji || '')}</span>`}
         </div>
         ${galeriaHTML}
-        ${p.badge ? `<span class="badge ${p.badge==='featured'?'badge-accent':p.badge==='new'?'badge-olive':'badge-danger'}" style="align-self:center;margin-top:0.25rem">${escHtml(t(`badges.${p.badge}`, p.badge))}</span>` : ''}
+        ${p.badge ? `<span class="badge badge--pdp ${p.badge==='featured'?'badge-accent':p.badge==='new'?'badge-olive':'badge-danger'}">${escHtml(t(`badges.${p.badge}`, p.badge))}</span>` : ''}
       </div>
       <div class="pdp-info-col">
         <div>
@@ -6942,7 +7231,7 @@
         ${familia.length > 1 ? `
           <div>
             <div class="pdp-sizes-lbl">${escHtml(t('pdp.variant_label', 'Variante'))}</div>
-            <div class="pdp-size-chips" style="margin-top:0.4rem">
+            <div class="pdp-size-chips">
               ${familia.map(v => `<button
                 data-action="switchPdpVariant" data-id="${v.id}"
                 class="size-chip${v.id === p.id ? ' active' : ''}"
@@ -6952,7 +7241,7 @@
           </div>
         ` : ''}
         ${p.reviews > 0 && p.rating ? `
-        <div class="pdp-rating-row" style="cursor:pointer" data-action="openReviewsModal" data-product-id="${p.id}" title="Ver todas las reseñas">
+        <div class="pdp-rating-row" data-action="openReviewsModal" data-product-id="${p.id}" title="Ver todas las reseñas">
           <span class="pdp-stars">${'★'.repeat(Math.floor(p.rating))}${p.rating % 1 >= 0.5 ? '½' : ''}</span>
           <span class="pdp-reviews">${p.rating.toFixed(1)} · ${p.reviews} ${escHtml(t('pdp.reviews_suffix', 'reseñas'))}</span>
         </div>` : ''}
@@ -6963,7 +7252,7 @@
         </div>
         <div class="pdp-stock-row">
           <span class="pdp-stock-dot pdp-stock-dot--in-stock"></span>
-          <span style="color:var(--mist)">Disponible</span>
+          <span class="pdp-available-text">Disponible</span>
           ${lowStockBadge}
         </div>
         ${swatchesHTML}
@@ -6972,18 +7261,13 @@
           <div>
             <div class="pdp-sizes-lbl">Apellido para el bordado</div>
             <input type="text" id="pdp-bordado-input"
-              placeholder="${escHtml(t('pdp.bordado_placeholder', 'Ej: RODRÍGUEZ'))}" maxlength="30"
-              style="width:100%;margin-top:0.4rem;padding:0.55rem 0.75rem;
-                background:var(--iron);border:1px solid var(--slate);
-                color:var(--white);font-family:var(--font-mono);font-size:0.9rem;
-                letter-spacing:0.08em;text-transform:uppercase;outline:none;
-                box-sizing:border-box;transition:border-color 0.2s">
+              placeholder="${escHtml(t('pdp.bordado_placeholder', 'Ej: RODRÍGUEZ'))}" maxlength="30">
             <div class="pdp-size-err" id="pdp-bordado-err">${escHtml(t('pdp.bordado_required', 'Debes ingresar el apellido para el bordado.'))}</div>
           </div>` : ''}
         ${requiresRH(p) ? `
           <div>
             <div class="pdp-sizes-lbl">${escHtml(t('pdp.rh_label', 'Selecciona tu grupo sanguíneo (RH)'))}</div>
-            <div class="pdp-size-chips" id="pdp-rh-chips" style="margin-top:0.4rem">
+            <div class="pdp-size-chips" id="pdp-rh-chips">
               ${['O+','O−','A+','A−','B+','B−','AB+','AB−'].map(rh =>
                 `<button class="size-chip" data-action="pdpSelectRH" data-rh="${rh}">${rh}</button>`
               ).join('')}
@@ -7002,7 +7286,7 @@
           <div id="pdp-reviews-content">
             ${p.reviews > 0 && p.rating ? `
               <div class="pdp-review-snippet" id="pdp-review-snippet-list">
-                <div style="color:var(--ash);font-family:var(--font-mono);font-size:0.78rem">Cargando reseñas…</div>
+                <div class="pdp-reviews-loading">Cargando reseñas…</div>
               </div>
               <button class="pdp-see-all-btn" data-action="openReviewsModal" data-product-id="${p.id}">
                 Ver todas las reseñas (${p.reviews})
@@ -7013,12 +7297,18 @@
       </div>
     `;
 
+    // Aplicar color de fondo a swatches vía CSSOM (no viola CSP style-src)
+    document.querySelectorAll('.pdp-color-swatch[data-swatch]').forEach(el => {
+      const hex = el.dataset.swatch;
+      el.style.setProperty('--swatch-bg', hex || 'var(--iron)');
+    });
+
     // Render inicial de chips de talla (sin color seleccionado)
     if (hasSizes) pdpRenderTallas(p);
 
     document.getElementById('pdp-overlay').classList.add('open');
     document.getElementById('pdp-modal').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    setBodyScroll(false);
 
     // Cargar snippet de reseñas en la PDP (sin bloquear apertura)
     if (p.reviews > 0) pdpLoadReviewSnippet(p.id);
@@ -7038,7 +7328,7 @@
     if (!document.getElementById('cart-panel').classList.contains('open') &&
         !document.getElementById('size-modal').classList.contains('open') &&
         !document.getElementById('auth-modal').classList.contains('open')) {
-      document.body.style.overflow = '';
+      setBodyScroll(true);
     }
     if (idToHighlight) highlightProductCard(idToHighlight);
   }
@@ -7063,7 +7353,7 @@
     document.querySelectorAll('#pdp-rh-chips .size-chip').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
     const err = document.getElementById('pdp-rh-err');
-    if (err) err.style.display = 'none';
+    if (err) hide(err);
   }
 
   function pdpSelectSize(talla, btn) {
@@ -7071,7 +7361,7 @@
     document.querySelectorAll('#pdp-size-chips .size-chip').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
     const err = document.getElementById('pdp-size-err');
-    if (err) err.style.display = 'none';
+    if (err) hide(err);
     // Actualizar precio si hay variantes activas
     const p = PRODUCTS.find(p => p.id === pdpCurrentId);
     if (p) pdpUpdatePrecio(p);
@@ -7088,7 +7378,7 @@
     if (labelEl) labelEl.textContent = `— ${color}`;
     // Ocultar error de color
     const errColor = document.getElementById('pdp-color-err');
-    if (errColor) errColor.style.display = 'none';
+    if (errColor) hide(errColor);
     // Cambiar imagen principal si la variante de ese color tiene imagen
     const imgSrc = btn.dataset.imagen;
     if (imgSrc) pdpSwitchMainImage(imgSrc, color);
@@ -7108,7 +7398,7 @@
     // Validar selección de color (productos con variantes de color)
     if (pdpHasColorVariants(p) && !pdpSelectedColor) {
       const err = document.getElementById('pdp-color-err');
-      if (err) err.style.display = 'block';
+      if (err) show(err);
       return;
     }
 
@@ -7117,7 +7407,7 @@
       (pdpHasColorVariants(p) && p.tallas_por_color[pdpSelectedColor || '']?.length > 0);
     if (necesitaTalla && !pdpSelectedTalla) {
       const err = document.getElementById('pdp-size-err');
-      if (err) err.style.display = 'block';
+      if (err) show(err);
       return;
     }
 
@@ -7128,7 +7418,7 @@
       bordado = input ? input.value.trim().toUpperCase() : '';
       if (!bordado) {
         const err = document.getElementById('pdp-bordado-err');
-        if (err) err.style.display = 'block';
+        if (err) show(err);
         if (input) input.focus();
         return;
       }
@@ -7137,7 +7427,7 @@
     // RH
     if (requiresRH(p) && !pdpSelectedRH) {
       const err = document.getElementById('pdp-rh-err');
-      if (err) err.style.display = 'block';
+      if (err) show(err);
       return;
     }
 
@@ -7189,16 +7479,16 @@
 
   searchInput.addEventListener('input', function() {
     const q = this.value.toLowerCase().trim();
-    if (q.length < 2) { searchResults.style.display = 'none'; return; }
-    
-    const matches = PRODUCTS.filter(p => 
-      p.name.toLowerCase().includes(q) || 
+    if (q.length < 2) { hide(searchResults); return; }
+
+    const matches = PRODUCTS.filter(p =>
+      p.name.toLowerCase().includes(q) ||
       p.cat.toLowerCase().includes(q)
     ).slice(0, 5);
-    
-    if (matches.length === 0) { searchResults.style.display = 'none'; return; }
-    
-    searchResults.style.display = 'block';
+
+    if (matches.length === 0) { hide(searchResults); return; }
+
+    show(searchResults);
     searchResults.innerHTML = matches.map(p => `
       <div class="search-result-item" data-action="searchSelect" data-id="${p.id}">
         <div class="search-result-img">${p.image ? '<img src="' + escHtml(p.image) + '" alt="' + escHtml(p.name) + '">' : escHtml(p.emoji || '')}</div>
@@ -7211,7 +7501,7 @@
   });
 
   function searchSelect(id) {
-    searchResults.style.display = 'none';
+    hide(searchResults);
     searchInput.value = '';
     const p = PRODUCTS.find(p => p.id === id);
     if (!p) return;
@@ -7227,7 +7517,7 @@
 
   document.addEventListener('click', e => {
     if (!e.target.closest('#nav-search')) {
-      searchResults.style.display = 'none';
+      hide(searchResults);
     }
   });
 
@@ -7366,12 +7656,12 @@
     document.getElementById('up-user-name').textContent = name;
     document.getElementById('up-user-email').textContent = user.email || '';
     const phoneEl = document.getElementById('up-user-phone');
-    if (phoneEl) { phoneEl.textContent = user.phone || ''; phoneEl.style.display = user.phone ? '' : 'none'; }
+    if (phoneEl) { phoneEl.textContent = user.phone || ''; user.phone ? show(phoneEl) : hide(phoneEl); }
     const topbarUser = document.getElementById('up-topbar-user');
     if (topbarUser) topbarUser.textContent = name;
     document.getElementById('up-overlay').classList.add('open');
     document.getElementById('up-panel').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    setBodyScroll(false);
     upUpdateTopbar(_upCurrentSection);
     upNav(_upCurrentSection);
     // Siempre recargar dashboard al abrir el panel (datos frescos)
@@ -7381,7 +7671,7 @@
   function closeUserPanel() {
     document.getElementById('up-overlay').classList.remove('open');
     document.getElementById('up-panel').classList.remove('open');
-    document.body.style.overflow = '';
+    setBodyScroll(true);
   }
 
   function openReturnsPanel() {
@@ -7459,7 +7749,7 @@
     const total = Number(o.total) || 0;
     const canRequestReturn = String(o.status || '') === 'delivered';
     const returnAccessBtn = canRequestReturn
-      ? `<button class="btn btn-ghost" data-action="upOpenReturnsFromOrder" data-order-id="${escHtml(orderId)}" style="font-size:0.72rem;padding:0.35rem 0.65rem;white-space:nowrap;">Solicitar devolución</button>`
+      ? `<button class="btn btn-ghost up-order-return-btn" data-action="upOpenReturnsFromOrder" data-order-id="${escHtml(orderId)}">Solicitar devolución</button>`
       : '';
     return `<div class="up-order-row" data-action="upOpenOrder" data-order-id="${escHtml(orderId)}">
       <div class="up-order-num">#${escHtml(orderNum)}</div>
@@ -7468,7 +7758,7 @@
         <div class="up-order-items">${cnt} producto${cnt !== 1 ? 's' : ''}</div>
       </div>
       <div class="up-order-status ${sc}">${escHtml(sl)}</div>
-      <div class="up-order-total">${fmtCOP(total)}${returnAccessBtn ? `<div style="margin-top:0.35rem;">${returnAccessBtn}</div>` : ''}</div>
+      <div class="up-order-total">${fmtCOP(total)}${returnAccessBtn ? `<div class="up-order-return-wrap">${returnAccessBtn}</div>` : ''}</div>
     </div>`;
   }
 
@@ -7477,8 +7767,8 @@
     _upOrdersPage = page;
     const el = document.getElementById('up-orders-container');
     el.innerHTML = `<div class="up-loading">Cargando pedidos...</div>`;
-    document.getElementById('up-orders-list-view').style.display = 'block';
-    document.getElementById('up-order-detail-view').style.display = 'none';
+    showById('up-orders-list-view');
+    hideById('up-order-detail-view');
     try {
       const res = await UserPanelApi.ordersPage(page);
       if (!res.ok) { el.innerHTML = `<div class="up-empty"><div class="up-empty-text">Error al cargar pedidos</div></div>`; return; }
@@ -7510,8 +7800,8 @@
   }
 
   async function openUpOrderDetail(orderId) {
-    document.getElementById('up-orders-list-view').style.display = 'none';
-    document.getElementById('up-order-detail-view').style.display = 'block';
+    hideById('up-orders-list-view');
+    showById('up-order-detail-view');
     const content = document.getElementById('up-order-detail-content');
     content.innerHTML = `<div class="up-loading">Cargando detalle...</div>`;
     try {
@@ -7535,35 +7825,35 @@
       const canReview = isDelivered && pid && isProductReviewable(String(o.id || ''), pid);
       return `
       <div class="up-item-row">
-        <div style="flex:1;min-width:0">
+        <div class="up-order-item-flex">
           <div class="up-item-name">${escHtml(item.product_name || '—')}</div>
           <div class="up-item-meta">SKU: ${escHtml(item.product_sku || '—')}${item.talla ? ` · Talla: ${escHtml(item.talla)}` : ''}${item.bordado ? ` · Bordado: ${escHtml(item.bordado)}` : ''}${item.rh ? ` · RH: ${escHtml(item.rh)}` : ''} · Cant: ${Number(item.quantity) || 0}</div>
-          ${canReview ? `<button class="btn btn-ghost" style="margin-top:0.4rem;font-size:0.78rem;padding:0.3rem 0.8rem;"
+          ${canReview ? `<button class="btn btn-ghost up-order-item-review"
             data-action="openReviewForm"
             data-order-id="${escHtml(String(o.id || ''))}"
             data-product-id="${escHtml(pid)}"
             data-product-name="${escHtml(item.product_name || '')}"
-          >⭐ Calificar producto</button>` : (isDelivered && pid ? `<span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--ash);margin-top:0.4rem;display:block;">✓ Reseña enviada</span>` : '')}
+          >⭐ Calificar producto</button>` : (isDelivered && pid ? `<span class="up-order-review-sent">✓ Reseña enviada</span>` : '')}
         </div>
         <div class="up-item-price">${fmtCOP(item.line_total || item.unit_price * item.quantity)}</div>
       </div>`;
     }).join('')
-      : `<div class="up-item-row" style="color:var(--ash)">Sin ítems registrados</div>`;
+      : `<div class="up-item-row up-order-no-items">Sin ítems registrados</div>`;
 
     const couponRow = o.coupon_code
-      ? `<div class="up-total-row"><span>Cupón (${escHtml(o.coupon_code)})</span><span style="color:var(--success-soft)">−${fmtCOP(o.coupon_discount || 0)}</span></div>` : '';
+      ? `<div class="up-total-row"><span>Cupón (${escHtml(o.coupon_code)})</span><span class="up-order-coupon-val">−${fmtCOP(o.coupon_discount || 0)}</span></div>` : '';
     const loyaltyRow = (parseFloat(o.loyalty_discount_amount || 0) > 0)
-      ? `<div class="up-total-row"><span>Descuento por puntos</span><span style="color:var(--gold)">−${fmtCOP(o.loyalty_discount_amount)}</span></div>` : '';
+      ? `<div class="up-total-row"><span>Descuento por puntos</span><span class="up-order-loyalty-val">−${fmtCOP(o.loyalty_discount_amount)}</span></div>` : '';
     const addr = [o.shipping_address_line1, o.shipping_city, o.shipping_department].filter(Boolean).join(', ') || '—';
     const canRequestReturn = isDelivered;
     const returnBtn = canRequestReturn
-      ? `<button class="btn btn-ghost" data-action="upStartReturn" data-order-id="${escHtml(String(o.id || ''))}" style="margin-top:0.75rem;">Solicitar devolución</button>`
+      ? `<button class="btn btn-ghost up-returns-login-btn" data-action="upStartReturn" data-order-id="${escHtml(String(o.id || ''))}">Solicitar devolución</button>`
       : '';
 
     return `
       <div class="up-order-detail-header">
         <div><div class="up-detail-field-label">Número de pedido</div>
-          <div class="up-detail-field-value" style="font-family:var(--font-mono);color:var(--gold)">#${escHtml(o.order_number || String(o.id))}</div></div>
+          <div class="up-detail-field-value up-order-detail-num">#${escHtml(o.order_number || String(o.id))}</div></div>
         <div><div class="up-detail-field-label">Estado</div>
           <div><span class="up-order-status ${sc}">${escHtml(sl)}</span></div></div>
         <div><div class="up-detail-field-label">Fecha</div>
@@ -7622,33 +7912,33 @@
     const statusMsg = r.status_message ? `<div class="up-return-status-msg">${escHtml(r.status_message)}</div>` : '';
     const userReason = (r.reason_detail || r.customer_notes || '').trim();
     const rejBlock = (st === 'rejected_subsanable' || st === 'rejected_definitive')
-      ? `<div class="up-return-rejection" style="margin-top:0.55rem;padding:0.65rem;border-radius:6px;font-size:0.88rem;line-height:1.45;background:rgba(0,0,0,0.18);">
+      ? `<div class="up-return-rejection-box">
         <div><strong>Respuesta del equipo</strong></div>
-        <div style="margin-top:0.3rem;color:var(--ash)">${escHtml(r.customer_rejection_hint || '')}</div>
-        ${r.rejection_reason ? `<div style="margin-top:0.45rem;"><strong>Motivo indicado:</strong> ${escHtml(r.rejection_reason)}</div>` : ''}
-        ${st === 'rejected_definitive' ? `<div style="margin-top:0.5rem;color:var(--ash)">No es posible un nuevo intento para esta solicitud.</div>` : ''}
+        <div class="up-return-rejection-hint">${escHtml(r.customer_rejection_hint || '')}</div>
+        ${r.rejection_reason ? `<div class="up-return-rejection-reason"><strong>Motivo indicado:</strong> ${escHtml(r.rejection_reason)}</div>` : ''}
+        ${st === 'rejected_definitive' ? `<div class="up-return-rejection-final">No es posible un nuevo intento para esta solicitud.</div>` : ''}
         ${retryBtn ? `<div class="up-return-card-actions">${retryBtn}</div>` : ''}
       </div>`
       : '';
     const attemptN = Number(r.attempt_number || 1);
     const rid = escHtml(String(r.id || ''));
-    return `<div class="${cardClass}" style="display:block;padding:0.85rem 1rem;border:1px solid var(--olive-800);border-radius:8px;margin-bottom:0.65rem;">
-      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:flex-start;justify-content:space-between;">
-        <div style="min-width:0;">
+    return `<div class="${cardClass}">
+      <div class="up-return-card-header">
+        <div class="up-return-card-meta">
           <div><strong>${escHtml(r.return_code || '')}</strong> · Pedido #${escHtml(r.order_number || '—')}</div>
-          <div style="margin-top:0.25rem;font-size:0.78rem;color:var(--ash)">Solicitud: ${fmtDate(r.requested_at)} · Intento ${attemptN}</div>
+          <div class="up-return-card-date">Solicitud: ${fmtDate(r.requested_at)} · Intento ${attemptN}</div>
         </div>
         <div class="up-return-pill ${pillClass}">${escHtml(statusLabel)}</div>
       </div>
-      <div style="margin-top:0.4rem;font-size:0.86rem;color:var(--ash)">
-        <strong style="color:var(--olive-100)">Tu motivo:</strong> ${escHtml(r.reason_label || r.reason || '—')}
-        ${userReason ? `<span style="display:block;margin-top:0.25rem;">${escHtml(userReason.length > 120 ? userReason.slice(0, 120) + '…' : userReason)}</span>` : ''}
-        ${r.refund_amount ? `<span style="display:block;margin-top:0.25rem;">Reembolso: ${fmtCOP(r.refund_amount)}</span>` : ''}
+      <div class="up-return-card-reason">
+        <strong class="up-return-reason-title">Tu motivo:</strong> ${escHtml(r.reason_label || r.reason || '—')}
+        ${userReason ? `<span class="up-return-reason-block">${escHtml(userReason.length > 120 ? userReason.slice(0, 120) + '…' : userReason)}</span>` : ''}
+        ${r.refund_amount ? `<span class="up-return-reason-block">Reembolso: ${fmtCOP(r.refund_amount)}</span>` : ''}
       </div>
       ${statusMsg}
       ${rejBlock}
       <div class="up-return-card-actions">
-        <button type="button" class="btn btn-ghost" style="font-size:0.78rem;padding:0.45rem 0.85rem" data-action="upOpenReturnDetail" data-return-id="${rid}">Ver detalle</button>
+        <button type="button" class="btn btn-ghost up-return-detail-btn" data-action="upOpenReturnDetail" data-return-id="${rid}">Ver detalle</button>
       </div>
     </div>`;
   }
@@ -7659,8 +7949,8 @@
     ov.classList.remove('open');
     ov.setAttribute('aria-hidden', 'true');
     const panel = document.getElementById('up-panel');
-    if (panel && panel.classList.contains('open')) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = '';
+    if (panel && panel.classList.contains('open')) setBodyScroll(false);
+    else setBodyScroll(true);
   }
 
   async function upOpenReturnDetail(returnId) {
@@ -7676,7 +7966,7 @@
     sub.textContent = '—';
     ov.classList.add('open');
     ov.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    setBodyScroll(false);
     const res = await UserPanelApi.returnDetail(returnId);
     const raw = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -7689,9 +7979,9 @@
     const pill = upReturnPillClass(st);
     const audit = Array.isArray(d.audit_log) ? d.audit_log : [];
     const auditHtml = audit.length
-      ? `<h3 class="fp-rp-h3" style="margin-top:1rem">Historial de estados</h3><ul class="fp-rp-ol" style="list-style:none;padding-left:0;">${audit.map((a) => `
-        <li style="margin-bottom:0.5rem;font-size:0.86rem;color:var(--ash)">
-          <strong style="color:var(--olive-100)">${fmtDate(a.created_at)}</strong>
+      ? `<h3 class="fp-rp-h3 up-return-history-title">Historial de estados</h3><ul class="fp-rp-ol up-return-history-list">${audit.map((a) => `
+        <li class="up-return-history-item">
+          <strong class="up-return-history-date">${fmtDate(a.created_at)}</strong>
           · ${escHtml(a.from_status_label || a.from_status || '')} → ${escHtml(a.to_status_label || a.to_status || '')}
           ${a.note ? `<br><span>${escHtml(a.note)}</span>` : ''}
         </li>`).join('')}</ul>`
@@ -7701,7 +7991,7 @@
       ? `<h3 class="fp-rp-h3">Productos</h3><ul class="fp-rp-ol">${items.map((it) => `<li>${escHtml(it.product_name || '')} · ${Number(it.quantity || 1)} u. · ${escHtml(it.condition_label || it.condition || '')}</li>`).join('')}</ul>`
       : '';
     body.innerHTML = `
-      <div class="up-return-pill ${pill}" style="margin-bottom:0.65rem;display:inline-flex">${escHtml(d.status_label || st)}</div>
+      <div class="up-return-pill up-return-pill--inline ${pill}">${escHtml(d.status_label || st)}</div>
       <p class="fp-rp-p"><strong>Solicitud:</strong> ${fmtDate(d.requested_at)} · <strong>Última actualización:</strong> ${fmtDate(d.updated_at)}</p>
       <p class="fp-rp-p"><strong>Motivo (categoría):</strong> ${escHtml(d.reason_label || d.reason || '—')}</p>
       <p class="fp-rp-p"><strong>Descripción del cliente:</strong><br>${escHtml((d.reason_detail || d.customer_notes || '—').trim() || '—')}</p>
@@ -7743,7 +8033,7 @@
       <div><strong>Plazos:</strong> Nuevos ${Number(p.window_days_new || 30)} días · Usados ${Number(p.window_days_used || 14)} días</div>
       <div><strong>Envío:</strong> ${Number(p.shipment_window_days || 5)} días para despachar el producto tras aprobación.</div>
       <div><strong>Exclusiones:</strong> ${Array.isArray(p.excluded_category_slugs) && p.excluded_category_slugs.length ? escHtml(p.excluded_category_slugs.join(', ')) : 'Ninguna configurada'}.</div>
-      <div style="margin-top:0.4rem"><strong>Proceso:</strong><br>${(p.steps || []).map(s => `• ${escHtml(s)}`).join('<br>')}</div>
+      <div class="up-return-process"><strong>Proceso:</strong><br>${(p.steps || []).map(s => `• ${escHtml(s)}`).join('<br>')}</div>
     </div>`;
   }
 
@@ -7789,8 +8079,8 @@
     _fpPendingReturnOrderId = null;
     _upParentReturnForRetry = null;
     const panel = document.getElementById('up-panel');
-    if (panel && panel.classList.contains('open')) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = '';
+    if (panel && panel.classList.contains('open')) setBodyScroll(false);
+    else setBodyScroll(true);
   }
 
   async function fpOpenReturnPolicyModal(mode) {
@@ -7832,7 +8122,7 @@
     body.innerHTML = '<div class="up-loading">Cargando…</div>';
     overlay.classList.add('open');
     overlay.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    setBodyScroll(false);
 
     const pres = await UserPanelApi.returnsPolicy();
     if (!pres.ok) {
@@ -7929,12 +8219,12 @@
     }
     return `<div class="up-card-head">Iniciar devolución${escHtml(headExtra)} · Pedido #${escHtml(order.order_number || '—')}</div>
       <div class="up-card-body">
-        <div class="up-section-subtitle" style="margin-bottom:0.75rem">Selecciona productos y completa el motivo.</div>
-        <div style="display:grid;gap:0.45rem;margin-bottom:0.9rem;">
+        <div class="up-section-subtitle up-returns-section-sub">Selecciona productos y completa el motivo.</div>
+        <div class="rform-items-grid">
           ${items.map((it, idx) => `
-            <label style="display:flex;gap:0.5rem;align-items:flex-start;">
+            <label class="rform-item-label">
               <input type="checkbox" data-return-item="${escHtml(String(it.id))}" ${idx === 0 ? 'checked' : ''}>
-              <span style="font-size:0.86rem">${escHtml(it.product_name || 'Producto')} · Cantidad comprada: ${Number(it.quantity || 1)}</span>
+              <span class="rform-item-text">${escHtml(it.product_name || 'Producto')} · Cantidad comprada: ${Number(it.quantity || 1)}</span>
             </label>
           `).join('')}
         </div>
@@ -7953,7 +8243,7 @@
           <label class="up-form-label" for="up-return-reason-detail">Descripción</label>
           <textarea class="up-form-input" id="up-return-reason-detail" rows="3" placeholder="Describe el caso, estado del producto y cualquier detalle relevante."></textarea>
         </div>
-        <button class="btn btn-primary" data-action="upSubmitReturn" style="margin-top:0.5rem;">Enviar solicitud</button>
+        <button class="btn btn-primary rform-submit-btn" data-action="upSubmitReturn">Enviar solicitud</button>
       </div>`;
   }
 
@@ -8027,7 +8317,7 @@
       if (!refreshed || !_accessToken) {
         listEl.innerHTML = `<div class="up-empty">
           <div class="up-empty-text">Inicia sesión para ver tus devoluciones</div>
-          <button type="button" class="btn btn-primary" data-action="openAuthModalFromPanel" style="margin-top:0.75rem">Iniciar sesión</button>
+          <button type="button" class="btn btn-primary up-returns-login-btn" data-action="openAuthModalFromPanel">Iniciar sesión</button>
         </div>`;
         if (policyEl) policyEl.textContent = 'Inicia sesión para gestionar devoluciones.';
         return;
@@ -8058,7 +8348,7 @@
         }
         listEl.innerHTML = `<div class="up-empty">
           <div class="up-empty-text">${escHtml(msg)}</div>
-          <button type="button" class="btn btn-primary" data-action="upReloadReturns" style="margin-top:0.85rem">Reintentar</button>
+          <button type="button" class="btn btn-primary up-returns-retry-btn" data-action="upReloadReturns">Reintentar</button>
         </div>`;
         return;
       }
@@ -8068,14 +8358,14 @@
           <div class="up-empty-icon">↩️</div>
           <div class="up-empty-text">Aún no has realizado devoluciones</div>
           <div class="up-empty-hint">Puedes iniciar una desde el detalle de un pedido entregado.</div>
-          <button type="button" class="btn btn-primary" data-action="upNav" data-section="orders" style="margin-top:0.85rem">Ir a mis pedidos</button>
+          <button type="button" class="btn btn-primary up-returns-retry-btn" data-action="upNav" data-section="orders">Ir a mis pedidos</button>
         </div>`;
         return;
       }
       listEl.innerHTML = `<div class="up-orders-list">${rows.map(renderUpReturnRow).join('')}</div>`;
     } catch {
       listEl.innerHTML = `<div class="up-empty"><div class="up-empty-text">Error de conexión</div>
-        <button type="button" class="btn btn-primary" data-action="upReloadReturns" style="margin-top:0.85rem">Reintentar</button></div>`;
+        <button type="button" class="btn btn-primary up-returns-retry-btn" data-action="upReloadReturns">Reintentar</button></div>`;
       if (policyEl) policyEl.textContent = 'No se pudo cargar la política de devoluciones.';
     }
   }
@@ -8199,7 +8489,7 @@
   async function upSaveProfile(e) {
     e.preventDefault();
     const msg = document.getElementById('up-profile-msg');
-    msg.style.display = 'none';
+    hide(msg);
     const payload = {
       first_name:        document.getElementById('up-first-name').value.trim(),
       last_name:         document.getElementById('up-last-name').value.trim(),
@@ -8229,7 +8519,7 @@
         document.getElementById('up-user-name').textContent = name;
         document.getElementById('up-user-email').textContent = data.email || '';
         const phoneEl2 = document.getElementById('up-user-phone');
-        if (phoneEl2) { phoneEl2.textContent = data.phone || ''; phoneEl2.style.display = data.phone ? '' : 'none'; }
+        if (phoneEl2) { phoneEl2.textContent = data.phone || ''; data.phone ? show(phoneEl2) : hide(phoneEl2); }
         updateAccountBtn();
         msg.className = 'up-form-msg success';
         msg.textContent = 'Perfil actualizado correctamente.';
@@ -8237,11 +8527,11 @@
         msg.className = 'up-form-msg error';
         msg.textContent = Object.values(data).flat().join(' ') || 'Error al guardar el perfil.';
       }
-      msg.style.display = 'block';
+      show(msg);
     } catch {
       msg.className = 'up-form-msg error';
       msg.textContent = 'No se pudo conectar con el servidor.';
-      msg.style.display = 'block';
+      show(msg);
     }
   }
 
@@ -8250,15 +8540,15 @@
     const current = document.getElementById('up-pass-current').value;
     const newPass = document.getElementById('up-pass-new').value;
     const confirm = document.getElementById('up-pass-confirm').value;
-    msg.style.display = 'none';
+    hide(msg);
     if (!current || !newPass) {
-      msg.className = 'up-form-msg error'; msg.textContent = 'Completa todos los campos.'; msg.style.display = 'block'; return;
+      msg.className = 'up-form-msg error'; msg.textContent = 'Completa todos los campos.'; show(msg); return;
     }
     if (newPass !== confirm) {
-      msg.className = 'up-form-msg error'; msg.textContent = 'Las contraseñas no coinciden.'; msg.style.display = 'block'; return;
+      msg.className = 'up-form-msg error'; msg.textContent = 'Las contraseñas no coinciden.'; show(msg); return;
     }
     if (newPass.length < 8) {
-      msg.className = 'up-form-msg error'; msg.textContent = 'La contraseña debe tener al menos 8 caracteres.'; msg.style.display = 'block'; return;
+      msg.className = 'up-form-msg error'; msg.textContent = 'La contraseña debe tener al menos 8 caracteres.'; show(msg); return;
     }
     try {
       const res = await UserPanelApi.profileUpdate({ current_password: current, password: newPass });
@@ -8273,11 +8563,11 @@
         msg.className = 'up-form-msg error';
         msg.textContent = Object.values(data).flat().join(' ') || 'No se pudo cambiar la contraseña.';
       }
-      msg.style.display = 'block';
+      show(msg);
     } catch {
       msg.className = 'up-form-msg error';
       msg.textContent = 'No se pudo conectar con el servidor.';
-      msg.style.display = 'block';
+      show(msg);
     }
   }
 
@@ -8368,14 +8658,14 @@
     document.getElementById('tab-login').classList.toggle('active', tab === 'login');
     document.getElementById('panel-register').classList.toggle('active', tab === 'register');
     document.getElementById('panel-login').classList.toggle('active', tab === 'login');
-    document.getElementById('register-error').style.display = 'none';
-    document.getElementById('login-error').style.display = 'none';
+    hideById('register-error');
+    hideById('login-error');
     if (tab === 'login') fetchCaptcha();
   }
 
   function showAuthLoggedIn() {
-    document.getElementById('auth-logged-in').style.display = 'block';
-    document.getElementById('auth-logged-out').style.display = 'none';
+    showById('auth-logged-in');
+    hideById('auth-logged-out');
     const user = JSON.parse(sessionStorage.getItem('auth_user') || '{}');
     const name = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email || t('auth.default_display_name', 'Usuario');
     const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
@@ -8385,14 +8675,14 @@
   }
 
   function showAuthLoggedOut() {
-    document.getElementById('auth-logged-in').style.display = 'none';
-    document.getElementById('auth-logged-out').style.display = 'block';
+    hideById('auth-logged-in');
+    showById('auth-logged-out');
   }
 
   function authShowError(panelId, message) {
     const el = document.getElementById(panelId);
     el.textContent = message;
-    el.style.display = 'block';
+    show(el);
   }
 
   // ── CAPTCHA dinámico ─────────────────────────────────────────────────────
@@ -8477,8 +8767,8 @@
     const score = _pwdScore(pwd);
     const pct   = Math.round((score / 5) * 100);
     const colors = ['#e53e3e', '#e53e3e', '#ed8936', '#ecc94b', '#48bb78', '#48bb78'];
-    bar.style.width = pct + '%';
-    bar.style.background = colors[score] || '#e53e3e';
+    bar.style.setProperty('--pw-bar-width', pct + '%');
+    bar.style.setProperty('--pw-bar-color', colors[score] || '#e53e3e');
   }
 
   // ── Listeners en tiempo real ─────────────────────────────────────────────
@@ -8515,7 +8805,7 @@
     const birthDate = document.getElementById('reg-birth-date').value;
 
     authClearFields('reg-first-name', 'reg-last-name', 'reg-email', 'reg-password', 'reg-password2');
-    document.getElementById('register-error').style.display = 'none';
+    hideById('register-error');
     let hasError = false;
 
     if (!firstName) { authFieldError('reg-first-name', 'El nombre es obligatorio.'); hasError = true; }
@@ -8578,7 +8868,7 @@
     const captcha  = document.getElementById('login-captcha').value.trim().toUpperCase();
 
     authClearFields('login-captcha');
-    document.getElementById('login-error').style.display = 'none';
+    hideById('login-error');
 
     if (!email || !password) return authShowError('login-error', t('auth.errors.login_credentials', 'Ingresa tu correo y contraseña.'));
     if (!_captchaToken) {
@@ -8654,11 +8944,11 @@
 
     if (!logged) {
       // Estado 1: sin sesión → icono genérico, botón normal
-      icon.style.display = '';
+      show(icon);
       avatar.src = '';
       avatar.classList.add('d-none');
       btn.classList.remove('has-avatar');
-      btn.style.color = '';
+      btn.classList.remove('nav-btn--logged');
       return;
     }
 
@@ -8670,23 +8960,23 @@
       const sep = imgUrl.includes('?') ? '&' : '?';
       avatar.src = imgUrl + sep + 'v=' + Date.now();
       avatar.classList.remove('d-none');
-      icon.style.display = 'none';
+      hide(icon);
       btn.classList.add('has-avatar');
-      btn.style.color = '';
+      btn.classList.remove('nav-btn--logged');
       avatar.onerror = () => {
         // Fallback: imagen rota → volver al icono normal
         avatar.classList.add('d-none');
-        icon.style.display = '';
+        show(icon);
         btn.classList.remove('has-avatar');
-        btn.style.color = 'var(--accent)';
+        btn.classList.add('nav-btn--logged');
       };
     } else {
       // Estado 2: con sesión sin avatar → icono en color accent
-      icon.style.display = '';
+      show(icon);
       avatar.src = '';
       avatar.classList.add('d-none');
       btn.classList.remove('has-avatar');
-      btn.style.color = 'var(--accent)';
+      btn.classList.add('nav-btn--logged');
     }
   }
 
@@ -8704,12 +8994,12 @@
     if (!initialsEl || !imgEl) return;
     if (imageUrl) {
       imgEl.src = imageUrl;
-      imgEl.style.display = 'block';
-      initialsEl.style.display = 'none';
+      show(imgEl);
+      hide(initialsEl);
     } else {
       imgEl.src = '';
-      imgEl.style.display = 'none';
-      initialsEl.style.display = '';
+      hide(imgEl);
+      show(initialsEl);
       initialsEl.textContent = initials || '?';
     }
   }
@@ -8727,7 +9017,7 @@
     function closeAvatarModal() {
       modal.classList.remove('open');
       fileInput.value = '';
-      msgEl.style.display = 'none';
+      hide(msgEl);
       saveBtn.textContent = 'Guardar foto';
       saveBtn.disabled = false;
     }
@@ -8751,7 +9041,7 @@
       const reader = new FileReader();
       reader.onload = e => { previewImg.src = e.target.result; };
       reader.readAsDataURL(file);
-      msgEl.style.display = 'none';
+      hide(msgEl);
       modal.classList.add('open');
     });
 
@@ -8763,7 +9053,7 @@
       if (!file) return;
       saveBtn.textContent = 'Guardando...';
       saveBtn.disabled = true;
-      msgEl.style.display = 'none';
+      hide(msgEl);
       try {
         const form = new FormData();
         form.append('avatar', file);
@@ -8774,7 +9064,7 @@
         const data = await res.json();
         if (!res.ok) {
           msgEl.textContent = data.detail || 'Error al subir la imagen.';
-          msgEl.style.display = 'block';
+          show(msgEl);
           saveBtn.textContent = 'Guardar foto';
           saveBtn.disabled = false;
           return;
@@ -8790,7 +9080,7 @@
         closeAvatarModal();
       } catch {
         msgEl.textContent = 'No se pudo conectar con el servidor.';
-        msgEl.style.display = 'block';
+        show(msgEl);
         saveBtn.textContent = 'Guardar foto';
         saveBtn.disabled = false;
       }
@@ -8848,8 +9138,8 @@
   const observer = new IntersectionObserver(entries => {
     entries.forEach((entry, i) => {
       if (entry.isIntersecting) {
-        entry.target.style.animation = `fadeUp 0.5s ease ${i * 0.06}s forwards`;
-        entry.target.style.opacity = '0';
+        entry.target.style.setProperty('--card-delay', (i * 0.06) + 's');
+        entry.target.classList.add('card-reveal');
         observer.unobserve(entry.target);
       }
     });
@@ -8860,7 +9150,7 @@
   renderProducts = function() {
     origRender();
     document.querySelectorAll('.product-card').forEach(card => {
-      card.style.opacity = '0';
+      card.classList.remove('card-reveal');
       observer.observe(card);
     });
   };
@@ -8939,7 +9229,7 @@
     body.innerHTML = '<div class="rv-empty">Cargando reseñas…</div>';
     overlay.classList.add('open');
     modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    setBodyScroll(false);
 
     try {
       const res = await ReviewsApi.list(p.slug);
@@ -8990,7 +9280,7 @@
     document.getElementById('rv-modal').classList.remove('open');
     if (!document.querySelector('.rform-modal.open') &&
         !document.getElementById('pdp-modal').classList.contains('open')) {
-      document.body.style.overflow = '';
+      setBodyScroll(true);
     }
   }
 
@@ -9002,7 +9292,7 @@
     document.getElementById('rform-comment').value = '';
     document.getElementById('rform-title').value = '';
     document.getElementById('rform-file-preview').innerHTML = '';
-    document.getElementById('rform-err').style.display = 'none';
+    hideById('rform-err');
     document.getElementById('rform-err').textContent = '';
     document.getElementById('rform-star-hint').textContent = 'Selecciona una calificación';
 
@@ -9013,7 +9303,7 @@
     const modal   = document.getElementById('rform-modal');
     overlay.classList.add('open');
     modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    setBodyScroll(false);
   }
 
   function closeReviewForm() {
@@ -9021,7 +9311,7 @@
     document.getElementById('rform-modal').classList.remove('open');
     if (!document.querySelector('.rv-modal.open') &&
         !document.getElementById('pdp-modal').classList.contains('open')) {
-      document.body.style.overflow = '';
+      setBodyScroll(true);
     }
   }
 
@@ -9070,14 +9360,14 @@
     const title   = (document.getElementById('rform-title').value || '').trim();
     const errEl   = document.getElementById('rform-err');
 
-    errEl.style.display = 'none';
+    hide(errEl);
 
-    if (!rating) { errEl.textContent = 'Selecciona una calificación de 1 a 5 estrellas.'; errEl.style.display = 'block'; return; }
-    if (comment.length < 10) { errEl.textContent = 'El comentario debe tener al menos 10 caracteres.'; errEl.style.display = 'block'; return; }
+    if (!rating) { errEl.textContent = 'Selecciona una calificación de 1 a 5 estrellas.'; show(errEl); return; }
+    if (comment.length < 10) { errEl.textContent = 'El comentario debe tener al menos 10 caracteres.'; show(errEl); return; }
 
     // Encontrar el slug del producto
     const prod = PRODUCTS.find(p => p.id === productId);
-    if (!prod) { errEl.textContent = 'Producto no encontrado.'; errEl.style.display = 'block'; return; }
+    if (!prod) { errEl.textContent = 'Producto no encontrado.'; show(errEl); return; }
 
     const btn = document.getElementById('rform-submit-btn');
     btn.disabled = true;
@@ -9097,7 +9387,7 @@
       if (!res.ok) {
         const msg = data.detail || data.non_field_errors?.[0] || data.order_id?.[0] || 'Error al enviar la reseña.';
         errEl.textContent = msg;
-        errEl.style.display = 'block';
+        show(errEl);
         return;
       }
 
@@ -9113,7 +9403,7 @@
       }
     } catch (err) {
       errEl.textContent = 'Error de conexión. Intenta de nuevo.';
-      errEl.style.display = 'block';
+      show(errEl);
     } finally {
       btn.disabled = false;
       btn.textContent = 'Enviar calificación';
@@ -9175,6 +9465,8 @@
       case 'applyCartChanges':    applyCartChanges(); break;
       case 'applyCoupon':         applyCoupon(); break;
       case 'removeCoupon':        removeCoupon(); break;
+      case 'applyLoyaltyPoints':  applyLoyaltyPoints(); break;
+      case 'removeLoyaltyPoints': removeLoyaltyPoints(); break;
 
       // ── Ítems pendientes del carrito ────────────────────
       case 'pendingQtyChange':    pendingQtyChange(+el.dataset.idx, +el.dataset.delta); break;
@@ -9297,13 +9589,7 @@
     }
   });
 
-  // Delegación de focus/blur (reemplaza onfocus/onblur en bordado input)
-  document.addEventListener('focusin', function(e) {
-    if (e.target.id === 'pdp-bordado-input') e.target.style.borderColor = 'var(--olive-500)';
-  });
-  document.addEventListener('focusout', function(e) {
-    if (e.target.id === 'pdp-bordado-input') e.target.style.borderColor = 'var(--slate)';
-  });
+  // #pdp-bordado-input focus/blur border handled by CSS :focus selector
 
   // ══════════════════════════════════════════════════════════════
   //  HERO VIDEO — Configuración

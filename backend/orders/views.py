@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core import signing
 from django.core.exceptions import ValidationError
 from django.db import transaction as db_transaction
-from django.db.models import Count
+from django.db.models import Count, F
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
@@ -87,8 +87,7 @@ class CartViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=['post'])
     def add_item(self, request):
         cart = self._get_cart(request)
-        # Acepta 'product_id' (convención API) y 'product' (alias legacy del frontend SPA)
-        product_id = request.data.get('product_id') or request.data.get('product')
+        product_id = request.data.get('product')
         talla = request.data.get('talla', '')
         bordado = request.data.get('bordado', '').upper()[:30]
         rh = request.data.get('rh', '')
@@ -123,45 +122,50 @@ class CartViewSet(viewsets.GenericViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+        price = variant.final_price if variant else product.price
         has_personalization = bool(bordado or rh)
 
-        # ── Validar stock y crear ítem de forma atómica (evita overselling) ────
-        with db_transaction.atomic():
-            product = Product.objects.select_for_update().get(id=product_id)
-            price = variant.final_price if variant else product.price
+        # ── Validar stock por talla ────────────────────────────────────────────
+        ok, disponible, en_carrito = _validar_stock(
+            product, talla, quantity, cart=cart
+        )
+        if not ok:
+            restante = max(0, disponible - en_carrito)
+            talla_label = talla or 'seleccionada'
+            return Response({
+                'detail': (
+                    f'Stock insuficiente para la talla {talla_label}. '
+                    f'Disponible: {disponible}, ya en carrito: {en_carrito}, '
+                    f'puedes agregar: {restante}.'
+                ),
+                'stock_disponible': disponible,
+                'ya_en_carrito': en_carrito,
+                'qty_disponible': restante,
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-            ok, disponible, en_carrito = _validar_stock(
-                product, talla, quantity, cart=cart
+        if has_personalization:
+            item = CartItem.objects.create(
+                cart=cart, product=product, variant=variant,
+                talla=talla, bordado=bordado, rh=rh,
+                quantity=quantity, price_at_addition=price
             )
-            if not ok:
-                restante = max(0, disponible - en_carrito)
-                talla_label = talla or 'seleccionada'
-                return Response({
-                    'detail': (
-                        f'Stock insuficiente para la talla {talla_label}. '
-                        f'Disponible: {disponible}, ya en carrito: {en_carrito}, '
-                        f'puedes agregar: {restante}.'
-                    ),
-                    'stock_disponible': disponible,
-                    'ya_en_carrito': en_carrito,
-                    'qty_disponible': restante,
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            if has_personalization:
-                CartItem.objects.create(
-                    cart=cart, product=product, variant=variant,
-                    talla=talla, bordado=bordado, rh=rh,
-                    quantity=quantity, price_at_addition=price
-                )
-            else:
-                item, created = CartItem.objects.get_or_create(
-                    cart=cart, product=product, variant=variant,
-                    talla=talla, bordado='', rh='',
-                    defaults={'quantity': quantity, 'price_at_addition': price}
-                )
-                if not created:
-                    item.quantity += quantity
-                    item.save()
+        else:
+            # select_for_update + F() evita race condition en incremento concurrente
+            with db_transaction.atomic():
+                try:
+                    item = CartItem.objects.select_for_update().get(
+                        cart=cart, product=product, variant=variant,
+                        talla=talla, bordado='', rh='',
+                    )
+                    CartItem.objects.filter(pk=item.pk).update(
+                        quantity=F('quantity') + quantity
+                    )
+                except CartItem.DoesNotExist:
+                    CartItem.objects.create(
+                        cart=cart, product=product, variant=variant,
+                        talla=talla, bordado='', rh='',
+                        quantity=quantity, price_at_addition=price,
+                    )
 
         return Response(CartSerializer(cart).data, status=201)
 
@@ -182,26 +186,22 @@ class CartViewSet(viewsets.GenericViewSet):
         if quantity <= 0:
             item.delete()
         else:
-            # Validar stock de forma atómica (evita overselling concurrente)
-            with db_transaction.atomic():
-                product = item.product.__class__.objects.select_for_update().get(
-                    id=item.product_id
-                )
-                ok, disponible, _ = _validar_stock(
-                    product, item.talla, quantity,
-                    cart=cart, exclude_item_id=item.id
-                )
-                if not ok:
-                    talla_label = item.talla or 'seleccionada'
-                    return Response({
-                        'detail': (
-                            f'Stock insuficiente para la talla {talla_label}. '
-                            f'Máximo disponible: {disponible} unidades.'
-                        ),
-                        'stock_disponible': disponible,
-                    }, status=status.HTTP_400_BAD_REQUEST)
-                item.quantity = quantity
-                item.save()
+            # Validar stock por talla (excluir el propio ítem del conteo)
+            ok, disponible, _ = _validar_stock(
+                item.product, item.talla, quantity,
+                cart=cart, exclude_item_id=item.id
+            )
+            if not ok:
+                talla_label = item.talla or 'seleccionada'
+                return Response({
+                    'detail': (
+                        f'Stock insuficiente para la talla {talla_label}. '
+                        f'Máximo disponible: {disponible} unidades.'
+                    ),
+                    'stock_disponible': disponible,
+                }, status=status.HTTP_400_BAD_REQUEST)
+            item.quantity = quantity
+            item.save()
         return Response(CartSerializer(cart).data)
 
     @action(detail=False, methods=['delete'], url_path='remove_item/(?P<item_id>[^/.]+)')
@@ -218,32 +218,10 @@ class CartViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['get'])
     def calculate_totals(self, request):
+        from orders.services import calculate_cart_totals
         cart = self._get_cart(request)
-        subtotal = float(cart.subtotal)
-        shipping = 0.0 if subtotal >= settings.FREE_SHIPPING_THRESHOLD else settings.BASE_SHIPPING_COST
-        tax = round(subtotal * settings.TAX_RATE, 2)
-        total = subtotal + shipping + tax
         coupon_code = request.query_params.get('coupon', '')
-        discount = 0.0
-        if coupon_code:
-            try:
-                coupon = Coupon.objects.get(code=coupon_code.upper(), is_active=True)
-                if coupon.is_valid and subtotal >= float(coupon.minimum_purchase):
-                    if coupon.discount_type == 'percentage':
-                        discount = round(subtotal * float(coupon.discount_value) / 100, 2)
-                    else:
-                        discount = float(coupon.discount_value)
-                    total -= discount
-            except Coupon.DoesNotExist:
-                pass
-        return Response({
-            'subtotal': subtotal,
-            'shipping': shipping,
-            'tax': tax,
-            'discount': discount,
-            'total': max(total, 0),
-            'free_shipping_threshold': settings.FREE_SHIPPING_THRESHOLD,
-        })
+        return Response(calculate_cart_totals(cart, coupon_code=coupon_code))
 
 
 class OrderViewSet(viewsets.ReadOnlyModelViewSet):
@@ -452,7 +430,6 @@ class CheckoutNekiView(APIView):
 
         return Response(
             {
-                'id': str(order.id),
                 'order_number': order.order_number,
                 'total_amount': str(order.total_amount),
                 'status': order.status,

@@ -222,3 +222,5 @@ Copyright (c) 2026 **Franja Pixelada**. Todos los derechos reservados.
 Este software es de uso privado y propietario. Queda prohibida su reproducción,
 distribución o uso para crear trabajos derivados sin autorización escrita del titular.
 Consulta el archivo [`LICENSE`](./LICENSE) para los términos completos.
+
+*Última actualización: 2026-04-08*

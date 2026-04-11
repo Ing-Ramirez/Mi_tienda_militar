@@ -6,7 +6,6 @@ from __future__ import annotations
 import logging
 
 from django.db import transaction
-from django.db.models import F
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -70,7 +69,11 @@ def _restaurar_stock_orden(order: Order) -> None:
 
 
 def _descontar_stock_orden(order: Order) -> None:
-    """Descuenta stock de cada producto/variante al verificar el pago."""
+    """Descuenta stock de cada producto/variante al verificar el pago.
+
+    Lanza ValueError si el stock actual es insuficiente para algún ítem —
+    el llamador debe manejar el error (rollback) para evitar inconsistencias.
+    """
     from products.models import InventoryLog, Product, ProductVariant
 
     for item in order.items.select_related('product', 'variant').all():
@@ -86,11 +89,25 @@ def _descontar_stock_orden(order: Order) -> None:
             if prod.requires_size and item.talla:
                 sbs = prod.stock_by_size if isinstance(prod.stock_by_size, dict) else {}
                 current = int(sbs.get(item.talla, 0))
-                sbs[item.talla] = max(0, current - qty)
+                if current < qty:
+                    raise ValueError(
+                        f'Stock insuficiente para "{prod.name}" talla {item.talla}: '
+                        f'disponible={current}, requerido={qty} '
+                        f'(orden {order.order_number}).'
+                    )
+                sbs[item.talla] = current - qty
                 prod.stock_by_size = sbs
                 prod.stock = sum(int(v) for v in sbs.values() if v)
             else:
-                prod.stock = max(0, prod.stock - qty)
+                # stock == 0 en producto sin talla = sin restricción → no descontar
+                if prod.stock > 0:
+                    if prod.stock < qty:
+                        raise ValueError(
+                            f'Stock insuficiente para "{prod.name}": '
+                            f'disponible={prod.stock}, requerido={qty} '
+                            f'(orden {order.order_number}).'
+                        )
+                    prod.stock = prod.stock - qty
 
             prod.save(update_fields=['stock', 'stock_by_size'])
             stock_after = prod.stock
@@ -113,17 +130,22 @@ def _descontar_stock_orden(order: Order) -> None:
                 var.save(update_fields=['stock'])
 
 
+# ── Un solo pre_save que lee ambos estados previos en una query (evita N+1) ─────
+
 @receiver(pre_save, sender=Order)
-def _order_remember_status(sender, instance: Order, **kwargs):
-    """Guarda status previo para detectar transición a cancelado/reembolsado."""
+def _order_remember_previous_states(sender, instance: Order, **kwargs):
+    """Guarda status y manual_payment_status previos en una sola query."""
     if not instance.pk:
         instance._order_status_prev = None
+        instance._manual_payment_prev = None
         return
     try:
-        prev = Order.objects.only('status').get(pk=instance.pk)
+        prev = Order.objects.only('status', 'manual_payment_status').get(pk=instance.pk)
         instance._order_status_prev = prev.status
+        instance._manual_payment_prev = prev.manual_payment_status
     except Order.DoesNotExist:
         instance._order_status_prev = None
+        instance._manual_payment_prev = None
 
 
 @receiver(post_save, sender=Order)
@@ -140,18 +162,7 @@ def _order_restore_stock_on_cancel(sender, instance: Order, created: bool, **kwa
         _restaurar_stock_orden(instance)
     except Exception:
         logger.exception('Error restaurando stock para orden %s', instance.order_number)
-
-
-@receiver(pre_save, sender=Order)
-def _order_remember_manual_payment_status(sender, instance: Order, **kwargs):
-    if not instance.pk:
-        instance._manual_payment_prev = None
-        return
-    try:
-        prev = Order.objects.only('manual_payment_status').get(pk=instance.pk)
-        instance._manual_payment_prev = prev.manual_payment_status
-    except Order.DoesNotExist:
-        instance._manual_payment_prev = None
+        raise
 
 
 @receiver(post_save, sender=Order)
@@ -166,16 +177,22 @@ def _order_enqueue_dispatch_when_verified(sender, instance: Order, created: bool
     if instance.providers_dispatch_enqueued_at:
         return
 
-    Order.objects.filter(pk=instance.pk, payment_status='pending').update(
-        payment_status='paid',
-        status='processing',
-    )
-
-    # Descontar stock de los productos de la orden
+    # Actualizar estado de pago + descontar stock en una sola transacción atómica.
+    # Si el stock falla, el cambio de estado se revierte también.
     try:
-        _descontar_stock_orden(instance)
+        with transaction.atomic():
+            Order.objects.filter(pk=instance.pk, payment_status='pending').update(
+                payment_status='paid',
+                status='processing',
+            )
+            _descontar_stock_orden(instance)
     except Exception:
-        logger.exception('Error descontando stock para orden %s', instance.order_number)
+        logger.exception(
+            'Error al descontar stock o actualizar estado para orden %s. '
+            'Revisión manual requerida.',
+            instance.order_number,
+        )
+        raise
 
     from orders.tasks import send_order_to_provider
 
