@@ -31,7 +31,7 @@ from decimal import Decimal
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.db import models, transaction
+from django.db import connection, models, transaction
 from django.test import TransactionTestCase, override_settings
 
 from orders.models import Cart, CartItem, ManualPaymentStatus, Order, OrderItem
@@ -184,6 +184,8 @@ class TestAddItemConcurrente(TransactionTestCase):
                     )
         except Exception as exc:
             errores.append(exc)
+        finally:
+            connection.close()
 
     def test_cantidad_final_correcta(self):
         """
@@ -306,6 +308,8 @@ class TestVerificacionConcurrenteOrdenes(TransactionTestCase):
         except Exception:
             with lock:
                 fallidas.append(order_id)
+        finally:
+            connection.close()
 
     @patch('orders.tasks.send_order_to_provider.delay')
     @patch('loyalty.tasks.assign_loyalty_points.delay')

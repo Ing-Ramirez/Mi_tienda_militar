@@ -1,7 +1,9 @@
-import requests
-import time
 import io
+import os
+import time
 import uuid
+
+import requests
 
 BASE_URL = "http://localhost"
 API_PREFIX = "/api/v1"
@@ -11,7 +13,7 @@ def test_post_api_v1_orders_checkout():
 
     # Register a new user
     email = f"user_{int(time.time())}@test.com"
-    password = "Xq7!mZ2#vL9"
+    password = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
     register_data = {
         "email": email,
         "first_name": "Test",

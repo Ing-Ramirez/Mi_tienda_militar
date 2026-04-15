@@ -5,9 +5,14 @@ Incluye: Category, Tag, Product, ProductImage, ProductVariant,
 """
 from django.db import models
 from django.utils.text import slugify
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from products.validators import validate_image_file
 import uuid
+
+_COLOR_HEX_VALIDATOR = RegexValidator(
+    regex=r'^$|^#[0-9A-Fa-f]{6}$',
+    message='Use un color hexadecimal # seguido de 6 caracteres (0-9, A-F) o deje en blanco.',
+)
 
 
 class Category(models.Model):
@@ -278,7 +283,10 @@ class ProductVariant(models.Model):
     stock = models.PositiveIntegerField(default=0, verbose_name='Stock')
     size = models.CharField(max_length=20, blank=True, verbose_name='Talla / Tamaño')
     color = models.CharField(max_length=50, blank=True, verbose_name='Color')
-    color_hex = models.CharField(max_length=7, blank=True, verbose_name='Código de color (hex)')
+    color_hex = models.CharField(
+        max_length=7, blank=True, verbose_name='Código de color (hex)',
+        validators=[_COLOR_HEX_VALIDATOR],
+    )
     image = models.ImageField(upload_to='variants/', blank=True, null=True,
                               verbose_name='Imagen', validators=[validate_image_file])
     is_active = models.BooleanField(default=True, verbose_name='Activa')

@@ -10,7 +10,7 @@ pushd "%REPO_ROOT%" || (
 )
 
 set "PROJECT_NAME=mi_tienda_militar"
-set "COMPOSE=docker compose -p %PROJECT_NAME% -f docker-compose.yml -f docker-compose.dev.yml"
+set "COMPOSE=docker compose -p %PROJECT_NAME% -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.dev"
 set "APP_LABEL=%~1"
 set "VERBOSITY=%~2"
 set "SCRIPT_DIR=%~dp0"
@@ -24,8 +24,10 @@ call docker info >nul 2>&1 || goto :docker_not_running
 if /I not "%SCRIPT_DIR%"=="%SCRIPT_DIR:.claude\worktrees=%" set "IS_WORKTREE=1"
 if defined IS_WORKTREE (
     if exist "%MAIN_ENV%" (
-        fc /b ".env.dev" "%MAIN_ENV%" >nul 2>&1
-        if errorlevel 1 goto :worktree_env_mismatch
+        if exist ".env.dev" (
+            fc /b ".env.dev" "%MAIN_ENV%" >nul 2>&1
+            if errorlevel 1 goto :worktree_env_mismatch
+        )
     )
 )
 

@@ -1,7 +1,9 @@
-import requests
-import time
-import random
 import io
+import os
+import random
+import time
+
+import requests
 
 BASE_URL = "http://localhost/api/v1"
 REGISTER_URL = f"{BASE_URL}/auth/register/"
@@ -19,7 +21,7 @@ def test_post_api_v1_orders_checkout():
     timestamp = int(time.time())
     unique_suffix = random.randint(1000, 9999)
     email = f"user_{timestamp}_{unique_suffix}@test.com"
-    password = "TestPassword123!"
+    password = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
 
     try:
         # Register user

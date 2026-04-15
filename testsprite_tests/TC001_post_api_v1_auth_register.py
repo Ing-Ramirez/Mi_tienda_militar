@@ -1,6 +1,8 @@
-import requests
-import time
 import json
+import os
+import time
+
+import requests
 
 BASE_URL = "http://localhost:80/api/v1"
 REGISTER_ENDPOINT = f"{BASE_URL}/auth/register/"
@@ -12,7 +14,7 @@ def test_post_api_v1_auth_register():
 
     timestamp = str(int(time.time() * 1000))
     unique_email = f"user_{timestamp}@test.com"
-    strong_password = "Xq7!mZ2#vL9"
+    strong_password = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
 
     headers = {"Content-Type": "application/json"}
 

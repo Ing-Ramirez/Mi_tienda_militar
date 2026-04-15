@@ -36,7 +36,7 @@ class UserSerializer(_AccountAndAvatarMixin, serializers.ModelSerializer):
             'document_type', 'document_number', 'accepts_marketing',
             'account_type', 'profile_image',
         )
-        read_only_fields = ('id', 'account_type', 'profile_image')
+        read_only_fields = ('id', 'email', 'account_type', 'profile_image')
 
 
 class AuthUserBriefSerializer(_AccountAndAvatarMixin, serializers.ModelSerializer):

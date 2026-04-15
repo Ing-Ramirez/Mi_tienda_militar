@@ -13,6 +13,8 @@ from .serializers import (
     ReviewEvidenceSerializer,
 )
 
+MAX_HOME_PRODUCTS = 24
+
 
 def _base_product_qs():
     """Queryset base con anotaciones de rating y conteo de reseñas."""
@@ -44,14 +46,14 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=['get'])
     def featured(self, request):
         """Devuelve array plano sin paginación (máx. uso en home/landing)."""
-        qs = self.get_queryset().filter(is_featured=True)
+        qs = self.get_queryset().filter(is_featured=True)[:MAX_HOME_PRODUCTS]
         serializer = ProductListSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
     def new_arrivals(self, request):
         """Devuelve array plano sin paginación (máx. uso en home/landing)."""
-        qs = self.get_queryset().filter(is_new=True)
+        qs = self.get_queryset().filter(is_new=True)[:MAX_HOME_PRODUCTS]
         serializer = ProductListSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 

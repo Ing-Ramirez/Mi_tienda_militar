@@ -10,7 +10,7 @@ pushd "%REPO_ROOT%" || (
 )
 
 set "PROJECT_NAME=mi_tienda_militar"
-set "COMPOSE=docker compose -p %PROJECT_NAME% -f docker-compose.yml -f docker-compose.dev.yml"
+set "COMPOSE=docker compose -p %PROJECT_NAME% -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.dev"
 set "BUILD_SERVICES=backend celery_worker celery_beat"
 set "UP_SERVICES=backend nginx celery_worker celery_beat"
 set "MODE=%~1"

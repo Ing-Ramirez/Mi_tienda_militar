@@ -1862,6 +1862,12 @@
       user-select: none;
       min-width: 5.5rem;
     }
+    .captcha-image {
+      height: 100%;
+      width: 100%;
+      object-fit: contain;
+      border-radius: 2px;
+    }
     .auth-captcha-box .auth-input { flex: 1; }
     .captcha-countdown {
       font-size: 0.6rem;
@@ -2144,7 +2150,6 @@
       font-size: 0.78rem;
       color: var(--danger-soft);
       margin-top: 0.4rem;
-      display: none;
     }
     .cart-total-row.discount { color: var(--success-soft); }
     .cart-total-row.discount .amount { color: var(--success-soft); }
@@ -3492,7 +3497,7 @@
     .rv-overlay {
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.72);
-      z-index: 1100;
+      z-index: 2055;
       display: none;
     }
     .rv-overlay.open { display: block; }
@@ -3500,15 +3505,17 @@
       position: fixed;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 1101;
-      background: var(--gunmetal);
-      border: 1px solid var(--iron);
+      z-index: 2060;
+      background: var(--olive-800);
+      border: 1px solid var(--olive-500);
+      border-top: 3px solid var(--olive-300);
       border-radius: 6px;
       width: min(560px, 95vw);
       max-height: 80vh;
       display: flex;
       flex-direction: column;
       display: none;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
     }
     .rv-modal.open { display: flex; }
     .rv-modal-header {
@@ -3516,24 +3523,30 @@
       justify-content: space-between;
       align-items: center;
       padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--iron);
+      background: var(--olive-900);
+      border-bottom: 2px solid var(--olive-500);
       flex-shrink: 0;
+      border-radius: 5px 5px 0 0;
     }
     .rv-modal-title {
       font-family: var(--font-display);
       font-weight: 800;
       font-size: 1rem;
       letter-spacing: 0.05em;
+      color: var(--olive-100);
     }
     .rv-modal-body {
       overflow-y: auto;
       padding: 1rem 1.25rem;
+      background: var(--olive-800);
       display: flex;
       flex-direction: column;
       gap: 0.85rem;
     }
     .rv-card {
-      background: var(--iron);
+      background: var(--olive-700);
+      border: 1px solid var(--olive-500);
+      border-left: 3px solid var(--olive-400);
       border-radius: 4px;
       padding: 0.85rem 1rem;
     }
@@ -3706,7 +3719,18 @@
     }
     .rform-actions { display: flex; gap: 0.75rem; margin-top: 0.25rem; }
     .rform-actions .btn { flex: 1; justify-content: center; }
-    .rform-err { color: var(--danger); font-family: var(--font-mono); font-size: 0.78rem; margin-bottom: 0.5rem; display: none; }
+    .rform-err { color: var(--danger); font-family: var(--font-mono); font-size: 0.78rem; margin-bottom: 0.5rem; }
+    .rform-modal.inline-mode {
+      position: static; top: auto; left: auto; transform: none;
+      width: 100%; max-height: none; overflow-y: visible;
+      background: var(--gunmetal);
+      border: 1px solid var(--olive-500);
+      border-left: 4px solid var(--olive-400);
+      border-radius: 6px; box-shadow: none;
+      margin-top: 0.75rem; padding: 1.25rem;
+      display: block;
+    }
+    .up-rform-container { width: 100%; }
 
     @media (max-width: 600px) {
       .pdp-body { flex-direction: column; gap: 1rem; }
@@ -5260,7 +5284,7 @@
   <input type="file" id="rform-images" accept="image/*" multiple class="d-none">
   <div class="rform-file-preview" id="rform-file-preview"></div>
 
-  <div class="rform-err" id="rform-err"></div>
+  <div class="rform-err d-none" id="rform-err"></div>
   <div class="rform-actions">
     <button class="btn btn-ghost" data-action="closeReviewForm">Cancelar</button>
     <button class="btn btn-primary" id="rform-submit-btn" data-action="submitReview">Enviar calificación</button>
@@ -6189,19 +6213,97 @@
   }
 
   // ── CUPONES ──────────────────────────────────────────
-  // Catálogo de cupones válidos
-  // type: 'percent' | 'fixed' | 'shipping'
-  const COUPONS = {
-    'MILITAR10':   { type: 'percent',  value: 10,    description: '10% de descuento' },
-    'TACTICO15':   { type: 'percent',  value: 15,    description: '15% de descuento' },
-    'FRANJA20':    { type: 'percent',  value: 20,    description: '20% de descuento especial' },
-    'BIENVENIDO':  { type: 'percent',  value: 5,     description: '5% de descuento de bienvenida' },
-    'DESC20MIL':   { type: 'fixed',    value: 20000, description: '$20.000 de descuento' },
-    'DESC50MIL':   { type: 'fixed',    value: 50000, description: '$50.000 de descuento' },
-    'ENVIOGRATIS': { type: 'shipping', value: 0,     description: 'Envío gratis' },
+  // La validez y el monto del cupón se calculan siempre en backend.
+  let appliedCoupon = null; // { code, type, value, description, discount }
+  const cartTotalsState = {
+    signature: '',
+    totals: null,
+    timer: null,
+    pending: false,
   };
 
-  let appliedCoupon = null; // { code, type, value, description, discount }
+  function buildCartTotalsSignature() {
+    const couponKey = appliedCoupon?.code || '';
+    const itemsKey = cart
+      .map((c) => `${c.id}|${c.variant || ''}|${normalizeSize(c.talla)}|${c.qty}`)
+      .sort()
+      .join(';');
+    return `${couponKey}::${itemsKey}`;
+  }
+
+  function computeLocalCartTotals() {
+    const subtotal = cart.reduce((s, c) => {
+      const price = Number(c.price);
+      const qty = Number(c.qty);
+      return s + (isNaN(price) || isNaN(qty) ? 0 : price * qty);
+    }, 0);
+
+    const discount = Math.max(0, Number(appliedCoupon?.discount || 0));
+    const discountedSubtotal = Math.max(subtotal - discount, 0);
+    const tax = discountedSubtotal * 0.19;
+    const shipping = subtotal >= 200000 ? 0 : 15000;
+    const total = discountedSubtotal + tax + shipping;
+
+    return {
+      subtotal,
+      discount,
+      shipping,
+      tax,
+      total,
+    };
+  }
+
+  function getEffectiveCartTotals() {
+    const signature = buildCartTotalsSignature();
+    if (_accessToken && cartTotalsState.signature === signature && cartTotalsState.totals) {
+      return cartTotalsState.totals;
+    }
+    return computeLocalCartTotals();
+  }
+
+  async function refreshServerCartTotals() {
+    if (!_accessToken || !cart.length) return;
+    const signature = buildCartTotalsSignature();
+    if (cartTotalsState.pending) return;
+    if (cartTotalsState.signature === signature && cartTotalsState.totals) return;
+
+    cartTotalsState.pending = true;
+    try {
+      await syncServerCartFromLocal();
+      const coupon = appliedCoupon?.code ? `?coupon=${encodeURIComponent(appliedCoupon.code)}` : '';
+      const res = await fetch(`${ORDERS_API}/cart/calculate_totals/${coupon}`, {
+        method: 'GET',
+        headers: checkoutAuthHeaders(false),
+        credentials: 'include',
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const latestSignature = buildCartTotalsSignature();
+      if (latestSignature !== signature) return;
+      cartTotalsState.signature = signature;
+      cartTotalsState.totals = {
+        subtotal: Number(data.subtotal) || 0,
+        discount: Number(data.discount) || 0,
+        shipping: Number(data.shipping) || 0,
+        tax: Number(data.tax) || 0,
+        total: Number(data.total) || 0,
+      };
+      updateCartUI();
+    } catch (_) {
+      // fallback local silencioso
+    } finally {
+      cartTotalsState.pending = false;
+    }
+  }
+
+  function scheduleServerCartTotalsRefresh() {
+    if (!_accessToken || !cart.length) return;
+    if (cartTotalsState.timer) clearTimeout(cartTotalsState.timer);
+    cartTotalsState.timer = setTimeout(() => {
+      cartTotalsState.timer = null;
+      refreshServerCartTotals();
+    }, 250);
+  }
 
   // ── PUNTOS DE FIDELIDAD ──────────────────────────────────────────────────────
   let loyaltyBalance = null; // { points_balance, balance_in_cop, point_value_cop, points_per_cop }
@@ -6240,16 +6342,8 @@
       return;
     }
 
-    // Calcular total actual del carrito — misma fórmula que updateCartUI()
-    const subtotal = cart.reduce((s, i) => {
-      const price = Number(i.price), qty = Number(i.qty);
-      return s + (isNaN(price) || isNaN(qty) ? 0 : price * qty);
-    }, 0);
-    const couponDisc = appliedCoupon ? (appliedCoupon.discount || 0) : 0;
-    const discountedSubtotal = Math.max(subtotal - couponDisc, 0);
-    const shipping = subtotal >= (window._FREE_SHIPPING || 200000) ? 0 : (window._SHIPPING_COST || 15000);
-    const tax = discountedSubtotal * (window._TAX_RATE || 0.19);
-    const orderTotal = discountedSubtotal + shipping + tax;
+    const effectiveTotals = getEffectiveCartTotals();
+    const orderTotal = Number(effectiveTotals.total || 0);
 
     try {
       const res = await fetch('/api/v1/loyalty/preview/', {
@@ -6303,7 +6397,7 @@
     if (input) input.value = '';
   }
 
-  function applyCoupon() {
+  async function applyCoupon() {
     const input = document.getElementById('coupon-input');
     const errorEl = document.getElementById('coupon-error');
     const code = input.value.trim().toUpperCase();
@@ -6320,47 +6414,70 @@
       show(errorEl);
       return;
     }
-
-    const coupon = COUPONS[code];
-    if (!coupon) {
-      errorEl.textContent = t('coupon.invalid', 'Código no válido o no disponible.');
+    if (!_accessToken) {
+      errorEl.textContent = t('coupon.login_required', 'Inicia sesión para validar cupones.');
       show(errorEl);
-      input.value = '';
       return;
     }
 
+    const btn = document.querySelector('[data-action="applyCoupon"]');
     const subtotal = cart.reduce((s, c) => {
       const price = Number(c.price), qty = Number(c.qty);
       return s + (isNaN(price) || isNaN(qty) ? 0 : price * qty);
     }, 0);
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+    try {
+      const res = await fetch(`${ORDERS_API}/coupons/validate/`, {
+        method: 'POST',
+        headers: checkoutAuthHeaders(true),
+        credentials: 'include',
+        body: JSON.stringify({
+          code,
+          subtotal: subtotal.toFixed(2),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.valid) {
+        errorEl.textContent = data.detail || t('coupon.invalid', 'Código no válido o no disponible.');
+        show(errorEl);
+        input.value = '';
+        return;
+      }
 
-    let discount = 0;
-    if (coupon.type === 'percent') {
-      discount = subtotal * coupon.value / 100;
-    } else if (coupon.type === 'fixed') {
-      discount = Math.min(coupon.value, subtotal); // no puede superar el subtotal
-    } else if (coupon.type === 'shipping') {
-      discount = 0; // el ahorro en envío se maneja en el cálculo
+      const type = data.discount_type === 'percentage' ? 'percent' : 'fixed';
+      const value = Number(data.discount_value) || 0;
+      const discount = Number(data.discount_amount) || 0;
+      const description = type === 'percent'
+        ? `${value}% de descuento`
+        : `${fmt(value)} de descuento`;
+
+      appliedCoupon = { code, type, value, discount, description };
+
+      // Registrar uso en localStorage (auditoría local)
+      const couponLog = JSON.parse(localStorage.getItem('franja_pixelada_coupon_log') || '[]');
+      couponLog.push({ code, date: new Date().toISOString(), type });
+      localStorage.setItem('franja_pixelada_coupon_log', JSON.stringify(couponLog));
+
+      input.value = '';
+      updateCartUI();
+      showToast(
+        tf('coupon.applied', { code, description }, `🏷️ Cupón ${code} aplicado — ${description}`),
+        '🏷️'
+      );
+    } catch (_) {
+      errorEl.textContent = t('coupon.connection_error', 'Error de conexión. Intenta de nuevo.');
+      show(errorEl);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = t('cart.coupon_apply', 'Aplicar'); }
     }
-
-    appliedCoupon = { code, ...coupon, discount };
-
-    // Registrar uso en localStorage (auditoría local)
-    const couponLog = JSON.parse(localStorage.getItem('franja_pixelada_coupon_log') || '[]');
-    couponLog.push({ code, date: new Date().toISOString(), type: coupon.type });
-    localStorage.setItem('franja_pixelada_coupon_log', JSON.stringify(couponLog));
-
-    input.value = '';
-    updateCartUI();
-    showToast(
-      tf('coupon.applied', { code, description: coupon.description }, `🏷️ Cupón ${code} aplicado — ${coupon.description}`),
-      '🏷️'
-    );
   }
 
   function removeCoupon() {
     appliedCoupon = null;
-    document.getElementById('coupon-input').value = '';
+    cartTotalsState.signature = '';
+    cartTotalsState.totals = null;
+    const couponInput = document.getElementById('coupon-input');
+    if (couponInput) couponInput.value = '';
     hideById('coupon-error');
     updateCartUI();
     showToast(t('coupon.removed', 'Cupón eliminado'), '✕');
@@ -6389,31 +6506,13 @@
       return;
     }
 
-    // ── Calcular totales ─────────────────────────────
-    const subtotal = cart.reduce((s, c) => {
-      const price = Number(c.price);
-      const qty   = Number(c.qty);
-      return s + (isNaN(price) || isNaN(qty) ? 0 : price * qty);
-    }, 0);
-
-    let discount = 0;
-    let shippingFree = false;
-    if (appliedCoupon) {
-      if (appliedCoupon.type === 'percent') {
-        discount = subtotal * appliedCoupon.value / 100;
-        appliedCoupon.discount = discount;
-      } else if (appliedCoupon.type === 'fixed') {
-        discount = Math.min(appliedCoupon.value, subtotal);
-        appliedCoupon.discount = discount;
-      } else if (appliedCoupon.type === 'shipping') {
-        shippingFree = true;
-      }
-    }
-
-    const discountedSubtotal = subtotal - discount;
-    const tax      = discountedSubtotal * 0.19;
-    const shipping = shippingFree ? 0 : (subtotal >= 200000 ? 0 : 15000);
-    const total    = discountedSubtotal + tax + shipping;
+    // ── Totales (backend para usuario autenticado; fallback local) ───────────
+    const effectiveTotals = getEffectiveCartTotals();
+    const subtotal = Number(effectiveTotals.subtotal || 0);
+    const discount = Number(effectiveTotals.discount || 0);
+    const shipping = Number(effectiveTotals.shipping || 0);
+    const tax = Number(effectiveTotals.tax || 0);
+    const total = Number(effectiveTotals.total || 0);
 
     // ── Construir HTML de cupón ──────────────────────
     const couponHTML = appliedCoupon
@@ -6422,7 +6521,7 @@
              <span>🏷️</span>
              <div>
                <div class="coupon-applied-code">${appliedCoupon.code}</div>
-               <div class="coupon-applied-desc">${appliedCoupon.description}${shippingFree ? '' : ` (−${fmt(discount)})`}</div>
+              <div class="coupon-applied-desc">${appliedCoupon.description} (−${fmt(discount)})</div>
              </div>
            </div>
            <button class="coupon-remove" data-action="removeCoupon" title="${escHtml(t('cart.coupon_remove_title', 'Quitar cupón'))}">✕</button>
@@ -6433,7 +6532,7 @@
                placeholder="${escHtml(t('cart.coupon_placeholder', 'Ingresa tu código'))}" maxlength="20">
              <button class="btn btn-ghost coupon-btn" data-action="applyCoupon">${escHtml(t('cart.coupon_apply', 'Aplicar'))}</button>
            </div>
-           <div class="coupon-error" id="coupon-error"></div>
+           <div class="coupon-error d-none" id="coupon-error"></div>
          </div>`;
 
     const discountRowHTML = discount > 0
@@ -6476,6 +6575,7 @@
       </div>`;
 
     show(footer);
+    scheduleServerCartTotalsRefresh();
   }
 
   function openCart() {
@@ -7823,6 +7923,7 @@
     const itemsHtml = items.length ? items.map(item => {
       const pid = String(item.product || '');
       const canReview = isDelivered && pid && isProductReviewable(String(o.id || ''), pid);
+      const rformId = `up-rfc-${pid.replace(/[^a-z0-9]/gi, '').slice(0, 12)}`;
       return `
       <div class="up-item-row">
         <div class="up-order-item-flex">
@@ -7833,7 +7934,10 @@
             data-order-id="${escHtml(String(o.id || ''))}"
             data-product-id="${escHtml(pid)}"
             data-product-name="${escHtml(item.product_name || '')}"
-          >⭐ Calificar producto</button>` : (isDelivered && pid ? `<span class="up-order-review-sent">✓ Reseña enviada</span>` : '')}
+            data-product-slug="${escHtml(item.product_slug || '')}"
+            data-rform-target="${rformId}"
+          >⭐ Calificar producto</button>
+          <div class="up-rform-container d-none" id="${rformId}"></div>` : (isDelivered && pid ? `<span class="up-order-review-sent">✓ Reseña enviada</span>` : '')}
         </div>
         <div class="up-item-price">${fmtCOP(item.line_total || item.unit_price * item.quantity)}</div>
       </div>`;
@@ -8704,7 +8808,10 @@
       if (!res.ok) { if (codeEl) codeEl.textContent = 'error'; return; }
       const data = await res.json();
       _captchaToken = data.captcha_token;
-      if (codeEl) codeEl.textContent = data.code;
+      const displayEl = document.getElementById('captcha-display');
+      if (displayEl) {
+        displayEl.innerHTML = `<img class="captcha-image" src="${AUTH_API}/captcha/svg/?captcha_token=${encodeURIComponent(data.captcha_token)}" alt="Código captcha">`;
+      }
 
       let remaining = data.expires_in || 7;
       function tick() {
@@ -8718,7 +8825,8 @@
         } else {
           clearInterval(_captchaTimer); _captchaTimer = null;
           _captchaToken = null;
-          if (codeEl) codeEl.textContent = '···';
+          const _disp = document.getElementById('captcha-display');
+          if (_disp) _disp.innerHTML = '<span id="captcha-code">···</span>';
           countdownEl.textContent = 'expirado';
           countdownEl.className = 'captcha-countdown urgent';
           fetchCaptcha();  // auto-renovar
@@ -9184,7 +9292,9 @@
   // ── SISTEMA DE RESEÑAS ───────────────────────────────────────────────────
 
   let _reviewedProductIds = new Set();   // IDs de productos ya reseñados por el usuario
-  let _rformState = { orderId: null, productId: null, productName: null, rating: 0, files: [] };
+  let _rformState = { orderId: null, productId: null, productName: null, productSlug: null, rating: 0, files: [] };
+  let _rformInlineContainer = null;  // contenedor inline activo (UP panel)
+  let _rformOriginalParent  = null;  // padre original del modal para restaurarlo
 
   const ReviewsApi = {
     list:     slug => apiFetch(`/api/v1/products/${encodeURIComponent(slug)}/reviews/`),
@@ -9285,8 +9395,9 @@
   }
 
   // Abre el formulario de calificación
-  function openReviewForm(orderId, productId, productName) {
-    _rformState = { orderId, productId, productName, rating: 0, files: [] };
+  // inlineTargetId: si se pasa, el modal se inyecta inline en ese contenedor (sin overlay)
+  function openReviewForm(orderId, productId, productName, productSlug, inlineTargetId) {
+    _rformState = { orderId, productId, productName, productSlug: productSlug || null, rating: 0, files: [] };
 
     document.getElementById('rform-product-name').textContent = productName || '';
     document.getElementById('rform-comment').value = '';
@@ -9295,23 +9406,48 @@
     hideById('rform-err');
     document.getElementById('rform-err').textContent = '';
     document.getElementById('rform-star-hint').textContent = 'Selecciona una calificación';
-
-    // Reset stars
     document.querySelectorAll('.rform-star').forEach(s => s.classList.remove('lit'));
 
-    const overlay = document.getElementById('rform-overlay');
-    const modal   = document.getElementById('rform-modal');
-    overlay.classList.add('open');
+    const modal = document.getElementById('rform-modal');
+
+    if (inlineTargetId) {
+      // Modo inline: mover el modal al contenedor dentro del panel de usuario
+      const container = document.getElementById(inlineTargetId);
+      if (container) {
+        _rformInlineContainer = container;
+        _rformOriginalParent  = modal.parentNode;
+        container.appendChild(modal);
+        modal.classList.add('inline-mode', 'open');
+        show(container);
+        // Scroll suave al formulario
+        setTimeout(() => modal.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+        return;
+      }
+    }
+
+    // Modo overlay (fallback o uso desde PDP)
+    _rformInlineContainer = null;
+    document.getElementById('rform-overlay').classList.add('open');
+    modal.classList.remove('inline-mode');
     modal.classList.add('open');
     setBodyScroll(false);
   }
 
   function closeReviewForm() {
-    document.getElementById('rform-overlay').classList.remove('open');
-    document.getElementById('rform-modal').classList.remove('open');
-    if (!document.querySelector('.rv-modal.open') &&
-        !document.getElementById('pdp-modal').classList.contains('open')) {
-      setBodyScroll(true);
+    const modal = document.getElementById('rform-modal');
+    modal.classList.remove('open', 'inline-mode');
+
+    if (_rformInlineContainer) {
+      hide(_rformInlineContainer);
+      if (_rformOriginalParent) _rformOriginalParent.appendChild(modal);
+      _rformInlineContainer = null;
+      _rformOriginalParent  = null;
+    } else {
+      document.getElementById('rform-overlay').classList.remove('open');
+      if (!document.querySelector('.rv-modal.open') &&
+          !document.getElementById('pdp-modal').classList.contains('open')) {
+        setBodyScroll(true);
+      }
     }
   }
 
@@ -9365,9 +9501,13 @@
     if (!rating) { errEl.textContent = 'Selecciona una calificación de 1 a 5 estrellas.'; show(errEl); return; }
     if (comment.length < 10) { errEl.textContent = 'El comentario debe tener al menos 10 caracteres.'; show(errEl); return; }
 
-    // Encontrar el slug del producto
-    const prod = PRODUCTS.find(p => p.id === productId);
-    if (!prod) { errEl.textContent = 'Producto no encontrado.'; show(errEl); return; }
+    // Obtener slug: primero del estado (pasado desde el botón), luego buscar en PRODUCTS
+    let slug = _rformState.productSlug;
+    if (!slug) {
+      const prod = PRODUCTS.find(p => p.id === productId);
+      if (!prod) { errEl.textContent = 'No se pudo identificar el producto. Recarga la página e intenta de nuevo.'; show(errEl); return; }
+      slug = prod.slug;
+    }
 
     const btn = document.getElementById('rform-submit-btn');
     btn.disabled = true;
@@ -9381,7 +9521,7 @@
       if (title) fd.append('title', title);
       files.forEach(f => fd.append('images', f));
 
-      const res = await ReviewsApi.create(prod.slug, fd);
+      const res = await ReviewsApi.create(slug, fd);
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
@@ -9567,10 +9707,22 @@
       // ── Reseñas ─────────────────────────────────────────
       case 'openReviewsModal':    openReviewsModal(el.dataset.productId); break;
       case 'closeReviewsModal':   closeReviewsModal(); break;
-      case 'openReviewForm':      openReviewForm(el.dataset.orderId, el.dataset.productId, el.dataset.productName); break;
+      case 'openReviewForm':      openReviewForm(el.dataset.orderId, el.dataset.productId, el.dataset.productName, el.dataset.productSlug || '', el.dataset.rformTarget || ''); break;
       case 'closeReviewForm':     closeReviewForm(); break;
       case 'submitReview':        submitReview(); break;
-      case 'rvOpenImg':           window._FPLightbox && window._FPLightbox.open([{url: el.dataset.src, alt: 'Evidencia'}], 0); break;
+      case 'rvOpenImg': {
+        if (!window._FPLightbox) break;
+        const evidenceEl = el.closest('.rv-evidence');
+        if (evidenceEl) {
+          const allImgs = Array.from(evidenceEl.querySelectorAll('img[data-src]'));
+          const imgs = allImgs.map(i => ({ url: i.dataset.src, alt: 'Evidencia' }));
+          const idx  = allImgs.indexOf(el);
+          window._FPLightbox.open(imgs, idx < 0 ? 0 : idx);
+        } else {
+          window._FPLightbox.open([{ url: el.dataset.src, alt: 'Evidencia' }], 0);
+        }
+        break;
+      }
     }
   });
 

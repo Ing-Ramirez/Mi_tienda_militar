@@ -17,6 +17,7 @@
 }
 .fp-product-card-body {
   padding: 12px 0 0 !important;
+  counter-reset: fp-section;          /* inicia contador de secciones */
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -60,20 +61,59 @@
 .fp-product-card fieldset.module:hover::after { opacity: 1; }
 
 /* ── Título del fieldset (h2) ─────────────────────────────────── */
+.fp-product-card fieldset.module {
+  counter-increment: fp-section;
+}
 .fp-product-card fieldset.module > h2 {
   font-size: .68rem !important;
   font-weight: 800 !important;
   text-transform: uppercase !important;
   letter-spacing: 1.4px !important;
   color: var(--fp-teal) !important;
-  padding: 14px 20px 12px !important;
+  padding: 13px 20px 11px !important;
   margin: 0 !important;
   border-bottom: 1px solid var(--fp-c-border) !important;
-  background: rgba(0,212,163,.03) !important;
-  display: flex;
+  background: rgba(0, 212, 163, .03) !important;
+  display: flex !important;
   align-items: center;
   gap: 8px;
 }
+/* Número de sección automático — badge monospace */
+.fp-product-card fieldset.module > h2::before {
+  content: counter(fp-section, decimal-leading-zero);
+  font-size: .58rem;
+  font-weight: 900;
+  font-family: monospace;
+  letter-spacing: 0;
+  color: var(--fp-c-subtle);
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid var(--fp-c-border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+  line-height: 1.6;
+}
+
+/* ── Accent de color por posición de sección ──────────────────── */
+/* 01 Info general → teal (default) */
+.fp-product-card fieldset.module:nth-child(1) { border-color: rgba(0, 168, 120, .28) !important; }
+.fp-product-card fieldset.module:nth-child(1)::before {
+  background: linear-gradient(90deg, var(--fp-teal), rgba(0, 212, 163, .1), transparent 80%);
+}
+/* 02 Tallas e inventario → amber */
+.fp-product-card fieldset.module:nth-child(2) { border-color: rgba(245, 158, 11, .22) !important; }
+.fp-product-card fieldset.module:nth-child(2)::before {
+  background: linear-gradient(90deg, var(--fp-amber), rgba(245, 158, 11, .1), transparent 80%);
+}
+.fp-product-card fieldset.module:nth-child(2) > h2 { color: var(--fp-amber) !important; background: rgba(245, 158, 11, .03) !important; }
+/* 03 Precios → azul */
+.fp-product-card fieldset.module:nth-child(3) { border-color: rgba(59, 130, 246, .22) !important; }
+.fp-product-card fieldset.module:nth-child(3)::before {
+  background: linear-gradient(90deg, var(--fp-blue-bright), rgba(59, 130, 246, .1), transparent 80%);
+}
+.fp-product-card fieldset.module:nth-child(3) > h2 { color: var(--fp-blue-bright) !important; background: rgba(59, 130, 246, .03) !important; }
+/* 04 Estado → teal (default, reutiliza la línea base) */
+/* 05+ → teal (default) */
 
 /* ── Descripción de sección (ayuda contextual) ──────────────── */
 .fp-product-card fieldset.module > p.help,
@@ -355,58 +395,72 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   7. BARRA DE SUBMIT (#fp-submit-bar)
+   7. BARRA DE SUBMIT (#fp-submit-bar) — overrides sobre components.css
    ══════════════════════════════════════════════════════════════════ */
 #fp-submit-bar {
   position: relative;
   overflow: hidden;
+  /* Sombra de color hacia arriba: da sensación de "base flotante" */
+  box-shadow: 0 -4px 24px rgba(0, 168, 120, .07), var(--fp-c-shadow) !important;
 }
+/* Línea superior dual: teal → azul */
 #fp-submit-bar::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--fp-teal), var(--fp-blue-bright), transparent 75%);
+  background: linear-gradient(90deg, var(--fp-teal) 0%, var(--fp-blue-bright) 55%, transparent 100%);
 }
 
-/* Botón Guardar → gradiente teal */
+/* Botón Guardar — gradiente teal + glow */
 .fp-btn-save {
   background: linear-gradient(135deg, var(--fp-teal), var(--fp-teal-dk)) !important;
-  box-shadow: 0 4px 14px rgba(0,168,120,.25) !important;
-  border-radius: 9px !important;
+  box-shadow: 0 3px 12px rgba(0, 168, 120, .30) !important;
+  border-radius: 8px !important;
 }
 .fp-btn-save:hover {
-  box-shadow: 0 6px 22px rgba(0,168,120,.4) !important;
+  box-shadow: 0 5px 20px rgba(0, 168, 120, .45) !important;
+  opacity: 1 !important;
 }
-/* Añadir otro → azul */
+
+/* Añadir otro — azul */
 .fp-btn-new {
   background: linear-gradient(135deg, var(--fp-blue-bright), var(--fp-blue)) !important;
-  box-shadow: 0 4px 14px rgba(59,130,246,.2) !important;
-  border-radius: 9px !important;
+  box-shadow: 0 3px 12px rgba(59, 130, 246, .22) !important;
+  border-radius: 8px !important;
 }
 .fp-btn-new:hover {
-  box-shadow: 0 6px 22px rgba(59,130,246,.35) !important;
+  box-shadow: 0 5px 20px rgba(59, 130, 246, .38) !important;
+  opacity: 1 !important;
 }
-/* Eliminar → rojo */
+
+/* Eliminar — rojo */
 .fp-btn-delete {
-  border-radius: 9px !important;
-  box-shadow: 0 4px 14px rgba(220,38,38,.18) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 3px 12px rgba(220, 38, 38, .18) !important;
 }
 .fp-btn-delete:hover {
-  box-shadow: 0 6px 22px rgba(220,38,38,.3) !important;
+  box-shadow: 0 5px 20px rgba(220, 38, 38, .32) !important;
+  opacity: 1 !important;
 }
-/* Histórico → ghost */
+
+/* Histórico — ghost con borde sutil */
 .fp-btn-history {
-  border-radius: 9px !important;
+  border-radius: 8px !important;
   border-color: var(--fp-c-border) !important;
   box-shadow: none !important;
 }
-/* Salir → ghost neutro */
+.fp-btn-history:hover {
+  border-color: var(--fp-c-subtle) !important;
+  opacity: 1 !important;
+}
+
+/* Salir — ghost neutro */
 .fp-btn-cancel {
   background: transparent !important;
   border: 1px solid var(--fp-c-border) !important;
   color: var(--fp-c-muted) !important;
-  border-radius: 9px !important;
+  border-radius: 8px !important;
   text-decoration: none !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -416,6 +470,7 @@
 .fp-btn-cancel:hover {
   border-color: var(--fp-c-text) !important;
   color: var(--fp-c-text) !important;
+  opacity: 1 !important;
 }
 
 /* ══════════════════════════════════════════════════════════════════

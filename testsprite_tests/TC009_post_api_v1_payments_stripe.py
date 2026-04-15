@@ -1,12 +1,14 @@
-import requests
+import os
 import uuid
+
+import requests
 
 BASE_URL = "http://localhost/api/v1"
 TIMEOUT = 30
 
 # Credentials for an existing user, or create/register before running this test
 TEST_USER_EMAIL = "testuser@example.com"
-TEST_USER_PASSWORD = "SecureP@ssw0rd!"
+TEST_USER_PASSWORD = os.environ.get("TEST_USER_PASSWORD", "SecureP@ssw0rd!")
 
 
 def register_user(email: str, password: str, first_name: str = "Test", last_name: str = "User") -> None:

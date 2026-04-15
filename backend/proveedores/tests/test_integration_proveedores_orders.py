@@ -9,6 +9,7 @@ Usa SQLite en memoria (override_settings) para no depender de PostgreSQL.
 from __future__ import annotations
 
 import base64
+import secrets
 import shutil
 import tempfile
 from decimal import Decimal
@@ -45,6 +46,8 @@ _MIN_PNG = base64.b64decode(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
 )
 
+_TEST_USER_PASSWORD = secrets.token_urlsafe(16)
+
 
 def _set_encryption_key() -> None:
     settings.ENCRYPTION_KEY = Fernet.generate_key().decode()
@@ -68,7 +71,7 @@ class ProveedoresOrdersCheckoutIntegrationTests(TestCase):
         self.user = User.objects.create_user(
             username='buyer1',
             email='buyer@example.com',
-            password='testpass123',
+            password=_TEST_USER_PASSWORD,
         )
         self.cat = Category.objects.create(name='Cat', slug='cat-int')
         self.product = Product.objects.create(
@@ -253,7 +256,7 @@ class CreateOrderFromCartNoDespachoTests(TestCase):
         self.user = User.objects.create_user(
             username='u2',
             email='u2@example.com',
-            password='testpass123',
+            password=_TEST_USER_PASSWORD,
         )
         cat = Category.objects.create(name='C2', slug='c2')
         product = Product.objects.create(
@@ -337,7 +340,7 @@ class ServicioPedidosHTTPIntegrationTests(TestCase):
         self.user = User.objects.create_user(
             username='u3',
             email='u3@example.com',
-            password='pw',
+            password=_TEST_USER_PASSWORD,
         )
         cat = Category.objects.create(name='C3', slug='c3')
         self.product = Product.objects.create(
@@ -465,7 +468,7 @@ class NekiCheckoutAndVerifyTests(TestCase):
         self.user = User.objects.create_user(
             username='nk',
             email='nk@example.com',
-            password='pw',
+            password=_TEST_USER_PASSWORD,
         )
         cat = Category.objects.create(name='Nc', slug='nc')
         self.product = Product.objects.create(

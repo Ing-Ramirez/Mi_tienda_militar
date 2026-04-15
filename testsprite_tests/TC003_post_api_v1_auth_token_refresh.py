@@ -1,6 +1,8 @@
-import requests
+import os
 import time
 from datetime import datetime
+
+import requests
 
 BASE_URL = "http://localhost:80/api/v1"
 TIMEOUT = 30
@@ -11,7 +13,7 @@ def test_post_api_v1_auth_token_refresh():
         # Step 1: Register a new user to get refresh_token cookie set
         timestamp = int(time.time() * 1000)
         email = f"user_{timestamp}@test.com"
-        password = "Xq7!mZ2#vL9"
+        password = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
         register_url = f"{BASE_URL}/auth/register/"
         register_payload = {
             "email": email,

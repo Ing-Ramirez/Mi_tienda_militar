@@ -104,6 +104,7 @@
       card.setAttribute('role', 'button');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', 'Editar ' + data.name);
+      if (data.is_featured) card.setAttribute('data-featured', 'true');
 
       card.innerHTML =
         /* ── Imagen ── */

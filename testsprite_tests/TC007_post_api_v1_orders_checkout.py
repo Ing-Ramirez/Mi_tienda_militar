@@ -1,6 +1,8 @@
-import requests
-import time
 import io
+import os
+import time
+
+import requests
 
 BASE_URL = "http://localhost:80/api/v1"
 
@@ -11,7 +13,7 @@ def test_post_api_v1_orders_checkout():
     # Step 1: Register a new user with unique email and strong password
     timestamp = int(time.time() * 1000)
     email = f"user_{timestamp}@test.com"
-    password = "Xq7!mZ2#vL9"
+    password = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
     register_data = {
         "email": email,
         "first_name": "Test",

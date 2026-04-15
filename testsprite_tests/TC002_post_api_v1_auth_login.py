@@ -1,6 +1,8 @@
-import requests
+import os
 import time
 import uuid
+
+import requests
 
 BASE_URL = "http://localhost:80/api/v1"
 REGISTER_URL = f"{BASE_URL}/auth/register/"
@@ -10,7 +12,7 @@ def test_post_api_v1_auth_login():
     session = requests.Session()
     timestamp = int(time.time() * 1000)
     unique_email = f"user_{timestamp}@test.com"
-    password = "Xq7!mZ2#vL9"
+    password = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
 
     # Register a new user to test login with correct credentials
     register_payload = {

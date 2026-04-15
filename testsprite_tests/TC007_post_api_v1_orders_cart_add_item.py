@@ -1,9 +1,11 @@
-import requests
-import uuid
+import os
 import time
+import uuid
+
+import requests
 
 BASE_URL = "http://localhost:80/api/v1"
-PASSWORD = "Xq7!mZ2#vL9"
+PASSWORD = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
 
 def test_post_api_v1_orders_cart_add_item():
     session = requests.Session()

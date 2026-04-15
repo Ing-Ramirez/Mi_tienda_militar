@@ -334,3 +334,158 @@
 @media (max-width: 639px) {
   #fp-products-cards { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   THUMBNAILS — tabla fallback (table hidden by JS; también inline-related)
+   Clases generadas por thumbnail_preview() en admin.py
+   ═══════════════════════════════════════════════════════════════════ */
+.fp-thumb-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1.5px solid var(--fp-c-border);
+  background: var(--fp-c-card-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.fp-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .25s ease;
+}
+.fp-thumb-wrap:hover .fp-thumb-img { transform: scale(1.08); }
+.fp-thumb-empty {
+  font-size: 1.5rem;
+  color: var(--fp-c-muted);
+  background: linear-gradient(135deg, var(--fp-c-card), var(--fp-c-card-alt));
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BOTÓN "DETALLES" — fallback si JS no ejecuta la grid
+   ═══════════════════════════════════════════════════════════════════ */
+.fp-detail-btn {
+  padding: 4px 12px;
+  font-size: .72rem;
+  font-weight: 600;
+  border: 1px solid var(--fp-c-border);
+  border-radius: 6px;
+  background: var(--fp-c-card-alt);
+  color: var(--fp-teal);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+  white-space: nowrap;
+}
+.fp-detail-btn:hover {
+  background: var(--fp-c-teal-bg);
+  border-color: var(--fp-teal);
+  color: var(--fp-teal-mid);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BADGES STICKER — estado (fp-pc-status) y stock (fp-pc-stock)
+   Patrón unificado: dot indicador + borde izquierdo colorido
+   Reusable en otros módulos: añadir fp-stk-* + fp-sts-* a cualquier span
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Estado ─────────────────────────────────────────────────────── */
+.fp-pc-status {
+  font-size: .6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .55px;
+  padding: 3px 8px 3px 6px;
+  border-radius: 5px;               /* rectangular vs pill anterior */
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-left: 3px solid currentColor;
+  line-height: 1.4;
+}
+/* Dot indicador antes del texto */
+.fp-pc-status::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .85;
+  flex-shrink: 0;
+}
+
+.fp-pc-s--active {
+  background: rgba(0, 168, 120, .12);
+  color: var(--fp-teal);
+}
+.fp-pc-s--inactive {
+  background: rgba(255, 255, 255, .05);
+  color: var(--fp-c-muted);
+}
+.fp-pc-s--empty {
+  background: rgba(239, 68, 68, .12);
+  color: var(--fp-red-alert);
+}
+.fp-pc-s--soon {
+  background: rgba(245, 158, 11, .12);
+  color: var(--fp-amber);
+}
+
+/* ── Stock ──────────────────────────────────────────────────────── */
+.fp-pc-stock {
+  font-size: .67rem;
+  font-weight: 700;
+  padding: 4px 9px 4px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-left: 3px solid currentColor;
+  line-height: 1.4;
+}
+.fp-pc-stk--ok {
+  background: rgba(0, 168, 120, .10);
+  color: var(--fp-teal);
+}
+.fp-pc-stk--low {
+  background: rgba(245, 158, 11, .12);
+  color: var(--fp-amber);
+}
+.fp-pc-stk--zero {
+  background: rgba(239, 68, 68, .12);
+  color: var(--fp-red-alert);
+}
+
+/* ── Card: acento glow en destacado ──────────────────────────────── */
+/* Producto con .is_featured: borde superior dorado tenue */
+.fp-prod-card[data-featured="true"] {
+  border-color: rgba(245, 158, 11, .45);
+}
+.fp-prod-card[data-featured="true"]:hover {
+  border-color: rgba(245, 158, 11, .75);
+  box-shadow:
+    0 0 0 1px rgba(245, 158, 11, .25),
+    0 12px 36px rgba(245, 158, 11, .10),
+    0 4px 12px rgba(0, 0, 0, .35);
+}
+
+/* ── Cat badge: mayor contraste ──────────────────────────────────── */
+.fp-pc-cat {
+  font-size: .6rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .06);
+  color: var(--fp-c-muted);
+  border: 1px solid rgba(255, 255, 255, .1);
+  max-width: 90px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: .2px;
+}

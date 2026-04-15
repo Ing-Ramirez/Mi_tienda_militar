@@ -1,22 +1,23 @@
 """
 Franja Pixelada — Vistas internas de core
 """
-import urllib.request
 import json
 import logging
+import posixpath
+import urllib.request
 
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.utils.timezone import now
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.views.static import serve
 
 logger = logging.getLogger(__name__)
 
 _RATE_API = 'https://open.er-api.com/v6/latest/USD'
 
 
-@csrf_exempt
 @require_http_methods(["GET", "HEAD"])
 def health_live(request):
     """Señal liviana para healthcheck (Docker / balanceadores / tests). Sin consultas a BD."""
@@ -25,6 +26,30 @@ def health_live(request):
         'service': 'franja_pixelada',
         'timestamp': now().isoformat(),
     })
+
+
+# Prefijos de MEDIA_ROOT que no deben servirse por URL directa (misma política que nginx).
+_FORBIDDEN_MEDIA_PREFIXES = (
+    'protected/',
+    'payment_proofs/',
+    'profile_images/',
+)
+
+
+@require_http_methods(["GET", "HEAD"])
+def serve_media_debug(request, path):
+    """
+    En DEBUG sustituye el ``static(MEDIA_URL)`` genérico: evita filtrar avatares,
+    comprobantes u otros uploads acotados que en producción bloquea Nginx.
+    """
+    norm = posixpath.normpath(path.replace('\\', '/'))
+    if norm.startswith('../') or '/../' in norm or norm == '..':
+        raise Http404()
+    low = norm.lower()
+    for prefix in _FORBIDDEN_MEDIA_PREFIXES:
+        if low.startswith(prefix):
+            raise Http404()
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
 
 
 @staff_member_required

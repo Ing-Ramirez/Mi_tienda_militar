@@ -1,6 +1,8 @@
-import requests
+import os
 import time
 from datetime import datetime
+
+import requests
 
 BASE_URL = "http://localhost:80/api/v1"
 REGISTER_URL = f"{BASE_URL}/auth/register/"
@@ -13,7 +15,7 @@ def test_get_api_v1_auth_me():
     timestamp = int(time.time())
     # Unique user email per test run
     email = f"user_{timestamp}@test.com"
-    password = "Xq7!mZ2#vL9"
+    password = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
 
     # Register new user to obtain access token
     register_payload = {

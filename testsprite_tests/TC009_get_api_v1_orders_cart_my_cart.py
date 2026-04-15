@@ -1,6 +1,8 @@
-import requests
-import time
+import os
 import random
+import time
+
+import requests
 
 BASE_URL = "http://localhost:80"
 API_PREFIX = "/api/v1"
@@ -11,7 +13,7 @@ MY_CART_URL = f"{BASE_URL}{API_PREFIX}/orders/cart/my_cart/"
 def test_get_api_v1_orders_cart_my_cart():
     session = requests.Session()
     unique_email = f"user_{int(time.time())}_{random.randint(1000,9999)}@test.com"
-    password = "TestPassw0rd!"
+    password = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
 
     # Register user
     register_payload = {

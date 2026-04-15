@@ -15,3 +15,9 @@ class LoginRateThrottle(AnonRateThrottle):
 
     scope = 'login'
 
+
+class RegisterRateThrottle(AnonRateThrottle):
+    """Limita creación masiva de cuentas por IP (OWASP: abuso / enumeración)."""
+
+    scope = 'register'
+

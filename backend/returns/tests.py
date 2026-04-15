@@ -1,5 +1,6 @@
 from datetime import timedelta
 from decimal import Decimal
+import secrets
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
@@ -17,15 +18,17 @@ User = get_user_model()
 class ReturnsFlowTests(TestCase):
     def setUp(self):
         self.client = APIClient()
+        pw_user = secrets.token_urlsafe(16)
+        pw_admin = secrets.token_urlsafe(16)
         self.user = User.objects.create_user(
             username='return_user',
             email='return_user@example.com',
-            password='testpass123',
+            password=pw_user,
         )
         self.admin = User.objects.create_superuser(
             username='admin_return',
             email='admin_return@example.com',
-            password='adminpass123',
+            password=pw_admin,
         )
         self.category = Category.objects.create(name='Accesorios', slug='accesorios')
         self.product = Product.objects.create(

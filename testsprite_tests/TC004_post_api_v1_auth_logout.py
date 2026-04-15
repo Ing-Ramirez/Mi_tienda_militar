@@ -1,9 +1,11 @@
-import requests
+import os
 import time
 from datetime import datetime
 
+import requests
+
 BASE_URL = "http://localhost:80/api/v1"
-PASSWORD = "Xq7!mZ2#vL9"
+PASSWORD = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
 
 
 def test_post_api_v1_auth_logout():

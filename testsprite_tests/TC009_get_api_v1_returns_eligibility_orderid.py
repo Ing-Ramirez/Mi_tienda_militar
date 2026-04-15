@@ -1,5 +1,9 @@
+import os
 import time
+
 import requests
+
+_BASE_PW = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
 
 BASE_URL = "http://localhost/api/v1"
 TIMEOUT = 30
@@ -13,8 +17,8 @@ def test_get_api_v1_returns_eligibility_orderid():
         "email": unique_email,
         "first_name": "Test",
         "last_name": "User",
-        "password": "StrongPass123!",
-        "password2": "StrongPass123!"
+        "password": _BASE_PW,
+        "password2": _BASE_PW
     }
     register_resp = session.post(
         f"{BASE_URL}/auth/register/",

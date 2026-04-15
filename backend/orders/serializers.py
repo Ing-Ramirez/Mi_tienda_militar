@@ -29,11 +29,16 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 class OrderItemReadSerializer(serializers.ModelSerializer):
+    product_slug = serializers.SerializerMethodField()
+
+    def get_product_slug(self, obj):
+        return obj.product.slug if obj.product_id and obj.product else None
+
     class Meta:
         model = OrderItem
         fields = (
-            'id', 'product', 'product_name', 'product_sku', 'variant_name',
-            'talla', 'bordado', 'rh', 'quantity', 'unit_price', 'line_total',
+            'id', 'product', 'product_name', 'product_sku', 'product_slug',
+            'variant_name', 'talla', 'bordado', 'rh', 'quantity', 'unit_price', 'line_total',
         )
 
 

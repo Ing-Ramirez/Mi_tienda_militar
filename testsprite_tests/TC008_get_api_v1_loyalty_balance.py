@@ -1,3 +1,5 @@
+import os
+
 import requests
 import time
 
@@ -10,7 +12,7 @@ def test_get_api_v1_loyalty_balance():
     session = requests.Session()
     timestamp = int(time.time() * 1000)
     email = f"user_{timestamp}@test.com"
-    password = "Xq7!mZ2#vL9"
+    password = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
 
     # Register
     register_data = {

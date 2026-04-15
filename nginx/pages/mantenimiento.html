@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="10">
+<title>Franja Pixelada — Cargando</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#1a1f14;color:#c8cfc0;font-family:'Segoe UI',system-ui,sans-serif;
+       display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center}
+  .box{max-width:420px;padding:2.5rem 2rem}
+  .logo{font-size:1.1rem;letter-spacing:.25em;text-transform:uppercase;
+        color:#c9a227;margin-bottom:2rem;font-weight:700}
+  .spinner{width:48px;height:48px;border:3px solid #2d3a1e;
+           border-top-color:#c9a227;border-radius:50%;
+           animation:spin 0.9s linear infinite;margin:0 auto 1.8rem}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  h1{font-size:1.25rem;font-weight:600;margin-bottom:.6rem;color:#e8ead0}
+  p{font-size:.9rem;color:#8a9070;line-height:1.6}
+  .hint{margin-top:1.5rem;font-size:.75rem;color:#555f42}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">Franja Pixelada</div>
+  <div class="spinner"></div>
+  <h1>Aplicando cambios…</h1>
+  <p>El servidor está reiniciando.<br>Esta página se recargará automáticamente.</p>
+  <div class="hint">Si demora más de 60 segundos, contacta al administrador.</div>
+</div>
+</body>
+</html>

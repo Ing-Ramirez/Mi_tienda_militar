@@ -1,13 +1,23 @@
 """
 Franja Pixelada — URL Configuration
 """
-from django.urls import path, include
+from django.contrib.auth import logout as auth_logout
+from django.http import HttpResponseRedirect
+from django.urls import path, include, re_path
 from django.conf import settings
-from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from core.admin_site import admin_site   # AdminSite con MFA (OTP) obligatorio
-from core.views import health_live
+from core.views import health_live, serve_media_debug
 from orders.file_views import staff_order_payment_proof
+
+
+def admin_logout_get(request):
+    """
+    Acepta GET en logout para compatibilidad con Jazzmin en Django 5.
+    Django 5 cambió logout a solo-POST; Jazzmin sigue enviando GET.
+    """
+    auth_logout(request)
+    return HttpResponseRedirect(f'/{settings.ADMIN_URL}')
 
 
 class SPAView(TemplateView):
@@ -28,6 +38,8 @@ urlpatterns = [
 
     # ── Admin con MFA TOTP ──────────────────────────────
     # La URL se configura mediante ADMIN_URL en .env (por defecto 'admin/')
+    # Override de logout para compatibilidad Jazzmin + Django 5 (GET → POST)
+    path(f'{settings.ADMIN_URL}logout/', admin_logout_get),
     path(settings.ADMIN_URL, admin_site.urls),
 
     # ── Archivos sensibles (sesión staff del admin, no JWT) ───────────────────
@@ -49,4 +61,8 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # No usar static(MEDIA_URL) completo: expondría ``protected/`` igual que en prod bloquea Nginx.
+    prefix = settings.MEDIA_URL.lstrip('/')
+    urlpatterns += [
+        re_path(r'^' + prefix + r'(?P<path>.*)$', serve_media_debug),
+    ]

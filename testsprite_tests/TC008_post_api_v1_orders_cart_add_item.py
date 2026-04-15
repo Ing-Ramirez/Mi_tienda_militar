@@ -1,6 +1,8 @@
-import requests
+import os
 import time
 import uuid
+
+import requests
 
 BASE_URL = "http://localhost/api/v1"
 TIMEOUT = 30
@@ -12,7 +14,7 @@ def test_post_api_v1_orders_cart_add_item():
     # 1. Register a new user
     timestamp = int(time.time())
     email = f"user_{timestamp}@test.com"
-    password = "Xq7!mZ2#vL9"
+    password = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
     register_payload = {
         "email": email,
         "first_name": "Test",

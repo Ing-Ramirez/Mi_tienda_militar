@@ -10,11 +10,13 @@ from django.conf import settings
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core import signing
 from django.core.cache import cache
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
+import logging
 import mimetypes
 import random
 import uuid
+import xml.sax.saxutils as xml_esc
 
 from products.validators import validate_image_file
 from .serializers import (
@@ -23,8 +25,10 @@ from .serializers import (
     CustomTokenObtainPairSerializer,
     AuthUserBriefSerializer,
 )
-from .throttles import LoginRateThrottle, AvatarMediaAnonThrottle
+from .throttles import LoginRateThrottle, RegisterRateThrottle, AvatarMediaAnonThrottle
 from .media_tokens import parse_avatar_media_token, signed_avatar_absolute_url
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -65,6 +69,7 @@ def _clear_refresh_cookie(response) -> None:
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
+    throttle_classes = [RegisterRateThrottle]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -83,8 +88,8 @@ class RegisterView(generics.CreateAPIView):
 class CaptchaView(APIView):
     """
     GET  /api/v1/auth/captcha/
-    Genera un código aleatorio, lo almacena en caché con TTL corto
-    y devuelve un token firmado + el código en texto plano para mostrar al usuario.
+    Genera un código en caché (TTL corto) y devuelve solo el token firmado.
+    El cliente debe mostrar el desafío vía GET /captcha/svg/ (no exponer el código en JSON).
     """
     permission_classes = [AllowAny]
     TTL = 20  # segundos
@@ -101,9 +106,43 @@ class CaptchaView(APIView):
         token = signing.dumps({'n': nonce}, salt='fp_captcha')
         return Response({
             'captcha_token': token,
-            'code':          code,
             'expires_in':    self.TTL,
         })
+
+
+class CaptchaSvgView(APIView):
+    """
+    GET /api/v1/auth/captcha/svg/?captcha_token=...
+    Devuelve un SVG con el código (mismo token que /captcha/); evita filtrar el plaintext en JSON.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        token = request.query_params.get('captcha_token', '')
+        if not token:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            data = signing.loads(token, salt='fp_captcha', max_age=CaptchaView.TTL + 2)
+        except signing.SignatureExpired:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except signing.BadSignature:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        nonce = data.get('n', '')
+        code = cache.get(f'captcha:{nonce}')
+        if code is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        safe = xml_esc.escape(code)
+        svg = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="220" height="56" viewBox="0 0 220 56">'
+            f'<rect width="100%" height="100%" fill="#1e293b"/>'
+            f'<text x="110" y="36" font-family="monospace,sans-serif" font-size="28" font-weight="bold" '
+            f'text-anchor="middle" fill="#e2e8f0" letter-spacing="0.15em">{safe}</text>'
+            f'</svg>'
+        )
+        resp = HttpResponse(svg, content_type='image/svg+xml; charset=utf-8')
+        resp['Cache-Control'] = 'private, no-store'
+        return resp
 
 
 class LoginView(TokenObtainPairView):
@@ -165,7 +204,11 @@ class CookieTokenRefreshView(APIView):
             if getattr(settings, 'SIMPLE_JWT', {}).get('ROTATE_REFRESH_TOKENS', False):
                 _set_refresh_cookie(response, str(token))
             return response
-        except Exception:
+        except Exception as e:
+            logger.warning(
+                'cookie_token_refresh_failed',
+                extra={'exc_type': type(e).__name__},
+            )
             response = Response(
                 {'detail': 'Sesión expirada. Inicia sesión nuevamente.'},
                 status=status.HTTP_401_UNAUTHORIZED,
@@ -183,8 +226,11 @@ class LogoutView(APIView):
         if refresh_token:
             try:
                 RefreshToken(refresh_token).blacklist()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(
+                    'logout_refresh_blacklist_failed',
+                    extra={'exc_type': type(e).__name__},
+                )
         response = Response({'detail': 'Sesión cerrada correctamente.'})
         _clear_refresh_cookie(response)
         return response

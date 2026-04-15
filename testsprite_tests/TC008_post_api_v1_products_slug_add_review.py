@@ -1,8 +1,11 @@
-import requests
-import time
+import os
 import random
+import time
+
+import requests
 
 BASE_URL = "http://localhost/api/v1"
+_TEST_PW = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
 
 def test_post_api_v1_products_slug_add_review():
     session = requests.Session()
@@ -16,8 +19,8 @@ def test_post_api_v1_products_slug_add_review():
             "email": unique_email,
             "first_name": "Test",
             "last_name": "User",
-            "password": "Password123!",
-            "password2": "Password123!"
+            "password": _TEST_PW,
+            "password2": _TEST_PW
         }
         resp = session.post(register_url, json=register_payload, timeout=timeout)
         assert resp.status_code == 201, f"Registration failed: {resp.text}"

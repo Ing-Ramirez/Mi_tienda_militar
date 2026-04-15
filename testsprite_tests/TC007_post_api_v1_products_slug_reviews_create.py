@@ -1,4 +1,6 @@
 import time
+import os
+
 import requests
 import uuid
 
@@ -11,7 +13,7 @@ def test_post_api_v1_products_slug_reviews_create():
 
     # Register a new user
     email = f"user_{int(time.time())}@test.com"
-    password = "Xq7!mZ2#vL9"
+    password = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
     register_data = {
         "email": email,
         "first_name": "Test",

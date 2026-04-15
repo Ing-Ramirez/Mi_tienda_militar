@@ -1,7 +1,10 @@
-import requests
+import os
 import time
 import uuid
 
+import requests
+
+_BASE_PW = os.environ.get("TEST_USER_PASSWORD", "Xq7!mZ2#vL9")
 
 BASE_URL = "http://localhost:80/api/v1"
 REGISTER_URL = f"{BASE_URL}/auth/register/"
@@ -17,8 +20,8 @@ def test_get_api_v1_loyalty_balance():
         "email": unique_email,
         "first_name": "Test",
         "last_name": "User",
-        "password": "Xq7!mZ2#vL9",
-        "password2": "Xq7!mZ2#vL9"
+        "password": _BASE_PW,
+        "password2": _BASE_PW
     }
     access_token = None
 

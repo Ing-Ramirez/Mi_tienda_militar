@@ -70,6 +70,29 @@ docker compose -p mi_tienda_militar -f docker-compose.yml -f docker-compose.dev.
 Scripts de conveniencia en `scripts/docker/` (Windows batch):
 - `actualizar.bat` — recrear servicios sin limpiar imágenes/volúmenes (modo rápido). `actualizar.bat build` o `nocache` para rebuild.
 - `reiniciar.bat` — limpieza profunda: baja todo, borra volúmenes e imágenes, reconstruye desde cero. Ofrece crear superusuario al final vía `create_superuser.ps1`.
+- `aplicar.bat` — **script recomendado para ciclo de desarrollo**: detecta automáticamente qué cambió vía `git diff` y aplica la acción mínima necesaria. Modos explícitos:
+  - `aplicar.bat` (sin args) — detección automática
+  - `aplicar.bat codigo` — restart de backend + Celery (cambios `.py` o templates)
+  - `aplicar.bat build` — rebuild de imagen + restart (cambios en `requirements.txt` / `Dockerfile`)
+  - `aplicar.bat migraciones` — solo ejecuta migraciones pendientes
+  - `aplicar.bat nginx` — recarga config Nginx
+  - `aplicar.bat todo` — rebuild + recrear + migrate
+- `tests.bat [app_label] [verbosity]` — corre tests dentro del contenedor; sin args corre toda la suite.
+
+**Importante — nombre de proyecto Docker Compose:** todos los scripts usan `-p mi_tienda_militar` y `--env-file .env.dev`. Al correr comandos manualmente, incluir siempre ambos flags:
+```bash
+docker compose -p mi_tienda_militar -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.dev <comando>
+```
+
+**Crítico — `--env-file .env.dev` es obligatorio:** `docker-compose.yml` usa interpolación `${DB_USER}` para inicializar PostgreSQL. Si no se pasa `--env-file .env.dev`, el DB se inicializa con credenciales de `.env` (producción) pero el backend se conecta con las de `.env.dev`, causando fallo de conexión en reinicio desde cero (`reiniciar.bat`).
+
+**Worktrees:** si trabajas desde un worktree en `.claude/worktrees/`, el archivo `.env.dev` del worktree debe ser idéntico al del repositorio principal (`../../../.env.dev`). Los scripts validan esto y abortan si difieren.
+
+**Logs en tiempo real:**
+```bash
+docker compose -p mi_tienda_militar logs -f backend
+docker compose -p mi_tienda_militar logs -f celery_worker celery_beat
+```
 
 ### Producción (Docker Compose)
 

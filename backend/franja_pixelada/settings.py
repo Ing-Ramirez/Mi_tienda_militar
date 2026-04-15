@@ -266,6 +266,7 @@ REST_FRAMEWORK = {
         'anon': '600/hour',   # ~10 req/min — suficiente para desarrollo y uso normal
         'user': '3000/hour',
         'login': '5/minute',
+        'register': '30/hour',
     },
 }
 
@@ -276,6 +277,7 @@ if DEBUG or TESTING:
         'anon': '10000/hour',
         'user': '10000/hour',
         'login': '200/minute',
+        'register': '200/hour',
     }
 
 # ── JWT ────────────────────────────────────────────────────────────────────
