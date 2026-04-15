@@ -20,14 +20,42 @@
     accepts_marketing:  { icon: '📣', title: 'Acepta comunicaciones', desc: 'El usuario acepta recibir correos y notificaciones de marketing.',                 cls: 'fp-marketing' },
   };
 
-  /* ── Utilidades de selección (sincronizan el <select> original) ── */
+  /* ── Utilidades de selección (sincronizan el <select> original) ──
+   *
+   * IMPORTANTE: Django's SelectFilter2.js mantiene un caché interno en
+   * SelectBox.cache que usa al enviar el formulario (move_all cache→DOM).
+   * Manipular solo el DOM con appendChild NO actualiza ese caché y los
+   * cambios se pierden al guardar. Se usa SelectBox.move() que sincroniza
+   * caché + DOM en una sola operación. Se incluye fallback DOM-only por si
+   * SelectBox no está disponible (entorno no-admin, tests, etc.).
+   * ── */
   function moveToChosen(fromSel, toSel, value) {
-    var opt = fromSel.querySelector('option[value="' + value + '"]');
-    if (opt) { opt.selected = true; toSel.appendChild(opt); }
+    var fromId = fromSel.id;
+    var toId   = toSel.id;
+    if (window.SelectBox && SelectBox.cache && SelectBox.cache[fromId]) {
+      var cache = SelectBox.cache[fromId];
+      for (var i = 0; i < cache.length; i++) {
+        if (String(cache[i].value) === String(value)) { cache[i].selected = true; break; }
+      }
+      SelectBox.move(fromId, toId);
+    } else {
+      var opt = fromSel.querySelector('option[value="' + value + '"]');
+      if (opt) { opt.selected = true; toSel.appendChild(opt); }
+    }
   }
   function moveToAvail(fromSel, toSel, value) {
-    var opt = toSel.querySelector('option[value="' + value + '"]');
-    if (opt) { opt.selected = false; fromSel.appendChild(opt); }
+    var fromId = fromSel.id;
+    var toId   = toSel.id;
+    if (window.SelectBox && SelectBox.cache && SelectBox.cache[toId]) {
+      var cache = SelectBox.cache[toId];
+      for (var i = 0; i < cache.length; i++) {
+        if (String(cache[i].value) === String(value)) { cache[i].selected = true; break; }
+      }
+      SelectBox.move(toId, fromId);
+    } else {
+      var opt = toSel.querySelector('option[value="' + value + '"]');
+      if (opt) { opt.selected = false; fromSel.appendChild(opt); }
+    }
   }
 
   /* ── Espera con retry hasta que aparezca un elemento ─────────── */

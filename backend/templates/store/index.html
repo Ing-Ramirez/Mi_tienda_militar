@@ -3606,8 +3606,8 @@
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       z-index: 1201;
-      background: var(--gunmetal);
-      border: 1px solid var(--iron);
+      background: var(--iron);
+      border: 1px solid var(--olive-600);
       border-radius: 6px;
       width: min(500px, 95vw);
       max-height: 90vh;
@@ -3616,6 +3616,19 @@
       padding: 1.5rem;
     }
     .rform-modal.open { display: block; }
+    .rform-modal.inline-mode {
+      position: static;
+      top: auto; left: auto;
+      transform: none;
+      width: 100%;
+      max-height: none;
+      background: var(--olive-700);
+      border: 1px solid var(--olive-500);
+      border-left: 4px solid var(--olive-400);
+      border-radius: 8px;
+      box-shadow: none;
+      margin-top: 1rem;
+    }
     .rform-title {
       font-family: var(--font-display);
       font-weight: 800;
@@ -4968,6 +4981,7 @@
             Volver a mis pedidos
           </button>
           <div id="up-order-detail-content"></div>
+          <div id="up-inline-rform"></div>
         </div>
       </div>
 
@@ -6400,19 +6414,18 @@
   async function applyCoupon() {
     const input = document.getElementById('coupon-input');
     const errorEl = document.getElementById('coupon-error');
-    const code = input.value.trim().toUpperCase();
+    const btn     = document.querySelector('[data-action="applyCoupon"]');
+    const code    = input.value.trim().toUpperCase();
 
     hide(errorEl);
 
     if (!code) {
       errorEl.textContent = t('coupon.enter_code', 'Ingresa un código de descuento.');
-      show(errorEl);
-      return;
+      show(errorEl); return;
     }
     if (appliedCoupon) {
       errorEl.textContent = t('coupon.already_applied', 'Ya tienes un cupón aplicado. Quítalo primero para usar otro.');
-      show(errorEl);
-      return;
+      show(errorEl); return;
     }
     if (!_accessToken) {
       errorEl.textContent = t('coupon.login_required', 'Inicia sesión para validar cupones.');
@@ -9491,7 +9504,7 @@
   })();
 
   async function submitReview() {
-    const { orderId, productId, rating, files } = _rformState;
+    const { orderId, productId, productSlug, rating, files } = _rformState;
     const comment = (document.getElementById('rform-comment').value || '').trim();
     const title   = (document.getElementById('rform-title').value || '').trim();
     const errEl   = document.getElementById('rform-err');
