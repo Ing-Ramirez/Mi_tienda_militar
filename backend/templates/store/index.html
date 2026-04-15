@@ -2144,7 +2144,6 @@
       font-size: 0.78rem;
       color: var(--danger-soft);
       margin-top: 0.4rem;
-      display: none;
     }
     .cart-total-row.discount { color: var(--success-soft); }
     .cart-total-row.discount .amount { color: var(--success-soft); }
@@ -3593,8 +3592,8 @@
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       z-index: 1201;
-      background: var(--gunmetal);
-      border: 1px solid var(--iron);
+      background: var(--iron);
+      border: 1px solid var(--olive-600);
       border-radius: 6px;
       width: min(500px, 95vw);
       max-height: 90vh;
@@ -3603,6 +3602,19 @@
       padding: 1.5rem;
     }
     .rform-modal.open { display: block; }
+    .rform-modal.inline-mode {
+      position: static;
+      top: auto; left: auto;
+      transform: none;
+      width: 100%;
+      max-height: none;
+      background: var(--olive-700);
+      border: 1px solid var(--olive-500);
+      border-left: 4px solid var(--olive-400);
+      border-radius: 8px;
+      box-shadow: none;
+      margin-top: 1rem;
+    }
     .rform-title {
       font-family: var(--font-display);
       font-weight: 800;
@@ -3706,7 +3718,7 @@
     }
     .rform-actions { display: flex; gap: 0.75rem; margin-top: 0.25rem; }
     .rform-actions .btn { flex: 1; justify-content: center; }
-    .rform-err { color: var(--danger); font-family: var(--font-mono); font-size: 0.78rem; margin-bottom: 0.5rem; display: none; }
+    .rform-err { color: var(--danger); font-family: var(--font-mono); font-size: 0.78rem; margin-bottom: 0.5rem; }
 
     @media (max-width: 600px) {
       .pdp-body { flex-direction: column; gap: 1rem; }
@@ -4944,6 +4956,7 @@
             Volver a mis pedidos
           </button>
           <div id="up-order-detail-content"></div>
+          <div id="up-inline-rform"></div>
         </div>
       </div>
 
@@ -5260,7 +5273,7 @@
   <input type="file" id="rform-images" accept="image/*" multiple class="d-none">
   <div class="rform-file-preview" id="rform-file-preview"></div>
 
-  <div class="rform-err" id="rform-err"></div>
+  <div class="rform-err d-none" id="rform-err"></div>
   <div class="rform-actions">
     <button class="btn btn-ghost" data-action="closeReviewForm">Cancelar</button>
     <button class="btn btn-primary" id="rform-submit-btn" data-action="submitReview">Enviar calificación</button>
@@ -6303,30 +6316,25 @@
     if (input) input.value = '';
   }
 
-  function applyCoupon() {
-    const input = document.getElementById('coupon-input');
+  async function applyCoupon() {
+    const input   = document.getElementById('coupon-input');
     const errorEl = document.getElementById('coupon-error');
-    const code = input.value.trim().toUpperCase();
+    const btn     = document.querySelector('[data-action="applyCoupon"]');
+    const code    = input.value.trim().toUpperCase();
 
     hide(errorEl);
 
     if (!code) {
       errorEl.textContent = t('coupon.enter_code', 'Ingresa un código de descuento.');
-      show(errorEl);
-      return;
+      show(errorEl); return;
     }
     if (appliedCoupon) {
       errorEl.textContent = t('coupon.already_applied', 'Ya tienes un cupón aplicado. Quítalo primero para usar otro.');
-      show(errorEl);
-      return;
+      show(errorEl); return;
     }
-
-    const coupon = COUPONS[code];
-    if (!coupon) {
-      errorEl.textContent = t('coupon.invalid', 'Código no válido o no disponible.');
-      show(errorEl);
-      input.value = '';
-      return;
+    if (!_accessToken) {
+      errorEl.textContent = 'Inicia sesión para aplicar cupones de descuento.';
+      show(errorEl); return;
     }
 
     const subtotal = cart.reduce((s, c) => {
@@ -6334,28 +6342,46 @@
       return s + (isNaN(price) || isNaN(qty) ? 0 : price * qty);
     }, 0);
 
-    let discount = 0;
-    if (coupon.type === 'percent') {
-      discount = subtotal * coupon.value / 100;
-    } else if (coupon.type === 'fixed') {
-      discount = Math.min(coupon.value, subtotal); // no puede superar el subtotal
-    } else if (coupon.type === 'shipping') {
-      discount = 0; // el ahorro en envío se maneja en el cálculo
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+    try {
+      const res  = await apiFetch('/api/v1/orders/coupons/validate/', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.valid) {
+        errorEl.textContent = data.detail || t('coupon.invalid', 'Código no válido o no disponible.');
+        show(errorEl);
+        input.value = '';
+        return;
+      }
+
+      // Mapear formato API → formato interno del carrito
+      // API: discount_type 'percentage'|'fixed'  →  interno: type 'percent'|'fixed'
+      const type  = data.discount_type === 'percentage' ? 'percent' : 'fixed';
+      const value = Number(data.discount_value);
+      const discount = Number(data.discount_amount);
+      const description = type === 'percent'
+        ? `${value}% de descuento`
+        : `${fmt(value)} de descuento`;
+
+      appliedCoupon = { code, type, value, description, discount };
+
+      input.value = '';
+      updateCartUI();
+      showToast(
+        tf('coupon.applied', { code, description }, `🏷️ Cupón ${code} aplicado — ${description}`),
+        '🏷️'
+      );
+    } catch {
+      errorEl.textContent = 'Error de conexión. Intenta de nuevo.';
+      show(errorEl);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = t('cart.coupon_apply', 'Aplicar'); }
     }
-
-    appliedCoupon = { code, ...coupon, discount };
-
-    // Registrar uso en localStorage (auditoría local)
-    const couponLog = JSON.parse(localStorage.getItem('franja_pixelada_coupon_log') || '[]');
-    couponLog.push({ code, date: new Date().toISOString(), type: coupon.type });
-    localStorage.setItem('franja_pixelada_coupon_log', JSON.stringify(couponLog));
-
-    input.value = '';
-    updateCartUI();
-    showToast(
-      tf('coupon.applied', { code, description: coupon.description }, `🏷️ Cupón ${code} aplicado — ${coupon.description}`),
-      '🏷️'
-    );
   }
 
   function removeCoupon() {
@@ -6433,7 +6459,7 @@
                placeholder="${escHtml(t('cart.coupon_placeholder', 'Ingresa tu código'))}" maxlength="20">
              <button class="btn btn-ghost coupon-btn" data-action="applyCoupon">${escHtml(t('cart.coupon_apply', 'Aplicar'))}</button>
            </div>
-           <div class="coupon-error" id="coupon-error"></div>
+           <div class="coupon-error d-none" id="coupon-error"></div>
          </div>`;
 
     const discountRowHTML = discount > 0
@@ -7833,6 +7859,7 @@
             data-order-id="${escHtml(String(o.id || ''))}"
             data-product-id="${escHtml(pid)}"
             data-product-name="${escHtml(item.product_name || '')}"
+            data-product-slug="${escHtml(item.product_slug || '')}"
           >⭐ Calificar producto</button>` : (isDelivered && pid ? `<span class="up-order-review-sent">✓ Reseña enviada</span>` : '')}
         </div>
         <div class="up-item-price">${fmtCOP(item.line_total || item.unit_price * item.quantity)}</div>
@@ -9285,8 +9312,8 @@
   }
 
   // Abre el formulario de calificación
-  function openReviewForm(orderId, productId, productName) {
-    _rformState = { orderId, productId, productName, rating: 0, files: [] };
+  function openReviewForm(orderId, productId, productName, productSlug) {
+    _rformState = { orderId, productId, productName, productSlug: productSlug || null, rating: 0, files: [] };
 
     document.getElementById('rform-product-name').textContent = productName || '';
     document.getElementById('rform-comment').value = '';
@@ -9299,16 +9326,35 @@
     // Reset stars
     document.querySelectorAll('.rform-star').forEach(s => s.classList.remove('lit'));
 
-    const overlay = document.getElementById('rform-overlay');
-    const modal   = document.getElementById('rform-modal');
-    overlay.classList.add('open');
-    modal.classList.add('open');
-    setBodyScroll(false);
+    const modal           = document.getElementById('rform-modal');
+    const inlineContainer = document.getElementById('up-inline-rform');
+
+    if (inlineContainer) {
+      // Modo inline: embebe el formulario dentro del panel de pedidos.
+      // appendChild mueve el nodo (no clona), conservando los event listeners.
+      inlineContainer.appendChild(modal);
+      modal.classList.add('open', 'inline-mode');
+      setTimeout(() => modal.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+    } else {
+      // Fallback: modal flotante global (fuera del panel de usuario)
+      document.getElementById('rform-overlay').classList.add('open');
+      modal.classList.add('open');
+      setBodyScroll(false);
+    }
   }
 
   function closeReviewForm() {
+    const modal           = document.getElementById('rform-modal');
+    const inlineContainer = document.getElementById('up-inline-rform');
+
+    // Si está en modo inline, devolverlo a document.body para reutilización
+    if (inlineContainer && inlineContainer.contains(modal)) {
+      document.body.appendChild(modal);
+    }
+
+    modal.classList.remove('open', 'inline-mode');
     document.getElementById('rform-overlay').classList.remove('open');
-    document.getElementById('rform-modal').classList.remove('open');
+
     if (!document.querySelector('.rv-modal.open') &&
         !document.getElementById('pdp-modal').classList.contains('open')) {
       setBodyScroll(true);
@@ -9355,7 +9401,7 @@
   })();
 
   async function submitReview() {
-    const { orderId, productId, rating, files } = _rformState;
+    const { orderId, productId, productSlug, rating, files } = _rformState;
     const comment = (document.getElementById('rform-comment').value || '').trim();
     const title   = (document.getElementById('rform-title').value || '').trim();
     const errEl   = document.getElementById('rform-err');
@@ -9365,9 +9411,13 @@
     if (!rating) { errEl.textContent = 'Selecciona una calificación de 1 a 5 estrellas.'; show(errEl); return; }
     if (comment.length < 10) { errEl.textContent = 'El comentario debe tener al menos 10 caracteres.'; show(errEl); return; }
 
-    // Encontrar el slug del producto
-    const prod = PRODUCTS.find(p => p.id === productId);
-    if (!prod) { errEl.textContent = 'Producto no encontrado.'; show(errEl); return; }
+    // Obtener slug: primero del estado (viene del pedido), luego fallback al catálogo cargado
+    let slug = productSlug;
+    if (!slug) {
+      const prod = PRODUCTS.find(p => p.id === productId);
+      if (!prod) { errEl.textContent = 'No se pudo identificar el producto. Intenta recargar la página.'; show(errEl); return; }
+      slug = prod.slug;
+    }
 
     const btn = document.getElementById('rform-submit-btn');
     btn.disabled = true;
@@ -9381,7 +9431,7 @@
       if (title) fd.append('title', title);
       files.forEach(f => fd.append('images', f));
 
-      const res = await ReviewsApi.create(prod.slug, fd);
+      const res = await ReviewsApi.create(slug, fd);
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
@@ -9567,7 +9617,7 @@
       // ── Reseñas ─────────────────────────────────────────
       case 'openReviewsModal':    openReviewsModal(el.dataset.productId); break;
       case 'closeReviewsModal':   closeReviewsModal(); break;
-      case 'openReviewForm':      openReviewForm(el.dataset.orderId, el.dataset.productId, el.dataset.productName); break;
+      case 'openReviewForm':      openReviewForm(el.dataset.orderId, el.dataset.productId, el.dataset.productName, el.dataset.productSlug); break;
       case 'closeReviewForm':     closeReviewForm(); break;
       case 'submitReview':        submitReview(); break;
       case 'rvOpenImg':           window._FPLightbox && window._FPLightbox.open([{url: el.dataset.src, alt: 'Evidencia'}], 0); break;
