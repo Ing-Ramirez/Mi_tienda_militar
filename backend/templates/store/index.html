@@ -6433,7 +6433,6 @@
       return;
     }
 
-    const btn = document.querySelector('[data-action="applyCoupon"]');
     const subtotal = cart.reduce((s, c) => {
       const price = Number(c.price), qty = Number(c.qty);
       return s + (isNaN(price) || isNaN(qty) ? 0 : price * qty);
