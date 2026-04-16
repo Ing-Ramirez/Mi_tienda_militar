@@ -5062,7 +5062,7 @@
               </div>
               <div class="up-form-group up-form-group--no-mb">
                 <label class="up-form-label" for="up-email">Correo electrónico</label>
-                <input class="up-form-input" type="email" id="up-email" autocomplete="email">
+                <input class="up-form-input" type="email" id="up-email" autocomplete="email" readonly>
               </div>
             </div>
           </div>
@@ -8570,7 +8570,7 @@
   async function loadUpProfile() {
     try {
       const res = await UserPanelApi.profile();
-      if (!res.ok) return;
+      if (!res.ok) { showToast('No se pudieron cargar los datos del perfil.', 'error'); return; }
       const user = await res.json();
       document.getElementById('up-first-name').value = user.first_name || '';
       document.getElementById('up-last-name').value  = user.last_name  || '';
@@ -8599,17 +8599,14 @@
         const initialsEl = document.getElementById('up-avatar-initials');
         upSetAvatarDisplay(initialsEl ? initialsEl.textContent : '?', user.profile_image);
       }
-    } catch { /* silencioso */ }
+    } catch { showToast('No se pudo conectar con el servidor.', 'error'); }
   }
 
   async function upSaveProfile(e) {
     e.preventDefault();
-    const msg = document.getElementById('up-profile-msg');
-    hide(msg);
     const payload = {
       first_name:        document.getElementById('up-first-name').value.trim(),
       last_name:         document.getElementById('up-last-name').value.trim(),
-      email:             document.getElementById('up-email').value.trim(),
       phone:             document.getElementById('up-phone').value.trim(),
       document_type:     document.getElementById('up-doc-type').value,
       document_number:   document.getElementById('up-doc-num').value.trim(),
@@ -8621,12 +8618,15 @@
       if (res.ok) {
         const prev = JSON.parse(sessionStorage.getItem('auth_user') || '{}');
         const next = {
-          email: data.email || prev.email,
-          first_name: data.first_name || prev.first_name,
-          last_name: data.last_name || prev.last_name,
-          phone: data.phone || prev.phone || '',
-          account_type: data.account_type || prev.account_type || 'customer',
-          profile_image: data.profile_image || prev.profile_image || null,
+          email:             prev.email,
+          first_name:        data.first_name        ?? prev.first_name        ?? '',
+          last_name:         data.last_name          ?? prev.last_name          ?? '',
+          phone:             data.phone              ?? prev.phone              ?? '',
+          document_type:     data.document_type      ?? prev.document_type      ?? '',
+          document_number:   data.document_number    ?? prev.document_number    ?? '',
+          accepts_marketing: data.accepts_marketing  ?? prev.accepts_marketing  ?? false,
+          account_type:      data.account_type       ?? prev.account_type       ?? 'customer',
+          profile_image:     data.profile_image      ?? prev.profile_image      ?? null,
         };
         sessionStorage.setItem('auth_user', JSON.stringify(next));
         const name = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.email || 'Usuario';
@@ -8637,17 +8637,12 @@
         const phoneEl2 = document.getElementById('up-user-phone');
         if (phoneEl2) { phoneEl2.textContent = data.phone || ''; data.phone ? show(phoneEl2) : hide(phoneEl2); }
         updateAccountBtn();
-        msg.className = 'up-form-msg success';
-        msg.textContent = 'Perfil actualizado correctamente.';
+        showToast('Perfil actualizado correctamente.');
       } else {
-        msg.className = 'up-form-msg error';
-        msg.textContent = Object.values(data).flat().join(' ') || 'Error al guardar el perfil.';
+        showToast(Object.values(data).flat().join(' ') || 'Error al guardar el perfil.', 'error');
       }
-      show(msg);
     } catch {
-      msg.className = 'up-form-msg error';
-      msg.textContent = 'No se pudo conectar con el servidor.';
-      show(msg);
+      showToast('No se pudo conectar con el servidor.', 'error');
     }
   }
 
@@ -9565,13 +9560,20 @@
   // Cargar reseñas snippet en PDP cuando se abre
   async function pdpLoadReviewSnippet(productId) {
     const p = PRODUCTS.find(p => p.id === productId);
-    if (!p || !p.reviews) return;
+    if (!p) return;
     const snippetWrap = document.getElementById('pdp-review-snippet-list');
     if (!snippetWrap) return;
     try {
       const res = await ReviewsApi.list(p.slug);
       if (!res.ok) return;
       const reviews = await res.json();
+      // Actualizar caché y botón con el conteo real devuelto por la API
+      if (reviews.length !== p.reviews) {
+        p.reviews = reviews.length;
+        const seeAllBtn = document.querySelector(`.pdp-see-all-btn[data-product-id="${productId}"]`);
+        if (seeAllBtn) seeAllBtn.textContent = `Ver todas las reseñas (${reviews.length})`;
+      }
+      if (!reviews.length) return;
       snippetWrap.innerHTML = reviews.slice(0, 3).map(r => `
         <div class="pdp-review-item">
           <div class="pdp-review-meta">

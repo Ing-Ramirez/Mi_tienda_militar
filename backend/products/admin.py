@@ -19,7 +19,9 @@ logger = logging.getLogger(__name__)
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
-    extra = 1
+    extra = 0
+    min_num = 0
+    validate_min = False
     fields = ['image', 'alt_text', 'is_primary', 'order', 'thumbnail']
     readonly_fields = ['thumbnail']
     verbose_name = 'Imagen'

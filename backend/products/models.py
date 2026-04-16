@@ -339,7 +339,7 @@ class ProductReview(models.Model):
     class Meta:
         verbose_name = 'Reseña'
         verbose_name_plural = 'Reseñas'
-        unique_together = ['product', 'user']
+        unique_together = ['product', 'user', 'order']
         ordering = ['-created_at']
 
     def __str__(self):

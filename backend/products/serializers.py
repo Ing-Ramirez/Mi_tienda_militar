@@ -246,16 +246,17 @@ class ReviewCreateSerializer(serializers.Serializer):
                 {'order_id': 'Este producto no está en la orden indicada.'}
             )
 
-        # Verificar que no exista ya una reseña de este usuario para este producto
-        if ProductReview.objects.filter(product=product, user=request.user).exists():
+        # Verificar que no exista ya una reseña de este usuario para este producto+orden
+        if ProductReview.objects.filter(product=product, user=request.user, order=order).exists():
             raise serializers.ValidationError(
-                'Ya has dejado una reseña para este producto.'
+                'Ya has dejado una reseña para este producto en esta orden.'
             )
 
         data['order'] = order
         return data
 
     def save(self, product, user):
+        # Compra verificada (pedido entregado) → se aprueba automáticamente
         review = ProductReview.objects.create(
             product=product,
             user=user,
@@ -264,7 +265,7 @@ class ReviewCreateSerializer(serializers.Serializer):
             title=self.validated_data.get('title', ''),
             comment=self.validated_data['comment'],
             is_verified_purchase=True,
-            status='pending',
+            status='approved',
         )
         return review
 

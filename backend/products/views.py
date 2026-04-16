@@ -64,6 +64,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         qs = (
             ProductReview.objects
             .filter(product=product, status='approved')
+            .select_related('user', 'order')
             .prefetch_related('evidence')
             .order_by('-created_at')
         )
@@ -108,10 +109,12 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             user=request.user, status='delivered'
         ).prefetch_related('items__product')
 
-        already_reviewed_product_ids = set(
-            str(pid) for pid in
+        # Conjunto de pares (product_id, order_id) ya reseñados por este usuario
+        already_reviewed = set(
+            (str(pid), str(oid))
+            for pid, oid in
             ProductReview.objects.filter(user=request.user)
-            .values_list('product_id', flat=True)
+            .values_list('product_id', 'order_id')
         )
 
         eligible = []
@@ -124,7 +127,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
                 if key in seen_product_order:
                     continue
                 seen_product_order.add(key)
-                if str(item.product_id) in already_reviewed_product_ids:
+                if key in already_reviewed:
                     continue
                 eligible.append({
                     'order_id':     str(order.id),
