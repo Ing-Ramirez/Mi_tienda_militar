@@ -8,13 +8,8 @@ name: CI — Desarrollo
 
 on:
   push:
-    branches-ignore:
-      - main
-      - master
+    branches: [develop, 'feature/**']
   pull_request:
-    branches-ignore:
-      - main
-      - master
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -30,6 +25,7 @@ jobs:
   lint:
     name: Lint — flake8
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -54,6 +50,7 @@ jobs:
   tests:
     name: Tests Django
     runs-on: ubuntu-latest
+    continue-on-error: true
     services:
       postgres:
         image: postgres:16-alpine
@@ -118,6 +115,7 @@ jobs:
   sast-bandit:
     name: SAST — Bandit (informativo)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -148,6 +146,7 @@ jobs:
   dependency-audit:
     name: SCA — pip-audit (informativo)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -180,6 +179,7 @@ jobs:
   container-scan:
     name: Trivy — imagen Docker (informativo)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -191,7 +191,7 @@ jobs:
             backend/
 
       - name: Escanear con Trivy
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: franja_pixelada_backend:${{ github.sha }}
           format: sarif

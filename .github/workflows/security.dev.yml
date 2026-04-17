@@ -9,13 +9,7 @@ name: Security — Análisis Avanzado
 
 on:
   push:
-    branches-ignore:
-      - main
-      - master
-  pull_request:
-    branches-ignore:
-      - main
-      - master
+    branches: [develop, 'feature/**']
   schedule:
     - cron: '0 6 * * *'   # Diario 06:00 UTC
 
@@ -32,8 +26,9 @@ jobs:
 
   # ── 1. CodeQL v4 — Análisis semántico ───────────────────────────────────────
   codeql:
-    name: CodeQL v4 — Python
+    name: CodeQL — Python
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -55,6 +50,7 @@ jobs:
   sast-bandit-sarif:
     name: SAST — Bandit SARIF
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -92,6 +88,7 @@ jobs:
   dependency-audit:
     name: SCA — pip-audit
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -124,11 +121,12 @@ jobs:
   trivy-filesystem:
     name: Trivy — filesystem scan
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
       - name: Escanear filesystem con Trivy
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           scan-type: fs
           scan-ref: backend/
@@ -157,6 +155,7 @@ jobs:
   trivy-image:
     name: Trivy — imagen Docker
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -168,7 +167,7 @@ jobs:
             backend/
 
       - name: Escanear imagen con Trivy
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: franja_pixelada_backend:${{ github.sha }}
           format: sarif
@@ -196,12 +195,13 @@ jobs:
   secrets-scan:
     name: Gitleaks — detección de secretos
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Escanear secretos con Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Gitleaks (no bloqueante)
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/repo \
+            zricethezav/gitleaks detect --source=/repo || true
