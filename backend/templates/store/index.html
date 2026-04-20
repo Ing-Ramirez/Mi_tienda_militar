@@ -282,40 +282,41 @@
        HEADER / NAV
     ═══════════════════════════════════════ */
     .header {
-      background: var(--forest-dark);
+      background-image:
+        linear-gradient(rgba(10,18,10,0.72), rgba(10,18,10,0.72)),
+        url("{% static 'images/header-bg.webp' %}");
+      background-size: auto, 400px 200px;
+      background-repeat: no-repeat, repeat;
+      background-color: var(--forest-dark);
       border-bottom: 1px solid var(--olive-700);
       position: sticky;
       top: 0;
       z-index: 1000;
-      backdrop-filter: blur(8px);
     }
     .nav-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 72px;
+      height: 84px;
       gap: 2rem;
     }
-    
+
     .logo {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .logo picture {
+      display: flex;
+      align-items: center;
+      height: 72px;
       flex-shrink: 0;
     }
     .logo-mark {
-      width: 42px;
-      height: 42px;
-      background: var(--olive-600);
-      border: 1px solid var(--olive-400);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: var(--white);
+      height: 72px;
+      width: auto;
+      display: block;
+      object-fit: contain;
     }
     .logo-text {
       display: flex;
@@ -1058,51 +1059,82 @@
     }
 
     /* ═══════════════════════════════════════
-       FEATURES BAR
+       TRUST SECTION (PREMIUM)
     ═══════════════════════════════════════ */
-    .features-bar {
-      background: var(--steel);
-      border-top: 1px solid var(--iron);
-      border-bottom: 1px solid var(--iron);
-      padding: 2rem 0;
+    .fp-trust-wrapper {
+      padding: 60px 20px;
+      background: radial-gradient(circle at center, #020617, #000);
     }
-    .features-grid {
+    .fp-trust-container {
+      max-width: 1100px;
+      margin: auto;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
-      background: var(--iron);
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 18px;
+      border: 1px solid rgba(34, 197, 94, 0.15);
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.08);
+      overflow: hidden;
     }
-    .feature-item {
-      background: var(--steel);
-      padding: 1.5rem 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
+    .fp-trust-item {
+      padding: 35px 25px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.35s ease;
+      border-right: 1px solid rgba(255,255,255,0.05);
     }
-    .feature-icon {
-      width: 44px;
-      height: 44px;
-      background: var(--olive-900);
-      border: 1px solid var(--olive-700);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      flex-shrink: 0;
+    .fp-trust-item:last-child {
+      border-right: none;
     }
-    .feature-text {}
-    .feature-title {
-      font-family: var(--font-display);
-      font-size: 0.95rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--white);
-      margin-bottom: 0.2rem;
+    .fp-trust-item:hover {
+      background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(6,95,70,0.3));
+      transform: translateY(-8px) scale(1.03);
     }
-    .feature-desc {
-      font-size: 0.8rem;
-      color: var(--ash);
+    .fp-icon {
+      font-size: 30px;
+      margin-bottom: 12px;
+      transition: transform 0.3s ease;
+    }
+    .fp-trust-item:hover .fp-icon {
+      transform: scale(1.2) rotate(5deg);
+    }
+    .fp-trust-item h4 {
+      color: #22c55e;
+      margin-bottom: 6px;
+    }
+    .fp-trust-item p {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+    .fp-trust-item::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(34,197,94,0.15), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .fp-trust-item:hover::after {
+      opacity: 1;
+    }
+    #fp-tooltip {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #020617;
+      color: #e5e7eb;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      border: 1px solid #22c55e;
+      z-index: 9999;
     }
 
     /* ═══════════════════════════════════════
@@ -1555,6 +1587,87 @@
       transition: opacity var(--transition);
     }
     .auth-overlay.open { opacity: 1; pointer-events: all; }
+
+    /* ── Topbar utility modals (track / help / contact) ── */
+    .tbm-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 2200;
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--transition);
+    }
+    .tbm-overlay.open { opacity: 1; pointer-events: all; }
+
+    .tbm-modal {
+      position: fixed; left: 50%; top: 50%;
+      transform: translate(-50%, -50%) scale(0.98);
+      width: min(480px, 94vw);
+      background: var(--steel);
+      border: 1px solid var(--iron);
+      z-index: 2201;
+      opacity: 0; pointer-events: none;
+      transition: transform var(--transition), opacity var(--transition);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .tbm-modal.open { opacity: 1; pointer-events: all; transform: translate(-50%, -50%) scale(1); }
+
+    .tbm-header {
+      padding: 1.1rem 1.4rem;
+      border-bottom: 1px solid var(--iron);
+      background: var(--forest-dark);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .tbm-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem; letter-spacing: 0.08em;
+      color: var(--olive-100); text-transform: uppercase;
+    }
+    .tbm-body { padding: 1.4rem; }
+
+    .tbm-track-hint { font-size: 0.83rem; color: var(--ash); margin-bottom: 1.2rem; line-height: 1.55; }
+    .tbm-track-login-box {
+      background: var(--iron); border-radius: var(--radius);
+      padding: 1.1rem 1.2rem; text-align: center;
+    }
+    .tbm-track-login-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .tbm-track-login-text { font-size: 0.85rem; color: var(--ash); margin-bottom: 1rem; line-height: 1.5; }
+    .tbm-track-login-actions { display: flex; gap: 0.75rem; justify-content: center; }
+
+    .tbm-faq-list { max-height: 65vh; overflow-y: auto; }
+    .tbm-faq-item { border-bottom: 1px solid var(--iron); }
+    .tbm-faq-item:last-child { border-bottom: none; }
+    .tbm-faq-q {
+      padding: 0.9rem 0; cursor: pointer;
+      font-size: 0.88rem; color: var(--olive-100); font-weight: 600;
+      display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
+    }
+    .tbm-faq-q:hover { color: var(--olive-200); }
+    .tbm-faq-icon { transition: transform 0.2s; flex-shrink: 0; }
+    .tbm-faq-item.open .tbm-faq-icon { transform: rotate(180deg); }
+    .tbm-faq-a {
+      display: none; padding-bottom: 0.9rem;
+      font-size: 0.83rem; color: var(--ash); line-height: 1.65;
+    }
+    .tbm-faq-item.open .tbm-faq-a { display: block; }
+
+    .tbm-contact-list { display: flex; flex-direction: column; gap: 0.1rem; }
+    .tbm-contact-item {
+      display: flex; align-items: flex-start; gap: 0.9rem;
+      padding: 0.85rem 0; border-bottom: 1px solid var(--iron);
+    }
+    .tbm-contact-item:last-child { border-bottom: none; }
+    .tbm-contact-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .tbm-contact-label { font-size: 0.72rem; color: var(--ash); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.15rem; }
+    .tbm-contact-value { font-size: 0.9rem; color: var(--sand); }
+    .tbm-contact-link { color: var(--olive-100); text-decoration: none; }
+    .tbm-contact-link:hover { color: var(--olive-200); text-decoration: underline; }
+    .tbm-contact-whatsapp-btn {
+      margin-top: 1.2rem;
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
 
     .auth-modal {
       position: fixed;
@@ -3068,7 +3181,7 @@
       .product-grid { grid-template-columns: repeat(3, 1fr); }
       .footer-grid { grid-template-columns: 1fr 1fr; }
       .promo-banner { grid-template-columns: 1fr; }
-      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .fp-trust-container { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 768px) {
       .topbar-links { display: none; }
@@ -3078,7 +3191,10 @@
       .hero-stats { gap: 1.5rem; }
       .hero-content { padding: 3rem 1.5rem 2rem 1.5rem; }
       .promo-banner { padding: 2.5rem; }
-      .features-grid { grid-template-columns: 1fr 1fr; }
+      .fp-trust-wrapper { padding: 40px 16px; }
+      .fp-trust-container { grid-template-columns: 1fr 1fr; border-radius: 12px; }
+      .fp-trust-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .fp-trust-item:last-child { border-bottom: none; }
       .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
     }
     @media (max-width: 480px) {
@@ -4139,11 +4255,10 @@
       
       <!-- Logo -->
       <div class="logo">
-        <div class="logo-mark">FP</div>
-        <div class="logo-text">
-          <span class="logo-name">Franja Pixelada</span>
-          <span class="logo-tagline" data-i18n="brand.tagline">Equipamiento Táctico Profesional</span>
-        </div>
+        <picture>
+          <source srcset="{% static 'images/logo.webp' %}" type="image/webp">
+          <img src="{% static 'images/logo.png' %}" alt="Franja Pixelada" class="logo-mark">
+        </picture>
       </div>
 
       <!-- Admin Button -->
@@ -4370,41 +4485,40 @@
   </div>
 </section>
 
-<!-- ═══════════════ FEATURES ═══════════════ -->
-<div class="features-bar">
-  <div class="container">
-    <div class="features-grid">
-      <div class="feature-item">
-        <div class="feature-icon">🚚</div>
-        <div class="feature-text">
-          <div class="feature-title" id="feature-shipping-title">Envío Rápido</div>
-          <div class="feature-desc" id="feature-shipping-desc">Despacho 24-48h · Gratis desde $200K</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">🔒</div>
-        <div class="feature-text">
-          <div class="feature-title" id="feature-pay-title">Pago Seguro</div>
-          <div class="feature-desc" id="feature-pay-desc">Stripe · PayPal · Transferencia</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">🛡️</div>
-        <div class="feature-text">
-          <div class="feature-title" id="feature-warranty-title">Garantía</div>
-          <div class="feature-desc" id="feature-warranty-desc">2 años en todos los productos</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">↩️</div>
-        <div class="feature-text">
-          <div class="feature-title" id="feature-returns-title">Devoluciones</div>
-          <div class="feature-desc" id="feature-returns-desc">30 días sin preguntas</div>
-        </div>
-      </div>
+<!-- ═══════════════ TRUST SECTION ═══════════════ -->
+<section class="fp-trust-wrapper">
+
+  <div class="fp-trust-container">
+
+    <div class="fp-trust-item" data-info="Entregas rápidas en todo el país con seguimiento en tiempo real.">
+      <div class="fp-icon">🚚</div>
+      <h4>Envío rápido</h4>
+      <p>24–48h · Gratis desde $200.000</p>
     </div>
+
+    <div class="fp-trust-item" data-info="Pagos protegidos con cifrado y múltiples métodos disponibles.">
+      <div class="fp-icon">🔒</div>
+      <h4>Paga sin riesgo</h4>
+      <p>Tarjeta · PSE · Nequi</p>
+    </div>
+
+    <div class="fp-trust-item" data-info="Productos seleccionados con garantía extendida.">
+      <div class="fp-icon">🛡️</div>
+      <h4>Respaldo real</h4>
+      <p>Hasta 2 años</p>
+    </div>
+
+    <div class="fp-trust-item" data-info="Proceso de devolución simple y sin fricción.">
+      <div class="fp-icon">↩️</div>
+      <h4>Compra sin miedo</h4>
+      <p>30 días sin preguntas</p>
+    </div>
+
   </div>
-</div>
+
+</section>
+
+<div id="fp-tooltip"></div>
 
 <!-- ═══════════════ FOOTER ═══════════════ -->
 <footer class="footer">
@@ -4412,11 +4526,10 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="footer-logo">
-          <div class="logo-mark">FP</div>
-          <div class="logo-text">
-            <span class="logo-name">Franja Pixelada</span>
-            <span class="logo-tagline" data-i18n="brand.tagline">Equipamiento Táctico Profesional</span>
-          </div>
+          <picture>
+            <source srcset="{% static 'images/logo.webp' %}" type="image/webp">
+            <img src="{% static 'images/logo.png' %}" alt="Franja Pixelada" class="logo-mark">
+          </picture>
         </div>
         <p class="footer-desc" id="footer-desc">
           Tu proveedor de confianza en equipamiento táctico militar de alta calidad. 
@@ -4432,15 +4545,7 @@
       
       <div>
         <div class="footer-col-title" data-i18n="footer.col_store">Tienda</div>
-        <div class="footer-links">
-          <a href="#" class="footer-link" data-i18n="footer.links.catalog">Catálogo completo</a>
-          <a href="#" class="footer-link" data-i18n="footer.links.embroidery">Bordados y parches</a>
-          <a href="#" class="footer-link" data-i18n="footer.links.tactical_wear">Vestuario táctico</a>
-          <a href="#" class="footer-link" data-i18n="footer.links.sport_wear">Vestuario deportivo</a>
-          <a href="#" class="footer-link" data-i18n="footer.links.footwear">Calzado</a>
-          <a href="#" class="footer-link" data-i18n="footer.links.accessories">Accesorios</a>
-          <a href="#" class="footer-link" data-i18n="footer.links.deals">Ofertas y descuentos</a>
-        </div>
+        <ul id="fp-footer-categories" class="footer-links"></ul>
       </div>
       
       <div>
@@ -4643,37 +4748,7 @@
     <div id="checkout-lines-summary" class="checkout-lines-summary" aria-live="polite"></div>
     <div id="checkout-error" class="checkout-error"></div>
     <form id="checkout-neki-form">
-      <div class="auth-field">
-        <label class="auth-label" for="co-email" data-i18n="checkout_ui.label_email">Correo de contacto</label>
-        <input class="auth-input" type="email" id="co-email" name="email" required autocomplete="email" placeholder="correo@ejemplo.com">
-      </div>
-      <div class="auth-field">
-        <label class="auth-label" for="co-name" data-i18n="checkout_ui.label_name">Nombre completo (envío)</label>
-        <input class="auth-input" type="text" id="co-name" name="shipping_full_name" required autocomplete="name" placeholder="Nombre y apellido">
-      </div>
-      <div class="auth-field">
-        <label class="auth-label" for="co-phone" data-i18n="checkout_ui.label_phone">Teléfono</label>
-        <input class="auth-input" type="tel" id="co-phone" name="shipping_phone" required autocomplete="tel" placeholder="300 123 4567">
-      </div>
-      <div class="auth-row">
-        <div class="auth-field">
-          <label class="auth-label" for="co-dept" data-i18n="checkout_ui.label_dept">Departamento</label>
-          <input class="auth-input" type="text" id="co-dept" name="shipping_department" required placeholder="Cundinamarca">
-        </div>
-        <div class="auth-field">
-          <label class="auth-label" for="co-city" data-i18n="checkout_ui.label_city">Ciudad</label>
-          <input class="auth-input" type="text" id="co-city" name="shipping_city" required placeholder="Bogotá">
-        </div>
-      </div>
-      <div class="auth-field">
-        <label class="auth-label" for="co-addr" data-i18n="checkout_ui.label_addr">Dirección</label>
-        <input class="auth-input" type="text" id="co-addr" name="shipping_address_line1" required autocomplete="street-address" placeholder="Calle, carrera, número">
-      </div>
-      <div class="auth-field">
-        <label class="auth-label" for="co-notes" data-i18n="checkout_ui.label_notes">Notas (opcional)</label>
-        <input class="auth-input" type="text" id="co-notes" name="customer_notes" placeholder="Indicaciones de entrega">
-      </div>
-      <!-- ── Puntos de fidelidad ── -->
+      <!-- ── Puntos de fidelidad (al inicio para que sea visible sin scroll) ── -->
       <div class="loyalty-section d-none" id="loyalty-section">
         <div class="loyalty-section-label">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
@@ -4706,6 +4781,37 @@
       </div>
 
       <div class="auth-field">
+        <label class="auth-label" for="co-email" data-i18n="checkout_ui.label_email">Correo de contacto</label>
+        <input class="auth-input" type="email" id="co-email" name="email" required autocomplete="email" placeholder="correo@ejemplo.com">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label" for="co-name" data-i18n="checkout_ui.label_name">Nombre completo (envío)</label>
+        <input class="auth-input" type="text" id="co-name" name="shipping_full_name" required autocomplete="name" placeholder="Nombre y apellido">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label" for="co-phone" data-i18n="checkout_ui.label_phone">Teléfono</label>
+        <input class="auth-input" type="tel" id="co-phone" name="shipping_phone" required autocomplete="tel" placeholder="300 123 4567">
+      </div>
+      <div class="auth-row">
+        <div class="auth-field">
+          <label class="auth-label" for="co-dept" data-i18n="checkout_ui.label_dept">Departamento</label>
+          <input class="auth-input" type="text" id="co-dept" name="shipping_department" required placeholder="Cundinamarca">
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" for="co-city" data-i18n="checkout_ui.label_city">Ciudad</label>
+          <input class="auth-input" type="text" id="co-city" name="shipping_city" required placeholder="Bogotá">
+        </div>
+      </div>
+      <div class="auth-field">
+        <label class="auth-label" for="co-addr" data-i18n="checkout_ui.label_addr">Dirección</label>
+        <input class="auth-input" type="text" id="co-addr" name="shipping_address_line1" required autocomplete="street-address" placeholder="Calle, carrera, número">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label" for="co-notes" data-i18n="checkout_ui.label_notes">Notas (opcional)</label>
+        <input class="auth-input" type="text" id="co-notes" name="customer_notes" placeholder="Indicaciones de entrega">
+      </div>
+
+      <div class="auth-field">
         <label class="auth-label" for="co-proof" data-i18n="checkout_ui.label_proof">Comprobante de pago (JPG, PNG o WEBP, máx. 5 MB)</label>
         <input class="auth-input" type="file" id="co-proof" name="payment_proof" accept="image/jpeg,image/png,image/webp" required>
       </div>
@@ -4713,6 +4819,131 @@
         Enviar pedido y comprobante
       </button>
     </form>
+  </div>
+</div>
+
+<!-- ═══════════════ TOPBAR UTILITY MODALS (track / help / contact) ═══════════════ -->
+<div class="tbm-overlay" id="tbm-overlay"></div>
+
+<!-- Rastrear pedido -->
+<div class="tbm-modal" id="tbm-track-modal" role="dialog" aria-modal="true" aria-labelledby="tbm-track-title">
+  <div class="tbm-header">
+    <span class="tbm-title" id="tbm-track-title">Rastrear pedido</span>
+    <button class="btn btn-ghost btn-icon" data-action="closeTbm" aria-label="Cerrar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="tbm-body">
+    <p class="tbm-track-hint">Consulta el estado de tu pedido en tiempo real. Necesitas haber iniciado sesión con la cuenta con la que realizaste la compra.</p>
+    <div class="tbm-track-login-box">
+      <div class="tbm-track-login-icon">📦</div>
+      <p class="tbm-track-login-text">Inicia sesión para ver todos tus pedidos, su estado de envío y detalles de entrega.</p>
+      <div class="tbm-track-login-actions">
+        <button class="btn btn-primary" id="tbm-track-login-btn">Iniciar sesión</button>
+        <button class="btn btn-ghost" data-action="closeTbm">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ayuda / FAQ -->
+<div class="tbm-modal" id="tbm-help-modal" role="dialog" aria-modal="true" aria-labelledby="tbm-help-title">
+  <div class="tbm-header">
+    <span class="tbm-title" id="tbm-help-title">Preguntas frecuentes</span>
+    <button class="btn btn-ghost btn-icon" data-action="closeTbm" aria-label="Cerrar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="tbm-body">
+    <div class="tbm-faq-list">
+      <div class="tbm-faq-item">
+        <div class="tbm-faq-q">¿Cuánto tarda el envío?
+          <svg class="tbm-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tbm-faq-a">Los envíos a nivel nacional tardan entre 3 y 7 días hábiles dependiendo de tu ciudad. Para Bogotá y ciudades principales el tiempo estimado es de 2 a 4 días hábiles.</div>
+      </div>
+      <div class="tbm-faq-item">
+        <div class="tbm-faq-q">¿El envío tiene costo?
+          <svg class="tbm-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tbm-faq-a">El envío es gratis en pedidos superiores a $200.000 COP. Para pedidos menores, el costo de envío es de $15.000 COP a todo Colombia.</div>
+      </div>
+      <div class="tbm-faq-item">
+        <div class="tbm-faq-q">¿Cómo puedo pagar?
+          <svg class="tbm-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tbm-faq-a">Aceptamos pago con tarjeta de crédito/débito mediante Stripe (Visa, Mastercard, Amex), y pago manual por Nequi con transferencia bancaria. El pedido se procesa una vez verificado el pago.</div>
+      </div>
+      <div class="tbm-faq-item">
+        <div class="tbm-faq-q">¿Puedo devolver un producto?
+          <svg class="tbm-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tbm-faq-a">Sí, tienes hasta 30 días desde la entrega para solicitar una devolución. El producto debe estar en perfectas condiciones, sin uso y con empaque original. Algunos productos digitales o especiales están excluidos.</div>
+      </div>
+      <div class="tbm-faq-item">
+        <div class="tbm-faq-q">¿Cómo funciona el programa de puntos?
+          <svg class="tbm-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tbm-faq-a">Por cada $1.000 COP en compras acumulas 1 punto. Cada punto tiene un valor de $10 COP al redimir. Puedes usar hasta el 20% del total de tu pedido en puntos.</div>
+      </div>
+      <div class="tbm-faq-item">
+        <div class="tbm-faq-q">¿Los productos tienen garantía?
+          <svg class="tbm-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tbm-faq-a">Todos nuestros productos cuentan con garantía del fabricante. En caso de defecto de fábrica, puedes contactarnos para gestionar el cambio o reparación dentro del período de garantía.</div>
+      </div>
+      <div class="tbm-faq-item">
+        <div class="tbm-faq-q">¿Ofrecen bordado o personalización?
+          <svg class="tbm-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tbm-faq-a">Sí, algunos productos permiten personalización con bordado de texto y/o tipo de sangre (RH). Esta opción aparece en la página del producto cuando está disponible.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contacto -->
+<div class="tbm-modal" id="tbm-contact-modal" role="dialog" aria-modal="true" aria-labelledby="tbm-contact-title">
+  <div class="tbm-header">
+    <span class="tbm-title" id="tbm-contact-title">Contáctanos</span>
+    <button class="btn btn-ghost btn-icon" data-action="closeTbm" aria-label="Cerrar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="tbm-body">
+    <div class="tbm-contact-list">
+      <div class="tbm-contact-item">
+        <div class="tbm-contact-icon">📞</div>
+        <div>
+          <div class="tbm-contact-label">Teléfono</div>
+          <div class="tbm-contact-value"><a class="tbm-contact-link" href="tel:+5712345678">+57 (1) 234-5678</a></div>
+        </div>
+      </div>
+      <div class="tbm-contact-item">
+        <div class="tbm-contact-icon">📧</div>
+        <div>
+          <div class="tbm-contact-label">Correo electrónico</div>
+          <div class="tbm-contact-value"><a class="tbm-contact-link" href="mailto:info@franjapixelada.co">info@franjapixelada.co</a></div>
+        </div>
+      </div>
+      <div class="tbm-contact-item">
+        <div class="tbm-contact-icon">📍</div>
+        <div>
+          <div class="tbm-contact-label">Ubicación</div>
+          <div class="tbm-contact-value">Bogotá, Colombia</div>
+        </div>
+      </div>
+      <div class="tbm-contact-item">
+        <div class="tbm-contact-icon">⏰</div>
+        <div>
+          <div class="tbm-contact-label">Horario de atención</div>
+          <div class="tbm-contact-value">Lunes – Sábado · 8:00 am – 6:00 pm</div>
+        </div>
+      </div>
+    </div>
+    <a class="btn btn-primary tbm-contact-whatsapp-btn" href="https://wa.me/5712345678?text=Hola%2C%20tengo%20una%20consulta%20sobre%20mi%20pedido" target="_blank" rel="noopener noreferrer">
+      💬 Escribir por WhatsApp
+    </a>
   </div>
 </div>
 
@@ -6324,12 +6555,25 @@
   let appliedLoyalty = null; // { points_applied, discount_amount }
 
   async function fetchLoyaltyBalance() {
-    if (!_accessToken) return;
+    if (!_accessToken) {
+      // Intentar refrescar la sesión si el token ya no está en memoria
+      const ok = await refreshAccessToken().catch(() => false);
+      if (!ok || !_accessToken) return;
+    }
     try {
-      const res = await fetch('/api/v1/loyalty/balance/', {
+      let res = await fetch('/api/v1/loyalty/balance/', {
         headers: { 'Authorization': `Bearer ${_accessToken}` },
         credentials: 'include',
       });
+      // Si el token caducó, intentar refrescarlo una vez y reintentar
+      if (res.status === 401) {
+        const refreshed = await refreshAccessToken().catch(() => false);
+        if (!refreshed) return;
+        res = await fetch('/api/v1/loyalty/balance/', {
+          headers: { 'Authorization': `Bearer ${_accessToken}` },
+          credentials: 'include',
+        });
+      }
       if (!res.ok) return;
       loyaltyBalance = await res.json();
       const sec = document.getElementById('loyalty-section');
@@ -9841,6 +10085,134 @@
         refEl.textContent = refText;
         refEl.setAttribute('aria-label', 'Referencia: ' + refText);
       }
+    }
+  })();
+
+  // ── Footer: categorías dinámicas ──────────────────────────────────────────
+  (function(){
+    async function loadFooterCategories() {
+      try {
+        const res = await fetch('/api/v1/products/categories/');
+        if (!res.ok) return;
+        const data = await res.json();
+        const container = document.getElementById('fp-footer-categories');
+        if (!container) return;
+        container.innerHTML = '';
+        const categories = data.results || data;
+        categories
+          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); })
+          .forEach(function(cat){
+            const li = document.createElement('li');
+            const btn = document.createElement('button');
+            btn.textContent = cat.name;
+            btn.className = 'footer-link';
+            btn.dataset.action = 'filterByCategory';
+            btn.dataset.cat = cat.slug;
+            li.appendChild(btn);
+            container.appendChild(li);
+          });
+      } catch(err) {
+        console.error('Footer categories error:', err);
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadFooterCategories);
+  })();
+
+  // ── Trust Bar tooltip ─────────────────────────────────────────────────────
+  (function(){
+    const items = document.querySelectorAll('.fp-trust-item');
+    const tooltip = document.getElementById('fp-tooltip');
+    if (!items.length || !tooltip) return;
+    items.forEach(function(item){
+      item.addEventListener('mouseenter', function(){
+        tooltip.textContent = item.dataset.info;
+        tooltip.style.opacity = 1;
+      });
+      item.addEventListener('mouseleave', function(){
+        tooltip.style.opacity = 0;
+      });
+    });
+  })();
+
+  // ── Topbar utility modals (Rastrear / Ayuda / Contacto) ───────────────────
+  (function () {
+    const overlay = document.getElementById('tbm-overlay');
+    if (!overlay) return;
+
+    function openTbm(id) {
+      document.querySelectorAll('.tbm-modal').forEach(function (m) { m.classList.remove('open'); });
+      overlay.classList.add('open');
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('open');
+      setBodyScroll(false);
+    }
+
+    function closeTbm() {
+      document.querySelectorAll('.tbm-modal').forEach(function (m) { m.classList.remove('open'); });
+      overlay.classList.remove('open');
+      setBodyScroll(true);
+    }
+
+    overlay.addEventListener('click', closeTbm);
+
+    document.querySelectorAll('[data-action="closeTbm"]').forEach(function (btn) {
+      btn.addEventListener('click', closeTbm);
+    });
+
+    // FAQ accordion
+    document.querySelectorAll('.tbm-faq-q').forEach(function (q) {
+      q.addEventListener('click', function () {
+        const item = this.closest('.tbm-faq-item');
+        item.classList.toggle('open');
+      });
+    });
+
+    // Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) closeTbm();
+    });
+
+    // Rastrear pedido
+    const trackBtn = document.getElementById('topbar-track');
+    if (trackBtn) {
+      trackBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (_accessToken) {
+          _upCurrentSection = 'orders';
+          openUserPanel();
+          upNav('orders');
+        } else {
+          openTbm('tbm-track-modal');
+        }
+      });
+    }
+
+    // Login desde modal de rastreo
+    const trackLoginBtn = document.getElementById('tbm-track-login-btn');
+    if (trackLoginBtn) {
+      trackLoginBtn.addEventListener('click', function () {
+        closeTbm();
+        openAuthModal();
+        switchAuthTab('login');
+      });
+    }
+
+    // Ayuda
+    const helpBtn = document.getElementById('topbar-help');
+    if (helpBtn) {
+      helpBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        openTbm('tbm-help-modal');
+      });
+    }
+
+    // Contacto
+    const contactBtn = document.getElementById('topbar-contact');
+    if (contactBtn) {
+      contactBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        openTbm('tbm-contact-modal');
+      });
     }
   })();
 </script>

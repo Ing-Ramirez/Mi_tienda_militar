@@ -58,6 +58,7 @@
        MÓDULO DE TALLAS
        ══════════════════════════════════════════════════════════════════════ */
     function buildTallasUI() {
+        if (document.getElementById('fp-tallas-ui')) return;
         var textarea = document.getElementById('id_stock_by_size');
         if (!textarea) return;
 
@@ -194,6 +195,8 @@
     function initRequiereTalla() {
         var chk        = document.getElementById('id_requires_size');
         if (!chk) return;
+        if (chk.dataset.rtInit) return;
+        chk.dataset.rtInit = '1';
         var stockInput = document.getElementById('id_stock');
         var stockRow   = stockInput
             ? (stockInput.closest('.form-row') || stockInput.closest('.field-stock') || stockInput.parentElement)
@@ -224,6 +227,139 @@
 
         applyMode(chk.checked);
         chk.addEventListener('change', function () { applyMode(chk.checked); });
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       RESUMEN DE ERRORES DE VALIDACIÓN
+       ══════════════════════════════════════════════════════════════════════ */
+    function initErrorSummary() {
+        /* Necesita errornote presente para saber que hay errores de validación */
+        if (!document.querySelector('.errornote')) return;
+
+        var items = [];
+
+        function getSection(el) {
+            return el.closest('.card') ||
+                   el.closest('fieldset') ||
+                   el.closest('.module') ||
+                   el.closest('.inline-group') ||
+                   el;
+        }
+
+        function getSectionTitle(section) {
+            var cardTitle = section.querySelector('.card-title');
+            var h2        = section.querySelector('h2');
+            var h3        = section.querySelector('h3');
+            var legend    = section.querySelector('legend');
+            return (cardTitle && cardTitle.textContent.trim()) ||
+                   (h2     && h2.textContent.trim())     ||
+                   (h3     && h3.textContent.trim())     ||
+                   (legend && legend.textContent.trim()) ||
+                   'Sección';
+        }
+
+        /* Errores en campos normales */
+        document.querySelectorAll('.form-row, .field-box').forEach(function (row) {
+            var errList = row.querySelector('.errorlist');
+            if (!errList) return;
+            var label = row.querySelector('label');
+            var fieldLabel = label ? label.textContent.replace(/\s*:?\s*$/, '').trim() : 'Campo';
+            var msgs = Array.prototype.slice.call(errList.querySelectorAll('li')).map(function (li) {
+                return li.textContent.trim();
+            }).filter(Boolean);
+            if (!msgs.length) return;
+            var section = getSection(row);
+            items.push({ fieldLabel: fieldLabel, sectionLabel: getSectionTitle(section), msgs: msgs, section: section });
+        });
+
+        /* Errores en inlines (imágenes, variantes) */
+        document.querySelectorAll('.inline-group').forEach(function (group) {
+            group.querySelectorAll('.errorlist').forEach(function (errList) {
+                var msgs = Array.prototype.slice.call(errList.querySelectorAll('li')).map(function (li) {
+                    return li.textContent.trim();
+                }).filter(Boolean);
+                if (msgs.length) {
+                    items.push({ fieldLabel: getSectionTitle(group), sectionLabel: getSectionTitle(group), msgs: msgs, section: group });
+                }
+            });
+        });
+
+        /* Resaltar secciones con errores */
+        var seen = [];
+        items.forEach(function (item) {
+            if (seen.indexOf(item.section) === -1) {
+                seen.push(item.section);
+                item.section.style.outline = '2px solid #dc3545';
+                item.section.style.outlineOffset = '3px';
+                item.section.style.borderRadius = '4px';
+            }
+        });
+
+        /* ── Panel sticky visible en la parte superior del contenido ── */
+        /* Eliminar panel previo si existe (recargas parciales) */
+        var old = document.getElementById('fp-err-panel');
+        if (old) old.parentNode.removeChild(old);
+
+        var panel = document.createElement('div');
+        panel.id = 'fp-err-panel';
+        panel.style.cssText = [
+            'position:sticky', 'top:0', 'z-index:1050',
+            'background:#2d0b0b', 'border:1px solid #dc3545',
+            'border-radius:6px', 'padding:.75rem 1rem',
+            'margin-bottom:1rem', 'box-shadow:0 4px 16px rgba(220,53,69,.35)',
+            'color:#f8d7da', 'font-size:.88rem', 'line-height:1.6',
+        ].join(';');
+
+        var total = items.reduce(function (n, it) { return n + it.msgs.length; }, 0);
+        var label = total === 1 ? '1 error encontrado' : total + ' errores encontrados';
+
+        var headerHtml =
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">' +
+                '<strong style="color:#ff6b6b;font-size:.95rem">⚠ ' + escText(label) + ' — haz clic para ir al campo</strong>' +
+                '<button type="button" id="fp-err-close" style="background:none;border:none;color:#f8d7da;cursor:pointer;font-size:1.1rem;line-height:1;padding:0 4px" title="Cerrar">✕</button>' +
+            '</div>';
+
+        var listHtml = '<ul style="margin:0;padding-left:1.3rem">';
+        items.forEach(function (item, i) {
+            item.msgs.forEach(function (msg) {
+                listHtml +=
+                    '<li style="cursor:pointer;padding:1px 0" data-fp-err="' + i + '">' +
+                    '<span style="text-decoration:underline dotted">' +
+                    '<strong>' + escText(item.sectionLabel) + '</strong>' +
+                    (item.fieldLabel !== item.sectionLabel ? ' → ' + escText(item.fieldLabel) : '') +
+                    ':</span> ' + escText(msg) +
+                    '</li>';
+            });
+        });
+        listHtml += '</ul>';
+
+        panel.innerHTML = headerHtml + (items.length ? listHtml : '');
+
+        /* Insertar al inicio del contenido principal */
+        var anchor = document.querySelector('#content-main form') ||
+                     document.querySelector('#content-main') ||
+                     document.body;
+        anchor.insertBefore(panel, anchor.firstChild);
+
+        /* Clic en ítem → scroll a la sección */
+        panel.querySelectorAll('li[data-fp-err]').forEach(function (li) {
+            li.addEventListener('click', function () {
+                var target = items[parseInt(li.dataset.fpErr, 10)];
+                if (target && target.section) {
+                    target.section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    target.section.style.outlineColor = '#ff6b6b';
+                }
+            });
+        });
+
+        document.getElementById('fp-err-close').addEventListener('click', function () {
+            panel.style.display = 'none';
+        });
+
+        /* Scroll automático al panel */
+        setTimeout(function () {
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
     }
 
     /* ══════════════════════════════════════════════════════════════════════
@@ -706,6 +842,7 @@
         var hasProductForm = document.getElementById('id_sku') !== null &&
                              document.getElementById('id_price') !== null;
         if (hasProductForm) initFlatLayout();
+        if (hasProductForm) initErrorSummary();
         if (hasProductForm) initPriceConverter();
         initDetailModal();
         if (window.FPAdminChangelist && typeof window.FPAdminChangelist.schedule === 'function') {

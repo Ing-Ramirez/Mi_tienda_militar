@@ -1,5 +1,5 @@
 import logging
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.utils.html import format_html
 from .models import Cart, CartItem, Address, Order, OrderItem, Coupon
 from core.admin_site import admin_site
@@ -180,6 +180,21 @@ class OrderAdmin(admin.ModelAdmin):
             else obj.manual_payment_status,
         )
     manual_payment_badge.short_description = 'Comprobante'
+
+    def save_model(self, request, obj, form, change):
+        try:
+            super().save_model(request, obj, form, change)
+        except ValueError as exc:
+            # La señal _descontar_stock_orden lanza ValueError si el stock es insuficiente
+            # al verificar el pago. Mostramos el error como mensaje de advertencia en lugar
+            # de dejar que explote como 500.
+            messages.error(
+                request,
+                f'No se pudo verificar el pago: {exc} '
+                'Ajusta el stock del producto antes de marcar como VERIFICADO.',
+            )
+            # Revertir el campo para que no quede en estado inconsistente en memoria
+            obj.refresh_from_db()
 
     def payment_proof_preview(self, obj):
         if not obj.payment_proof:

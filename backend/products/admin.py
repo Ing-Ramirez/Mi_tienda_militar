@@ -9,6 +9,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.http import HttpResponse
 from django.urls import reverse
+from django.forms.models import BaseInlineFormSet
+from django.forms.formsets import DELETION_FIELD_NAME
 from .models import Category, Tag, Product, ProductImage, ProductVariant, ProductReview, ReviewEvidence, InventoryLog, Favorito
 from core.admin_site import admin_site
 
@@ -17,8 +19,30 @@ logger = logging.getLogger(__name__)
 
 # ── Inlines ─────────────────────────────────────────────────────────────────
 
+class ProductImageInlineFormSet(BaseInlineFormSet):
+    def _construct_form(self, i, **kwargs):
+        form = super()._construct_form(i, **kwargs)
+        # Imagen no obligatoria en filas nuevas — las vacías se descartan en clean()
+        if not form.instance.pk:
+            form.fields['image'].required = False
+        return form
+
+    def clean(self):
+        super().clean()
+        for form in self.forms:
+            if not hasattr(form, 'cleaned_data') or not form.cleaned_data:
+                continue
+            if form.cleaned_data.get(DELETION_FIELD_NAME):
+                continue
+            # Fila nueva sin imagen → marcar como eliminada para que no se persista
+            if not form.instance.pk and not form.cleaned_data.get('image'):
+                form.cleaned_data[DELETION_FIELD_NAME] = True
+
+
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
+    formset = ProductImageInlineFormSet
+    can_delete = True
     extra = 0
     min_num = 0
     validate_min = False

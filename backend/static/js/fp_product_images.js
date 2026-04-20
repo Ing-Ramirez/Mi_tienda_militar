@@ -195,8 +195,12 @@
         /* Imagen */
         var imgEl = mk('img', 'fp-gallery-img');
         imgEl.alt = '';
-        if (imgSrc) { imgEl.src = imgSrc; }
-        else        { imgEl.style.display = 'none'; }
+        if (imgSrc) {
+            imgEl.src = imgSrc;
+            card.classList.add('fp-card--has-img');
+        } else {
+            imgEl.style.display = 'none';
+        }
         zone.appendChild(imgEl);
 
         /* Placeholder */
@@ -234,6 +238,15 @@
 
         zone.appendChild(overlay);
 
+        /* Fallback si la imagen ya guardada no carga */
+        if (imgSrc) {
+            imgEl.onerror = function () {
+                imgEl.style.display = 'none';
+                ph.classList.remove('fp-card-ph--hidden');
+                card.classList.remove('fp-card--has-img');
+            };
+        }
+
         /* Drag handle */
         var handle = mk('div', 'fp-card-handle', '⠿');
         handle.title = 'Arrastrar para reordenar';
@@ -248,6 +261,7 @@
         var fileInfo = mk('div', 'fp-card-file-info');
         if (imgSrc) {
             var fname = imgSrc.split('/').pop().split('?')[0];
+            try { fname = decodeURIComponent(fname); } catch (e) {}
             fileInfo.textContent = fname.length > 28 ? fname.substr(0, 26) + '…' : fname;
         } else {
             fileInfo.textContent = 'Sin imagen';

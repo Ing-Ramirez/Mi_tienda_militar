@@ -254,6 +254,19 @@ class ProductImage(models.Model):
             ).exclude(pk=self.pk).update(is_primary=False)
         super().save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        # Guardamos el nombre antes de borrar el registro en BD
+        image_name = self.image.name if self.image else None
+        super().delete(*args, **kwargs)
+        # El post_delete signal (products/signals.py) cubre bulk deletes.
+        # Este bloque es respaldo explícito para deletes individuales.
+        if image_name:
+            from django.core.files.storage import default_storage
+            try:
+                default_storage.delete(image_name)
+            except Exception:
+                pass
+
 
 class ProductVariant(models.Model):
     """Variantes de productos (tallas, colores, modelos, fondos)"""
