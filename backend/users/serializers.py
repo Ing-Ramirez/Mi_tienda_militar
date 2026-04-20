@@ -1,6 +1,7 @@
 """
 Franja Pixelada — Serializers de Usuarios
 """
+import re
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
@@ -33,10 +34,49 @@ class UserSerializer(_AccountAndAvatarMixin, serializers.ModelSerializer):
         model = User
         fields = (
             'id', 'email', 'first_name', 'last_name', 'phone',
-            'document_type', 'document_number', 'accepts_marketing',
+            'birth_date', 'document_type', 'document_number', 'accepts_marketing',
             'account_type', 'profile_image',
         )
         read_only_fields = ('id', 'email', 'account_type', 'profile_image')
+
+    def validate(self, attrs):
+        current_document_type = getattr(self.instance, 'document_type', '') if self.instance else ''
+        current_document_number = getattr(self.instance, 'document_number', '') if self.instance else ''
+        document_type = (attrs.get('document_type', current_document_type) or '').strip().upper()
+        document_number = (attrs.get('document_number', current_document_number) or '').strip()
+
+        if not document_type and not document_number:
+            return attrs
+
+        if document_type and not document_number:
+            raise serializers.ValidationError({
+                'document_number': 'Debes ingresar el número de documento para el tipo seleccionado.'
+            })
+
+        validators = {
+            'CC': r'^\d{6,10}$',
+            'CE': r'^[A-Za-z0-9]{5,12}$',
+            'PP': r'^[A-Za-z0-9]{6,12}$',
+            'NIT': r'^\d{8,15}(-\d)?$',
+        }
+
+        pattern = validators.get(document_type)
+        if document_type and not pattern:
+            raise serializers.ValidationError({
+                'document_type': 'Tipo de documento no soportado.'
+            })
+        if pattern and not re.fullmatch(pattern, document_number):
+            messages = {
+                'CC': 'La cédula debe tener entre 6 y 10 dígitos numéricos.',
+                'CE': 'La cédula de extranjería debe tener entre 5 y 12 caracteres alfanuméricos.',
+                'PP': 'El pasaporte debe tener entre 6 y 12 caracteres alfanuméricos.',
+                'NIT': 'El NIT debe tener entre 8 y 15 dígitos y puede incluir un dígito verificador (ej: 900123456-7).',
+            }
+            raise serializers.ValidationError({'document_number': messages[document_type]})
+
+        attrs['document_type'] = document_type
+        attrs['document_number'] = document_number
+        return attrs
 
 
 class AuthUserBriefSerializer(_AccountAndAvatarMixin, serializers.ModelSerializer):
@@ -56,7 +96,8 @@ class AuthUserBriefSerializer(_AccountAndAvatarMixin, serializers.ModelSerialize
             'account_type',
             'profile_image',
         )
-        read_only_fields = ('email', 'first_name', 'last_name', 'phone', 'account_type', 'profile_image')
+        # Este serializer solo se usa en respuestas de auth.
+        read_only_fields = ('account_type', 'profile_image')
 
 
 class RegisterSerializer(serializers.ModelSerializer):

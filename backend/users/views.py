@@ -3,7 +3,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser
+from rest_framework.exceptions import APIException
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -92,7 +94,7 @@ class CaptchaView(APIView):
     El cliente debe mostrar el desafío vía GET /captcha/svg/ (no exponer el código en JSON).
     """
     permission_classes = [AllowAny]
-    TTL = 20  # segundos
+    TTL = 120  # segundos (2 minutos)
     _CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'  # sin O/0/I/1
 
     @classmethod
@@ -152,7 +154,7 @@ class LoginView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         if not settings.DISABLE_CAPTCHA:
             token = request.data.get('captcha_token', '')
-            code  = (request.data.get('captcha', '') or '').strip().upper()
+            code  = (request.data.get('captcha', '') or '').strip()
             error = self._validate_captcha(token, code)
             if error:
                 return Response({'captcha': error}, status=status.HTTP_400_BAD_REQUEST)
@@ -178,7 +180,7 @@ class LoginView(TokenObtainPairView):
         if stored is None:
             return 'El código expiró. Genera uno nuevo.'
         cache.delete(f'captcha:{nonce}')   # uso único
-        if stored != code:
+        if stored != code.upper().strip():
             return 'Código incorrecto.'
         return None
 
@@ -204,7 +206,7 @@ class CookieTokenRefreshView(APIView):
             if getattr(settings, 'SIMPLE_JWT', {}).get('ROTATE_REFRESH_TOKENS', False):
                 _set_refresh_cookie(response, str(token))
             return response
-        except Exception as e:
+        except TokenError as e:
             logger.warning(
                 'cookie_token_refresh_failed',
                 extra={'exc_type': type(e).__name__},
@@ -215,6 +217,9 @@ class CookieTokenRefreshView(APIView):
             )
             _clear_refresh_cookie(response)
             return response
+        except Exception:
+            logger.exception('unexpected_error_in_token_refresh')
+            raise APIException('Error interno al renovar la sesión.')
 
 
 class LogoutView(APIView):

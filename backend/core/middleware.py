@@ -230,40 +230,45 @@ class AdminBruteForceMiddleware:
         try:
             from .models import LoginAttempt
             one_hour_ago = timezone.now() - timedelta(hours=1)
+            scope_configs = (
+                ('username', username, f'usuario={username} ip={ip}'),
+                ('ip_address', ip, f'ip={ip} usuario={username}'),
+            )
+            for field_name, field_value, scope_label in scope_configs:
+                recent = LoginAttempt.objects.filter(
+                    **{
+                        field_name: field_value,
+                        'was_successful': False,
+                        'timestamp__gte': one_hour_ago,
+                    }
+                ).order_by('-timestamp')
+                count = recent.count()
 
-            recent = LoginAttempt.objects.filter(
-                username=username,
-                was_successful=False,
-                timestamp__gte=one_hour_ago,
-            ).order_by('-timestamp')
+                if count >= LOCKOUT_HARD_ATTEMPTS:
+                    last = recent.first()
+                    elapsed = (timezone.now() - last.timestamp).total_seconds() / 60
+                    if elapsed < LOCKOUT_HARD_MINUTES:
+                        remaining = int(LOCKOUT_HARD_MINUTES - elapsed)
+                        logger.warning(f'BLOQUEO DURO ({field_name}): {scope_label}')
+                        return HttpResponse(
+                            f'Acceso bloqueado por demasiados intentos fallidos. '
+                            f'Intente nuevamente en {remaining} minutos.',
+                            status=429,
+                            content_type='text/plain; charset=utf-8',
+                        )
 
-            count = recent.count()
-
-            if count >= LOCKOUT_HARD_ATTEMPTS:
-                last = recent.first()
-                elapsed = (timezone.now() - last.timestamp).total_seconds() / 60
-                if elapsed < LOCKOUT_HARD_MINUTES:
-                    remaining = int(LOCKOUT_HARD_MINUTES - elapsed)
-                    logger.warning(f'BLOQUEO DURO: {username} desde {ip}')
-                    return HttpResponse(
-                        f'Acceso bloqueado por demasiados intentos fallidos. '
-                        f'Intente nuevamente en {remaining} minutos.',
-                        status=429,
-                        content_type='text/plain; charset=utf-8',
-                    )
-
-            elif count >= LOCKOUT_SOFT_ATTEMPTS:
-                last = recent.first()
-                elapsed = (timezone.now() - last.timestamp).total_seconds() / 60
-                if elapsed < LOCKOUT_SOFT_MINUTES:
-                    remaining = int(LOCKOUT_SOFT_MINUTES - elapsed)
-                    logger.warning(f'BLOQUEO SUAVE: {username} desde {ip}')
-                    return HttpResponse(
-                        f'Demasiados intentos fallidos. '
-                        f'Intente nuevamente en {remaining} minutos.',
-                        status=429,
-                        content_type='text/plain; charset=utf-8',
-                    )
+                elif count >= LOCKOUT_SOFT_ATTEMPTS:
+                    last = recent.first()
+                    elapsed = (timezone.now() - last.timestamp).total_seconds() / 60
+                    if elapsed < LOCKOUT_SOFT_MINUTES:
+                        remaining = int(LOCKOUT_SOFT_MINUTES - elapsed)
+                        logger.warning(f'BLOQUEO SUAVE ({field_name}): {scope_label}')
+                        return HttpResponse(
+                            f'Demasiados intentos fallidos. '
+                            f'Intente nuevamente en {remaining} minutos.',
+                            status=429,
+                            content_type='text/plain; charset=utf-8',
+                        )
         except Exception as e:
             logger.error(f'Error verificando bloqueo: {e}')
         return None

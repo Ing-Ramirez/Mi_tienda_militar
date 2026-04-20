@@ -14,6 +14,7 @@ Flujo de configuración para un nuevo admin:
 Para deshabilitar OTP en desarrollo: DISABLE_ADMIN_OTP=True en .env
 """
 from django.conf import settings
+from django.core.cache import cache
 
 if getattr(settings, 'DISABLE_ADMIN_OTP', False):
     from django.contrib.admin import AdminSite as _BaseAdminSite
@@ -44,6 +45,11 @@ class FranjaAdminSite(_BaseAdminSite):
         ctx = super().each_context(request)
         if not request.user.is_authenticated:
             return ctx
+        cache_key = 'admin_kpis_v1'
+        kpis = cache.get(cache_key)
+        if kpis is not None:
+            ctx.update(kpis)
+            return ctx
         try:
             from django.utils import timezone
             from django.db.models import Sum, F
@@ -59,7 +65,7 @@ class FranjaAdminSite(_BaseAdminSite):
                 .aggregate(t=Sum('total'))['t'] or 0
             )
 
-            ctx.update({
+            kpis = {
                 'kpi_ordenes_hoy':       Order.objects.filter(
                                              created_at__date=today).count(),
                 'kpi_ordenes_mes':       Order.objects.filter(
@@ -72,7 +78,9 @@ class FranjaAdminSite(_BaseAdminSite):
                                          ).count(),
                 'kpi_sin_stock':         Product.objects.filter(
                                              status='active', stock=0).count(),
-            })
+            }
+            cache.set(cache_key, kpis, timeout=120)
+            ctx.update(kpis)
         except Exception:
             pass  # nunca romper el admin por una métrica fallida
         return ctx

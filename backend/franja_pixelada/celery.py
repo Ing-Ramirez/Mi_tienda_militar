@@ -29,3 +29,8 @@ def setup_tareas_periodicas(sender, **kwargs):
         sender.signature('proveedores.sincronizacion_periodica'),
         name='Sincronización periódica de catálogos de proveedores',
     )
+    sender.add_periodic_task(
+        crontab(hour='3', minute='0'),
+        sender.signature('core.cleanup_old_login_attempts'),
+        name='Limpieza diaria de intentos de login antiguos',
+    )
