@@ -215,10 +215,20 @@ class OrderAdmin(admin.ModelAdmin):
 
 # ── Cupones ───────────────────────────────────────────────────────────────────
 
+def _activar_cupones(modeladmin, request, queryset):
+    queryset.update(is_active=True)
+_activar_cupones.short_description = 'Activar cupones seleccionados'
+
+def _desactivar_cupones(modeladmin, request, queryset):
+    queryset.update(is_active=False)
+_desactivar_cupones.short_description = 'Desactivar cupones seleccionados'
+
+
 @admin.register(Coupon, site=admin_site)
 class CouponAdmin(admin.ModelAdmin):
-    list_display = ('code', 'discount_type', 'discount_value', 'uses_count',
-                    'max_uses', 'valid_from', 'valid_until', 'is_active')
+    list_display = ('code', 'discount_type', 'discount_value', 'max_uses',
+                    'uses_count', 'valid_from', 'valid_until', 'is_active')
     list_filter = ('discount_type', 'is_active')
     search_fields = ('code',)
-    list_editable = ('is_active',)
+    readonly_fields = ('uses_count', 'created_at')
+    actions = [_activar_cupones, _desactivar_cupones]

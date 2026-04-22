@@ -114,10 +114,14 @@ class StripeWebhookView(APIView):
                     payment.save(update_fields=['status', 'updated_at'])
 
                 should_enqueue_points = not order.loyalty_points_processed
-                if order.payment_status != 'paid' or order.status == 'pending':
+                first_confirmation = order.payment_status != 'paid' or order.status == 'pending'
+                if first_confirmation:
                     order.payment_status = 'paid'
                     order.status = 'confirmed'
                     order.save(update_fields=['payment_status', 'status', 'updated_at'])
+                    if order.coupon_code:
+                        from orders.services.coupons import increment_coupon_uses
+                        increment_coupon_uses(order.coupon_code)
 
             if should_enqueue_points:
                 from loyalty.tasks import assign_loyalty_points

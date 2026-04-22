@@ -160,6 +160,9 @@ def _order_restore_stock_on_cancel(sender, instance: Order, created: bool, **kwa
         return  # sin cambio real, no actuar
     try:
         _restaurar_stock_orden(instance)
+        if instance.coupon_code:
+            from orders.services.coupons import decrement_coupon_uses
+            decrement_coupon_uses(instance.coupon_code)
     except Exception:
         logger.exception('Error restaurando stock para orden %s', instance.order_number)
         raise
@@ -186,6 +189,9 @@ def _order_enqueue_dispatch_when_verified(sender, instance: Order, created: bool
                 status='processing',
             )
             _descontar_stock_orden(instance)
+            if instance.coupon_code:
+                from orders.services.coupons import increment_coupon_uses
+                increment_coupon_uses(instance.coupon_code)
     except Exception:
         logger.exception(
             'Error al descontar stock o actualizar estado para orden %s. '

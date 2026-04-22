@@ -51,10 +51,16 @@ from .neki_checkout import (  # noqa: E402
     create_order_neki_from_cart,
     validate_cart_for_checkout,
 )
+from .coupons import (  # noqa: E402
+    increment_coupon_uses,
+    decrement_coupon_uses,
+)
 
 __all__ = [
     'calculate_cart_totals',
     'build_neki_checkout_preview',
     'create_order_neki_from_cart',
     'validate_cart_for_checkout',
+    'increment_coupon_uses',
+    'decrement_coupon_uses',
 ]
