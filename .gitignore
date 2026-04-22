@@ -86,6 +86,7 @@ scripts/.port_guard.secret
 # ── Archivos temporales / outputs de IA ─────────
 mnt/
 files/
+testsprite_tests/
 
 # ── Imágenes de referencia privadas ─────────────
 imagenes/whatsapp_*
