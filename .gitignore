@@ -88,8 +88,8 @@ mnt/
 files/
 testsprite_tests/
 
-# ── Imágenes de referencia privadas ─────────────
-imagenes/whatsapp_*
+# ── Imágenes de referencia privadas (solo local) ─
+imagenes/
 
 # ── Archivos sueltos en raíz (no pertenecen aquí) ─
 /settings.py
