@@ -329,11 +329,10 @@ html.fp-dark .fp-notif-cancel {
 /* ── Grid de tarjetas ───────────────────────────────────────────────────── */
 #fp-variant-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    grid-template-columns: 1fr;
     gap: 1rem;
     padding: 0 .25rem 1rem;
 }
-@media (max-width: 600px) { #fp-variant-grid { grid-template-columns: 1fr; } }
 
 /* ── Tarjeta ─────────────────────────────────────────────────────────────── */
 .fp-variant-card {

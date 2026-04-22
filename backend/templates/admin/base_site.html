@@ -45,22 +45,31 @@ document.addEventListener('DOMContentLoaded',function(){
   var themeTimer    = null;
 
   /* ── Dark / Light mode ────────────────────────────────────── */
+  var SVG_MOON = '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 0 0 9.79 9.79z"/></svg>';
+  var SVG_SUN  = '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><circle cx="12" cy="12" r="5"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></g></svg>';
+
   function getTheme() {
     return document.documentElement.classList.contains('fp-dark') ? 'dark' : 'light';
   }
   function updateThemeBtn(theme) {
     var btn = document.getElementById('fp-theme-btn');
     if (!btn) return;
-    btn.textContent = theme === 'dark' ? '\u2600\uFE0F Claro' : '\uD83C\uDF19 Oscuro';
-    btn.title       = theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro';
+    var isDark = theme === 'dark';
+    btn.setAttribute('aria-label', isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+    btn.title = isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro';
+    btn.setAttribute('data-theme', theme);
+    var knob = btn.querySelector('.fp-toggle-knob');
+    if (knob) knob.innerHTML = isDark ? SVG_MOON : SVG_SUN;
+    var label = btn.querySelector('.fp-toggle-label');
+    if (label) label.textContent = isDark ? 'Oscuro' : 'Claro';
   }
   function applyTheme(theme, animate) {
     if (themeTimer) { clearTimeout(themeTimer); themeTimer = null; }
     var html = document.documentElement;
     if (animate) {
       html.classList.add('fp-transitioning');
-      html.offsetHeight; /* fuerza reflow para activar transitions antes del cambio */
-      themeTimer = setTimeout(function () { html.classList.remove('fp-transitioning'); }, 320);
+      html.offsetHeight;
+      themeTimer = setTimeout(function () { html.classList.remove('fp-transitioning'); }, 350);
     }
     if (theme === 'dark') {
       html.classList.add('fp-dark');
@@ -80,6 +89,13 @@ document.addEventListener('DOMContentLoaded',function(){
     var btn = document.createElement('button');
     btn.id   = 'fp-theme-btn';
     btn.type = 'button';
+    btn.innerHTML =
+      '<span class="fp-toggle-icon fp-toggle-sun">' + SVG_SUN  + '</span>' +
+      '<span class="fp-toggle-track">' +
+        '<span class="fp-toggle-knob"></span>' +
+      '</span>' +
+      '<span class="fp-toggle-icon fp-toggle-moon">' + SVG_MOON + '</span>' +
+      '<span class="fp-toggle-label"></span>';
     btn.addEventListener('click', function () {
       var next = getTheme() === 'dark' ? 'light' : 'dark';
       localStorage.setItem(THEME_KEY, next);

@@ -552,30 +552,92 @@ html[data-bs-theme="dark"] .fp-dash {
   letter-spacing: -0.5px;
 }
 
-#fp-theme-btn {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 5px !important;
-  background: rgba(255,255,255,.08) !important;
-  border: 1px solid rgba(255,255,255,.22) !important;
-  border-radius: 20px !important;
-  color: rgba(255,255,255,.78) !important;
-  cursor: pointer !important;
-  font-size: .77rem !important;
-  font-weight: 500 !important;
-  padding: 3px 12px !important;
-  line-height: 1.55 !important;
-  transition: background .15s, color .15s, border-color .15s !important;
-  white-space: nowrap !important;
-}
-#fp-theme-btn:hover {
-  background: rgba(255,255,255,.15) !important;
-  color: var(--fp-c-on-brand) !important;
-  border-color: rgba(255,255,255,.45) !important;
-}
+/* ── Theme toggle switch ───────────────────────────────────── */
 .fp-theme-nav.nav-item {
   display: flex !important;
   align-items: center !important;
-  padding: 0 6px !important;
+  padding: 0 8px !important;
+}
+#fp-theme-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 4px 2px !important;
+  cursor: pointer !important;
+  outline: none !important;
+  color: rgba(255,255,255,.70) !important;
+  font-size: .72rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .03em !important;
+  white-space: nowrap !important;
+  transition: color .25s !important;
+}
+#fp-theme-btn:hover { color: #fff !important; }
+#fp-theme-btn:focus-visible {
+  outline: 2px solid var(--fp-c-brand, #6d8c3a) !important;
+  border-radius: 4px !important;
+}
+
+/* Track */
+.fp-toggle-track {
+  position: relative !important;
+  display: inline-block !important;
+  width: 42px !important;
+  height: 22px !important;
+  border-radius: 11px !important;
+  background: #2a3d1a !important;
+  border: 1.5px solid rgba(255,255,255,.18) !important;
+  transition: background .3s, border-color .3s !important;
+  flex-shrink: 0 !important;
+}
+/* Track en tema claro */
+#fp-theme-btn[data-theme="light"] .fp-toggle-track {
+  background: #c8a227 !important;
+  border-color: rgba(255,255,255,.35) !important;
+}
+
+/* Knob */
+.fp-toggle-knob {
+  position: absolute !important;
+  top: 2px !important;
+  left: 2px !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #2a3d1a !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.4) !important;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), color .3s !important;
+  transform: translateX(0) !important;
+}
+/* Knob en tema claro → desliza a la derecha */
+#fp-theme-btn[data-theme="light"] .fp-toggle-knob {
+  transform: translateX(20px) !important;
+  color: #c8a227 !important;
+}
+
+/* Íconos laterales (sol/luna) */
+.fp-toggle-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  opacity: .55 !important;
+  transition: opacity .25s, transform .25s !important;
+}
+.fp-toggle-sun  { color: #f0c040 !important; }
+.fp-toggle-moon { color: #aac4ff !important; }
+
+/* Activo: resaltar el ícono del tema actual */
+#fp-theme-btn[data-theme="light"] .fp-toggle-sun  { opacity: 1 !important; transform: rotate(20deg) !important; }
+#fp-theme-btn[data-theme="dark"]  .fp-toggle-moon { opacity: 1 !important; transform: rotate(-15deg) !important; }
+
+/* Label */
+.fp-toggle-label {
+  min-width: 36px !important;
+  text-align: left !important;
 }
 
