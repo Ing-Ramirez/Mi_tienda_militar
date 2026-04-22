@@ -468,6 +468,13 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Bienvenido al panel de control",
     "copyright": "Franja Pixelada",
 
+    # Logos e íconos
+    "site_logo": "images/logo.webp",           # sidebar (fondo transparente, sidebar oscuro)
+    "login_logo": "images/logo-bg.webp",       # pantalla de login (con fondo oscuro)
+    "login_logo_dark": "images/logo-bg.webp",  # login en tema oscuro
+    "site_icon": "images/favicon-32.png",      # favicon pestaña del admin
+    "site_logo_classes": "img-circle" ,        # clase CSS opcional Jazzmin
+
     # Búsqueda global en el admin
     "search_model": ["users.User", "products.Product", "orders.Order"],
 
