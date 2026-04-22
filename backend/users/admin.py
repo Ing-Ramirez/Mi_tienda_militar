@@ -1,6 +1,8 @@
+import json
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib import messages
+from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.translation import ngettext
 from core.middleware import _get_client_ip
 from core.models import AdminAuditLog
@@ -111,10 +113,17 @@ class UserAdmin(BaseUserAdmin):
         return super().changelist_view(request, extra_context=extra_context)
 
     def _build_changes_map(self, form):
-        return {
-            field: [form.initial.get(field), form.cleaned_data.get(field)]
-            for field in form.changed_data
-        }
+        changes = {}
+        for field in form.changed_data:
+            old_val = form.initial.get(field)
+            new_val = form.cleaned_data.get(field)
+            if hasattr(new_val, 'values_list'):
+                new_val = list(new_val.values_list('pk', flat=True))
+            if hasattr(old_val, 'values_list'):
+                old_val = list(old_val.values_list('pk', flat=True))
+            changes[field] = [old_val, new_val]
+        # Normalise to plain JSON-safe types (handles date, UUID, Decimal, etc.)
+        return json.loads(json.dumps(changes, cls=DjangoJSONEncoder, default=str))
 
     def _log_admin_action(self, request, obj, action, changes=None):
         AdminAuditLog.objects.create(

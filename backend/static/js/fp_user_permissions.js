@@ -33,9 +33,9 @@
     var fromId = fromSel.id;
     var toId   = toSel.id;
     if (window.SelectBox && SelectBox.cache && SelectBox.cache[fromId]) {
-      var cache = SelectBox.cache[fromId];
-      for (var i = 0; i < cache.length; i++) {
-        if (String(cache[i].value) === String(value)) { cache[i].selected = true; break; }
+      // SelectBox.move() lee option.selected del DOM, no del caché — seleccionar aquí
+      for (var i = 0; i < fromSel.options.length; i++) {
+        if (String(fromSel.options[i].value) === String(value)) { fromSel.options[i].selected = true; break; }
       }
       SelectBox.move(fromId, toId);
     } else {
@@ -47,9 +47,9 @@
     var fromId = fromSel.id;
     var toId   = toSel.id;
     if (window.SelectBox && SelectBox.cache && SelectBox.cache[toId]) {
-      var cache = SelectBox.cache[toId];
-      for (var i = 0; i < cache.length; i++) {
-        if (String(cache[i].value) === String(value)) { cache[i].selected = true; break; }
+      // SelectBox.move() lee option.selected del DOM, no del caché — seleccionar aquí
+      for (var i = 0; i < toSel.options.length; i++) {
+        if (String(toSel.options[i].value) === String(value)) { toSel.options[i].selected = true; break; }
       }
       SelectBox.move(toId, fromId);
     } else {
